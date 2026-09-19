@@ -11,7 +11,7 @@
       "web"
     ],
     "status": "ready",
-    "version": "v2026.02.00",
+    "version": "v1.1.0",
     "bundleSize": "43.5 MB",
     "optInUrl": "https://play.google.com/apps/internaltest/4973664254685278609",
     "playStoreUrl": "https://play.google.com/store/apps/details?id=com.infortts.waptia",
@@ -21,13 +21,27 @@
     "caseStudy": "Serves over 28 production applications with instant download speeds and cryptographic integrity.",
     "updates": [
       {
+        "version": "v1.1.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v1.1.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
+      {
+        "version": "v2.1.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v2.1.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
+      {
         "version": "v2026.02.00",
         "date": "2026-09-16",
         "notes": "Launched standalone Waptia portal with rich app details."
       }
     ],
     "screenshots": [
-      "/screenshots/waptia_1.png"
+      "/screenshots/waptia_1.png",
+      "/screenshots/waptia_2.png",
+      "/screenshots/waptia_3.png",
+      "/screenshots/waptia_4.png",
+      "/screenshots/waptia_5.png"
     ]
   },
   {
@@ -43,7 +57,7 @@
       "linux"
     ],
     "status": "live",
-    "version": "v2026.02.00",
+    "version": "v1.2.0",
     "bundleSize": "50.1 MB",
     "optInUrl": "https://play.google.com/apps/internaltest/4701570838917970273",
     "playStoreUrl": "https://play.google.com/store/apps/details?id=com.infortts.cardiodictyon",
@@ -53,6 +67,16 @@
     "caseStudy": "Monitors 140+ edge devices in industrial IoT deployments with 99.999% uptime and zero dropped telemetry frames over cellular uplinks.",
     "updates": [
       {
+        "version": "v1.2.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v1.2.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
+      {
+        "version": "v1.1.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v1.1.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
+      {
         "version": "v2026.02.00",
         "date": "2026-09-16",
         "notes": "Integrated Glycocalyx IAM gateway and dynamic account switching."
@@ -60,7 +84,10 @@
     ],
     "screenshots": [
       "/screenshots/cardiodictyon_1.png",
-      "/screenshots/cardiodictyon_2.png"
+      "/screenshots/cardiodictyon_2.png",
+      "/screenshots/cardiodictyon_3.png",
+      "/screenshots/cardiodictyon_4.png",
+      "/screenshots/cardiodictyon_5.png"
     ]
   },
   {
@@ -79,7 +106,7 @@
       "windows"
     ],
     "status": "live",
-    "version": "v2026.02.00",
+    "version": "v1.2.0",
     "bundleSize": "49.1 MB",
     "optInUrl": "https://play.google.com/apps/internaltest/4701318995429644311",
     "playStoreUrl": "https://play.google.com/store/apps/details?id=com.infortts.cyclomedusa",
@@ -89,13 +116,27 @@
     "caseStudy": "Deployed in smart factory assembly lines for gesture-driven blueprint navigation with 120 FPS latency-free rendering.",
     "updates": [
       {
+        "version": "v1.2.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v1.2.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
+      {
+        "version": "v1.1.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v1.1.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
+      {
         "version": "v2026.02.00",
         "date": "2026-09-16",
         "notes": "Added Vulkan pipeline optimizations and Glycocalyx token caching."
       }
     ],
     "screenshots": [
-      "/screenshots/cyclomedusa_1.png"
+      "/screenshots/cyclomedusa_1.png",
+      "/screenshots/cyclomedusa_2.png",
+      "/screenshots/cyclomedusa_3.png",
+      "/screenshots/cyclomedusa_4.png",
+      "/screenshots/cyclomedusa_5.png"
     ]
   },
   {
@@ -114,7 +155,7 @@
       "windows"
     ],
     "status": "live",
-    "version": "v2026.02.00",
+    "version": "v1.2.0",
     "bundleSize": "51.7 MB",
     "optInUrl": "https://play.google.com/apps/internaltest/4701074981878644468",
     "playStoreUrl": "https://play.google.com/store/apps/details?id=com.infortts.dickinsonia",
@@ -124,13 +165,27 @@
     "caseStudy": "Synchronizes 4TB of research archives across 8 geographic availability zones with sub-second conflict resolution.",
     "updates": [
       {
+        "version": "v1.2.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v1.2.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
+      {
+        "version": "v1.1.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v1.1.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
+      {
         "version": "v2026.02.00",
         "date": "2026-09-16",
         "notes": "Enabled high-speed chunk streaming and multi-account identity support."
       }
     ],
     "screenshots": [
-      "/screenshots/dickinsonia_1.png"
+      "/screenshots/dickinsonia_1.png",
+      "/screenshots/dickinsonia_2.png",
+      "/screenshots/dickinsonia_3.png",
+      "/screenshots/dickinsonia_4.png",
+      "/screenshots/dickinsonia_5.png"
     ]
   },
   {
@@ -146,7 +201,7 @@
       "linux"
     ],
     "status": "live",
-    "version": "v2026.02.00",
+    "version": "v1.2.0",
     "bundleSize": "49.4 MB",
     "optInUrl": "https://play.google.com/apps/internaltest/4701202267214643622",
     "playStoreUrl": "https://play.google.com/store/apps/details?id=com.infortts.ernietta",
@@ -156,13 +211,27 @@
     "caseStudy": "Powers mission-critical covert communications across remote field telemetry teams.",
     "updates": [
       {
+        "version": "v1.2.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v1.2.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
+      {
+        "version": "v1.1.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v1.1.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
+      {
         "version": "v2026.02.00",
         "date": "2026-09-16",
         "notes": "Unified authentication tokens and improved background daemon reliability."
       }
     ],
     "screenshots": [
-      "/screenshots/ernietta_1.png"
+      "/screenshots/ernietta_1.png",
+      "/screenshots/ernietta_2.png",
+      "/screenshots/ernietta_3.png",
+      "/screenshots/ernietta_4.png",
+      "/screenshots/ernietta_5.png"
     ]
   },
   {
@@ -181,7 +250,7 @@
       "windows"
     ],
     "status": "live",
-    "version": "v2026.02.00",
+    "version": "v1.2.0",
     "bundleSize": "51.5 MB",
     "optInUrl": "https://play.google.com/apps/internaltest/4701532130739943923",
     "playStoreUrl": "https://play.google.com/store/apps/details?id=com.infortts.fractofusus",
@@ -191,13 +260,27 @@
     "caseStudy": "Accelerated backtesting compute pipeline from 4 hours down to 18 seconds across 50 nodes.",
     "updates": [
       {
+        "version": "v1.2.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v1.2.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
+      {
+        "version": "v1.1.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v1.1.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
+      {
         "version": "v2026.02.00",
         "date": "2026-09-16",
         "notes": "Multi-tenant worker pooling and automatic failover."
       }
     ],
     "screenshots": [
-      "/screenshots/fractofusus_1.png"
+      "/screenshots/fractofusus_1.png",
+      "/screenshots/fractofusus_2.png",
+      "/screenshots/fractofusus_3.png",
+      "/screenshots/fractofusus_4.png",
+      "/screenshots/fractofusus_5.png"
     ]
   },
   {
@@ -213,7 +296,7 @@
       "linux"
     ],
     "status": "live",
-    "version": "v2026.02.00",
+    "version": "v1.2.0",
     "bundleSize": "49.9 MB",
     "optInUrl": "https://play.google.com/apps/internaltest/4701698683636108581",
     "playStoreUrl": "https://play.google.com/store/apps/details?id=com.infortts.ikaria",
@@ -223,13 +306,27 @@
     "caseStudy": "Used for simulated drug candidate folding tests and phenotypic variance modeling.",
     "updates": [
       {
+        "version": "v1.2.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v1.2.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
+      {
+        "version": "v1.1.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v1.1.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
+      {
         "version": "v2026.02.00",
         "date": "2026-09-16",
         "notes": "New visual simulation rendering pipeline and cloud state export."
       }
     ],
     "screenshots": [
-      "/screenshots/ikaria_1.png"
+      "/screenshots/ikaria_1.png",
+      "/screenshots/ikaria_2.png",
+      "/screenshots/ikaria_3.png",
+      "/screenshots/ikaria_4.png",
+      "/screenshots/ikaria_5.png"
     ]
   },
   {
@@ -246,7 +343,7 @@
       "macos"
     ],
     "status": "live",
-    "version": "v2026.02.00",
+    "version": "v1.2.0",
     "bundleSize": "50.3 MB",
     "optInUrl": "https://play.google.com/apps/internaltest/4701299605514848597",
     "playStoreUrl": "https://play.google.com/store/apps/details?id=com.infortts.meeseeks",
@@ -256,13 +353,27 @@
     "caseStudy": "Automates 85% of routine DevOps, server migrations, and CI/CD maintenance across Infortts infrastructure.",
     "updates": [
       {
+        "version": "v1.2.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v1.2.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
+      {
+        "version": "v1.1.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v1.1.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
+      {
         "version": "v2026.02.00",
         "date": "2026-09-16",
         "notes": "Unified Glycocalyx multi-account switching and Swarm Console dashboard."
       }
     ],
     "screenshots": [
-      "/screenshots/meeseeks_1.png"
+      "/screenshots/meeseeks_1.png",
+      "/screenshots/meeseeks_2.png",
+      "/screenshots/meeseeks_3.png",
+      "/screenshots/meeseeks_4.png",
+      "/screenshots/meeseeks_5.png"
     ]
   },
   {
@@ -279,7 +390,7 @@
       "linux"
     ],
     "status": "live",
-    "version": "v2026.02.00",
+    "version": "v1.2.0",
     "bundleSize": "51.2 MB",
     "optInUrl": "https://play.google.com/apps/internaltest/4701690297526834866",
     "playStoreUrl": "https://play.google.com/store/apps/details?id=com.infortts.mitochondria",
@@ -289,13 +400,27 @@
     "caseStudy": "Manages 50+ enterprise containers, automated failover routing, and 24/7 cluster health monitoring.",
     "updates": [
       {
+        "version": "v1.2.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v1.2.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
+      {
+        "version": "v1.1.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v1.1.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
+      {
         "version": "v2026.02.00",
         "date": "2026-09-16",
         "notes": "Google SSO and multi-account chooser integration without mandatory passkeys."
       }
     ],
     "screenshots": [
-      "/screenshots/mitochondria_1.png"
+      "/screenshots/mitochondria_1.png",
+      "/screenshots/mitochondria_2.png",
+      "/screenshots/mitochondria_3.png",
+      "/screenshots/mitochondria_4.png",
+      "/screenshots/mitochondria_5.png"
     ]
   },
   {
@@ -312,7 +437,7 @@
       "web"
     ],
     "status": "live",
-    "version": "v2026.02.00",
+    "version": "v1.2.0",
     "bundleSize": "50.6 MB",
     "optInUrl": "https://play.google.com/apps/internaltest/4701285546372048102",
     "playStoreUrl": "https://play.google.com/store/apps/details?id=com.infortts.opabinia",
@@ -322,13 +447,27 @@
     "caseStudy": "Monitors perimeter security for physical labs with sub-100ms intrusion alerts and zero false alarms.",
     "updates": [
       {
+        "version": "v1.2.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v1.2.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
+      {
+        "version": "v1.1.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v1.1.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
+      {
         "version": "v2026.02.00",
         "date": "2026-09-16",
         "notes": "Enhanced multi-stream hardware decoder support and dark theme refresh."
       }
     ],
     "screenshots": [
-      "/screenshots/opabinia_1.png"
+      "/screenshots/opabinia_1.png",
+      "/screenshots/opabinia_2.png",
+      "/screenshots/opabinia_3.png",
+      "/screenshots/opabinia_4.png",
+      "/screenshots/opabinia_5.png"
     ]
   },
   {
@@ -347,7 +486,7 @@
       "windows"
     ],
     "status": "live",
-    "version": "v2026.02.00",
+    "version": "v1.2.0",
     "bundleSize": "51.5 MB",
     "optInUrl": "https://play.google.com/apps/internaltest/4701235294408545779",
     "playStoreUrl": "https://play.google.com/store/apps/details?id=com.infortts.orthrozanclus",
@@ -357,13 +496,27 @@
     "caseStudy": "Defended against 1.2M daily automated bot attacks with 0 breach incidents across cloud endpoints.",
     "updates": [
       {
+        "version": "v1.2.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v1.2.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
+      {
+        "version": "v1.1.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v1.1.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
+      {
         "version": "v2026.02.00",
         "date": "2026-09-16",
         "notes": "Zero-trust session rotation and unified IAM token validation."
       }
     ],
     "screenshots": [
-      "/screenshots/orthrozanclus_1.png"
+      "/screenshots/orthrozanclus_1.png",
+      "/screenshots/orthrozanclus_2.png",
+      "/screenshots/orthrozanclus_3.png",
+      "/screenshots/orthrozanclus_4.png",
+      "/screenshots/orthrozanclus_5.png"
     ]
   },
   {
@@ -379,7 +532,7 @@
       "web"
     ],
     "status": "live",
-    "version": "v2026.02.00",
+    "version": "v1.1.0",
     "bundleSize": "52.0 MB",
     "optInUrl": "https://play.google.com/apps/internaltest/4701589301153857373",
     "playStoreUrl": "https://play.google.com/store/apps/details?id=com.infortts.tridrishti",
@@ -389,13 +542,27 @@
     "caseStudy": "Enables 3D scanning and dimensional inspection on commodity mobile devices.",
     "updates": [
       {
+        "version": "v1.1.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v1.1.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
+      {
+        "version": "v1.1.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v1.1.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
+      {
         "version": "v2026.02.00",
         "date": "2026-09-16",
         "notes": "Improved point cloud export formats (PLY/OBJ)."
       }
     ],
     "screenshots": [
-      "/screenshots/tridrishti_1.png"
+      "/screenshots/tridrishti_1.png",
+      "/screenshots/tridrishti_2.png",
+      "/screenshots/tridrishti_3.png",
+      "/screenshots/tridrishti_4.png",
+      "/screenshots/tridrishti_5.png"
     ]
   },
   {
@@ -414,7 +581,7 @@
       "windows"
     ],
     "status": "live",
-    "version": "v2026.02.00",
+    "version": "v1.2.0",
     "bundleSize": "50.6 MB",
     "optInUrl": "https://play.google.com/apps/internaltest/4701334502307777183",
     "playStoreUrl": "https://play.google.com/store/apps/details?id=com.infortts.yorgia",
@@ -424,13 +591,27 @@
     "caseStudy": "Processes 10M cell grid simulations per second on low-power mobile SoCs.",
     "updates": [
       {
+        "version": "v1.2.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v1.2.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
+      {
+        "version": "v1.1.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v1.1.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
+      {
         "version": "v2026.02.00",
         "date": "2026-09-16",
         "notes": "Added OpenCL tile kernel caching and Glycocalyx auth support."
       }
     ],
     "screenshots": [
-      "/screenshots/yorgia_1.png"
+      "/screenshots/yorgia_1.png",
+      "/screenshots/yorgia_2.png",
+      "/screenshots/yorgia_3.png",
+      "/screenshots/yorgia_4.png",
+      "/screenshots/yorgia_5.png"
     ]
   },
   {
@@ -445,7 +626,7 @@
       "web"
     ],
     "status": "ready",
-    "version": "v2026.02.00",
+    "version": "v1.2.0",
     "bundleSize": "43.5 MB",
     "optInUrl": "https://play.google.com/apps/testing/com.infortts.charnia",
     "playStoreUrl": "https://play.google.com/store/apps/details?id=com.infortts.charnia",
@@ -455,13 +636,27 @@
     "caseStudy": "Manages decentralized governance for 28 Infortts sub-projects.",
     "updates": [
       {
+        "version": "v1.2.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v1.2.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
+      {
+        "version": "v1.1.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v1.1.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
+      {
         "version": "v2026.02.00",
         "date": "2026-09-16",
         "notes": "Production release bundle."
       }
     ],
     "screenshots": [
-      "/screenshots/charnia_1.png"
+      "/screenshots/charnia_1.png",
+      "/screenshots/charnia_2.png",
+      "/screenshots/charnia_3.png",
+      "/screenshots/charnia_4.png",
+      "/screenshots/charnia_5.png"
     ]
   },
   {
@@ -476,7 +671,7 @@
       "web"
     ],
     "status": "ready",
-    "version": "v2026.02.00",
+    "version": "v1.2.0",
     "bundleSize": "43.5 MB",
     "optInUrl": "https://play.google.com/apps/testing/com.infortts.cloudina",
     "playStoreUrl": "https://play.google.com/store/apps/details?id=com.infortts.cloudina",
@@ -486,13 +681,27 @@
     "caseStudy": "Processes micro-billing and cloud compute resource charges across all services.",
     "updates": [
       {
+        "version": "v1.2.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v1.2.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
+      {
+        "version": "v1.1.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v1.1.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
+      {
         "version": "v2026.02.00",
         "date": "2026-09-16",
         "notes": "Production release bundle."
       }
     ],
     "screenshots": [
-      "/screenshots/cloudina_1.png"
+      "/screenshots/cloudina_1.png",
+      "/screenshots/cloudina_2.png",
+      "/screenshots/cloudina_3.png",
+      "/screenshots/cloudina_4.png",
+      "/screenshots/cloudina_5.png"
     ]
   },
   {
@@ -507,7 +716,7 @@
       "web"
     ],
     "status": "ready",
-    "version": "v2026.02.00",
+    "version": "v1.1.0",
     "bundleSize": "43.5 MB",
     "optInUrl": "https://play.google.com/apps/testing/com.infortts.dropship",
     "playStoreUrl": "https://play.google.com/store/apps/details?id=com.infortts.dropship",
@@ -517,13 +726,27 @@
     "caseStudy": "Handles real-time inventory allocation for 50,000+ SKUs.",
     "updates": [
       {
+        "version": "v1.1.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v1.1.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
+      {
+        "version": "v2.1.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v2.1.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
+      {
         "version": "v2026.02.00",
         "date": "2026-09-16",
         "notes": "Production release bundle."
       }
     ],
     "screenshots": [
-      "/screenshots/dropship_1.png"
+      "/screenshots/dropship_1.png",
+      "/screenshots/dropship_2.png",
+      "/screenshots/dropship_3.png",
+      "/screenshots/dropship_4.png",
+      "/screenshots/dropship_5.png"
     ]
   },
   {
@@ -538,7 +761,7 @@
       "web"
     ],
     "status": "ready",
-    "version": "v2026.02.00",
+    "version": "v1.1.0",
     "bundleSize": "43.5 MB",
     "optInUrl": "https://play.google.com/apps/testing/com.infortts.microdictyon",
     "playStoreUrl": "https://play.google.com/store/apps/details?id=com.infortts.microdictyon",
@@ -548,13 +771,27 @@
     "caseStudy": "Meters 50M daily API calls across the Infortts API cluster.",
     "updates": [
       {
+        "version": "v1.1.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v1.1.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
+      {
+        "version": "v2.1.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v2.1.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
+      {
         "version": "v2026.02.00",
         "date": "2026-09-16",
         "notes": "Production release bundle."
       }
     ],
     "screenshots": [
-      "/screenshots/microdictyon_1.png"
+      "/screenshots/microdictyon_1.png",
+      "/screenshots/microdictyon_2.png",
+      "/screenshots/microdictyon_3.png",
+      "/screenshots/microdictyon_4.png",
+      "/screenshots/microdictyon_5.png"
     ]
   },
   {
@@ -569,7 +806,7 @@
       "web"
     ],
     "status": "ready",
-    "version": "v2026.02.00",
+    "version": "v1.1.0",
     "bundleSize": "43.5 MB",
     "optInUrl": "https://play.google.com/apps/testing/com.infortts.spriggina",
     "playStoreUrl": "https://play.google.com/store/apps/details?id=com.infortts.spriggina",
@@ -579,13 +816,27 @@
     "caseStudy": "Powers seamless cross-app single sign-on across mobile and web clients.",
     "updates": [
       {
+        "version": "v1.1.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v1.1.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
+      {
+        "version": "v1.1.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v1.1.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
+      {
         "version": "v2026.02.00",
         "date": "2026-09-16",
         "notes": "Production release bundle."
       }
     ],
     "screenshots": [
-      "/screenshots/spriggina_1.png"
+      "/screenshots/spriggina_1.png",
+      "/screenshots/spriggina_2.png",
+      "/screenshots/spriggina_3.png",
+      "/screenshots/spriggina_4.png",
+      "/screenshots/spriggina_5.png"
     ]
   },
   {
@@ -600,7 +851,7 @@
       "web"
     ],
     "status": "ready",
-    "version": "v2026.02.00",
+    "version": "v1.2.0",
     "bundleSize": "43.5 MB",
     "optInUrl": "https://play.google.com/apps/testing/com.infortts.tribrachidium",
     "playStoreUrl": "https://play.google.com/store/apps/details?id=com.infortts.tribrachidium",
@@ -610,13 +861,27 @@
     "caseStudy": "Maintains 100% design consistency across 28 multi-platform apps.",
     "updates": [
       {
+        "version": "v1.2.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v1.2.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
+      {
+        "version": "v1.1.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v1.1.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
+      {
         "version": "v2026.02.00",
         "date": "2026-09-16",
         "notes": "Production release bundle."
       }
     ],
     "screenshots": [
-      "/screenshots/tribrachidium_1.png"
+      "/screenshots/tribrachidium_1.png",
+      "/screenshots/tribrachidium_2.png",
+      "/screenshots/tribrachidium_3.png",
+      "/screenshots/tribrachidium_4.png",
+      "/screenshots/tribrachidium_5.png"
     ]
   },
   {
@@ -631,7 +896,7 @@
       "web"
     ],
     "status": "ready",
-    "version": "v2026.02.00",
+    "version": "v1.2.0",
     "bundleSize": "43.5 MB",
     "optInUrl": "https://play.google.com/apps/testing/com.infortts.trilobite",
     "playStoreUrl": "https://play.google.com/store/apps/details?id=com.infortts.trilobite",
@@ -641,13 +906,27 @@
     "caseStudy": "Monitors multi-exchange liquidity spreads with sub-millisecond execution alerts.",
     "updates": [
       {
+        "version": "v1.2.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v1.2.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
+      {
+        "version": "v1.1.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v1.1.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
+      {
         "version": "v2026.02.00",
         "date": "2026-09-16",
         "notes": "Production release bundle."
       }
     ],
     "screenshots": [
-      "/screenshots/trilobite_1.png"
+      "/screenshots/trilobite_1.png",
+      "/screenshots/trilobite_2.png",
+      "/screenshots/trilobite_3.png",
+      "/screenshots/trilobite_4.png",
+      "/screenshots/trilobite_5.png"
     ]
   },
   {
@@ -662,7 +941,7 @@
       "web"
     ],
     "status": "ready",
-    "version": "v2026.02.00",
+    "version": "v1.2.0",
     "bundleSize": "43.5 MB",
     "optInUrl": "https://play.google.com/apps/testing/com.infortts.wiwaxia",
     "playStoreUrl": "https://play.google.com/store/apps/details?id=com.infortts.wiwaxia",
@@ -672,13 +951,27 @@
     "caseStudy": "Secures all root authority keys and SSL certificates for Infortts mesh nodes.",
     "updates": [
       {
+        "version": "v1.2.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v1.2.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
+      {
+        "version": "v1.1.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v1.1.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
+      {
         "version": "v2026.02.00",
         "date": "2026-09-16",
         "notes": "Production release bundle."
       }
     ],
     "screenshots": [
-      "/screenshots/wiwaxia_1.png"
+      "/screenshots/wiwaxia_1.png",
+      "/screenshots/wiwaxia_2.png",
+      "/screenshots/wiwaxia_3.png",
+      "/screenshots/wiwaxia_4.png",
+      "/screenshots/wiwaxia_5.png"
     ]
   },
   {
@@ -693,7 +986,7 @@
       "web"
     ],
     "status": "ready",
-    "version": "v2026.02.00",
+    "version": "v1.1.0",
     "bundleSize": "43.5 MB",
     "optInUrl": "https://play.google.com/apps/testing/com.infortts.hallucigenia",
     "playStoreUrl": "https://play.google.com/store/apps/details?id=com.infortts.hallucigenia",
@@ -703,13 +996,27 @@
     "caseStudy": "Generates real-time ambient soundscapes and branding visuals.",
     "updates": [
       {
+        "version": "v1.1.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v1.1.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
+      {
+        "version": "v0.2.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v0.2.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
+      {
         "version": "v2026.02.00",
         "date": "2026-09-16",
         "notes": "Production release bundle."
       }
     ],
     "screenshots": [
-      "/screenshots/hallucigenia_1.png"
+      "/screenshots/hallucigenia_1.png",
+      "/screenshots/hallucigenia_2.png",
+      "/screenshots/hallucigenia_3.png",
+      "/screenshots/hallucigenia_4.png",
+      "/screenshots/hallucigenia_5.png"
     ]
   },
   {
@@ -724,7 +1031,7 @@
       "web"
     ],
     "status": "ready",
-    "version": "v2026.02.00",
+    "version": "v1.2.0",
     "bundleSize": "43.5 MB",
     "optInUrl": "https://play.google.com/apps/testing/com.infortts.lexi",
     "playStoreUrl": "https://play.google.com/store/apps/details?id=com.infortts.lexi",
@@ -734,13 +1041,27 @@
     "caseStudy": "Indexes 100,000 document chunks with sub-5ms retrieval times.",
     "updates": [
       {
+        "version": "v1.2.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v1.2.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
+      {
+        "version": "v1.1.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v1.1.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
+      {
         "version": "v2026.02.00",
         "date": "2026-09-16",
         "notes": "Production release bundle."
       }
     ],
     "screenshots": [
-      "/screenshots/lexi_1.png"
+      "/screenshots/lexi_1.png",
+      "/screenshots/lexi_2.png",
+      "/screenshots/lexi_3.png",
+      "/screenshots/lexi_4.png",
+      "/screenshots/lexi_5.png"
     ]
   },
   {
@@ -755,7 +1076,7 @@
       "web"
     ],
     "status": "ready",
-    "version": "v2026.02.00",
+    "version": "v0.3.0",
     "bundleSize": "43.5 MB",
     "optInUrl": "https://play.google.com/apps/testing/com.infortts.cursus",
     "playStoreUrl": "https://play.google.com/store/apps/details?id=com.infortts.cursus",
@@ -765,13 +1086,27 @@
     "caseStudy": "Coordinates thousands of webhook actions across Infortts cloud nodes.",
     "updates": [
       {
+        "version": "v0.3.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v0.3.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
+      {
+        "version": "v0.2.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v0.2.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
+      {
         "version": "v2026.02.00",
         "date": "2026-09-16",
         "notes": "Production release bundle."
       }
     ],
     "screenshots": [
-      "/screenshots/cursus_1.png"
+      "/screenshots/cursus_1.png",
+      "/screenshots/cursus_2.png",
+      "/screenshots/cursus_3.png",
+      "/screenshots/cursus_4.png",
+      "/screenshots/cursus_5.png"
     ]
   },
   {
@@ -788,7 +1123,7 @@
       "macos"
     ],
     "status": "live",
-    "version": "v2026.02.00",
+    "version": "v2.2.0",
     "bundleSize": "48.5 MB",
     "optInUrl": "https://play.google.com/apps/internaltest/4701690297526834866",
     "playStoreUrl": "https://play.google.com/store/apps/details?id=com.infortts.glycocalyx",
@@ -798,13 +1133,27 @@
     "caseStudy": "Handles authentication for all 28 Infortts subdomains and mobile applications.",
     "updates": [
       {
+        "version": "v2.2.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v2.2.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
+      {
+        "version": "v2.1.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v2.1.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
+      {
         "version": "v2026.02.00",
         "date": "2026-09-16",
         "notes": "Unified Google SSO & multi-account switching."
       }
     ],
     "screenshots": [
-      "/screenshots/glycocalyx_1.png"
+      "/screenshots/glycocalyx_1.png",
+      "/screenshots/glycocalyx_2.png",
+      "/screenshots/glycocalyx_3.png",
+      "/screenshots/glycocalyx_4.png",
+      "/screenshots/glycocalyx_5.png"
     ]
   },
   {
@@ -819,7 +1168,7 @@
       "web"
     ],
     "status": "ready",
-    "version": "v2026.02.00",
+    "version": "v1.2.0",
     "bundleSize": "43.5 MB",
     "optInUrl": "https://play.google.com/apps/testing/com.infortts.parvancorina",
     "playStoreUrl": "https://play.google.com/store/apps/details?id=com.infortts.parvancorina",
@@ -829,13 +1178,27 @@
     "caseStudy": "Continuously measures multi-region network quality across 12 datacenters.",
     "updates": [
       {
+        "version": "v1.2.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v1.2.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
+      {
+        "version": "v1.1.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v1.1.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
+      {
         "version": "v2026.02.00",
         "date": "2026-09-16",
         "notes": "Production release bundle."
       }
     ],
     "screenshots": [
-      "/screenshots/parvancorina_1.png"
+      "/screenshots/parvancorina_1.png",
+      "/screenshots/parvancorina_2.png",
+      "/screenshots/parvancorina_3.png",
+      "/screenshots/parvancorina_4.png",
+      "/screenshots/parvancorina_5.png"
     ]
   },
   {
@@ -850,7 +1213,7 @@
       "web"
     ],
     "status": "ready",
-    "version": "v2026.02.00",
+    "version": "v1.2.0",
     "bundleSize": "43.5 MB",
     "optInUrl": "https://play.google.com/apps/testing/com.infortts.kimberella",
     "playStoreUrl": "https://play.google.com/store/apps/details?id=com.infortts.kimberella",
@@ -860,13 +1223,27 @@
     "caseStudy": "Stores and synchronizes confidential research notes across team devices.",
     "updates": [
       {
+        "version": "v1.2.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v1.2.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
+      {
+        "version": "v1.1.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v1.1.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
+      {
         "version": "v2026.02.00",
         "date": "2026-09-16",
         "notes": "Production release bundle."
       }
     ],
     "screenshots": [
-      "/screenshots/kimberella_1.png"
+      "/screenshots/kimberella_1.png",
+      "/screenshots/kimberella_2.png",
+      "/screenshots/kimberella_3.png",
+      "/screenshots/kimberella_4.png",
+      "/screenshots/kimberella_5.png"
     ]
   },
   {
@@ -882,7 +1259,7 @@
       "ios"
     ],
     "status": "ready",
-    "version": "v2026.02.00",
+    "version": "v1.2.0",
     "bundleSize": "45.2 MB",
     "optInUrl": "https://play.google.com/apps/testing/com.infortts.care4u",
     "playStoreUrl": "https://play.google.com/store/apps/details?id=com.infortts.care4u",
@@ -892,13 +1269,27 @@
     "caseStudy": "Used by clinical pilot studies to monitor post-op patient vital signs remotely.",
     "updates": [
       {
+        "version": "v1.2.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v1.2.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
+      {
+        "version": "v1.1.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v1.1.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
+      {
         "version": "v2026.02.00",
         "date": "2026-09-16",
         "notes": "Production release bundle with Glycocalyx health portal SSO."
       }
     ],
     "screenshots": [
-      "/screenshots/care4u_1.png"
+      "/screenshots/care4u_1.png",
+      "/screenshots/care4u_2.png",
+      "/screenshots/care4u_3.png",
+      "/screenshots/care4u_4.png",
+      "/screenshots/care4u_5.png"
     ]
   }
 ]
