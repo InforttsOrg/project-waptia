@@ -1,0 +1,1760 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Waptia — Infortts App Store & Research Portal</title>
+<meta name="description" content="Official Waptia App Store for Infortts. Direct APK downloads, rich long descriptions, screenshots, updates, research papers, and case studies for 28 ecosystem applications.">
+<link rel="icon" href="/icons/waptia.png?v=20260916_02" type="image/png">
+<style>
+:root {
+  --bg: #06090e;
+  --bg-card: #0b1017;
+  --bg-card-hover: #101824;
+  --bg-modal: #0d131c;
+  --border: rgba(255, 255, 255, 0.08);
+  --border-cyan: rgba(33, 230, 208, 0.3);
+  --text-primary: #f0f6fc;
+  --text-secondary: #8b9baa;
+  --text-muted: #536474;
+  --cyan: #21e6d0;
+  --cyan-glow: rgba(33, 230, 208, 0.15);
+  --blue: #3b82f6;
+  --green: #10b981;
+  --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "JetBrains Mono", sans-serif;
+  --radius: 14px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--text-secondary);
+  font-family: var(--font);
+  min-height: 100vh;
+  padding-bottom: 80px;
+  -webkit-font-smoothing: antialiased;
+}
+header {
+  background: rgba(6, 9, 14, 0.85);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  padding: 16px 24px;
+}
+.header-container {
+  max-width: 1280px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.logo-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+}
+.logo-img {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+}
+.logo-text {
+  font-weight: 800;
+  font-size: 20px;
+  color: var(--text-primary);
+  letter-spacing: -0.5px;
+}
+.logo-badge {
+  font-size: 10px;
+  text-transform: uppercase;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: var(--cyan-glow);
+  color: var(--cyan);
+  border: 1px solid var(--border-cyan);
+  letter-spacing: 0.5px;
+}
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+.nav-link {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+.nav-link:hover {
+  color: var(--cyan);
+}
+main {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 32px 20px;
+}
+.hero {
+  margin-bottom: 32px;
+  text-align: center;
+}
+.hero-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-family: monospace;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--cyan);
+  background: var(--cyan-glow);
+  padding: 5px 12px;
+  border-radius: 20px;
+  border: 1px solid var(--border-cyan);
+  margin-bottom: 12px;
+}
+.hero-title {
+  font-size: 36px;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: 10px;
+  letter-spacing: -0.8px;
+}
+.hero-subtitle {
+  font-size: 15px;
+  color: var(--text-secondary);
+  max-width: 680px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+.search-filter-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+.search-box {
+  position: relative;
+  width: 100%;
+}
+.search-input {
+  width: 100%;
+  padding: 14px 18px 14px 44px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text-primary);
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.search-input:focus {
+  border-color: var(--cyan);
+  box-shadow: 0 0 0 3px rgba(33, 230, 208, 0.12);
+}
+.search-icon {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+}
+.filters-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.filter-btn {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  padding: 7px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.filter-btn:hover {
+  border-color: var(--text-muted);
+  color: var(--text-primary);
+}
+.filter-btn.active {
+  background: var(--cyan-glow);
+  border-color: var(--cyan);
+  color: var(--cyan);
+}
+.stats-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  font-size: 13px;
+  color: var(--text-muted);
+  font-family: monospace;
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 20px;
+}
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+}
+.card:hover {
+  transform: translateY(-2px);
+  border-color: var(--border-cyan);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+.card-top {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: 12px;
+}
+.card-icon-box {
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
+  background: rgba(33, 230, 208, 0.05);
+  border: 1px solid rgba(33, 230, 208, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  padding: 4px;
+}
+.card-icon-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.card-info {
+  flex: 1;
+  min-width: 0;
+}
+.card-title {
+  color: var(--text-primary);
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 3px;
+}
+.card-category {
+  font-size: 10px;
+  font-family: monospace;
+  text-transform: uppercase;
+  color: var(--cyan);
+  letter-spacing: 0.8px;
+}
+.card-desc {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text-secondary);
+  margin-bottom: 16px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+.pill {
+  font-size: 10px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  text-transform: uppercase;
+}
+.pill.live {
+  background: rgba(16, 185, 129, 0.1);
+  color: var(--green);
+  border-color: rgba(16, 185, 129, 0.2);
+}
+.pill.ready {
+  background: var(--cyan-glow);
+  color: var(--cyan);
+  border-color: var(--border-cyan);
+}
+.card-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-top: 1px solid var(--border);
+  padding-top: 14px;
+}
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 1px solid transparent;
+}
+.btn-primary {
+  background: var(--cyan);
+  color: #06090e;
+  flex: 1;
+}
+.btn-primary:hover {
+  background: #2feeda;
+  box-shadow: 0 0 16px rgba(33, 230, 208, 0.3);
+}
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: var(--border);
+  color: var(--text-primary);
+}
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: var(--text-muted);
+}
+/* Modal Styles */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(12px);
+  z-index: 100;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.modal-overlay.active {
+  display: flex;
+}
+.modal-content {
+  background: var(--bg-modal);
+  border: 1px solid var(--border-cyan);
+  border-radius: 18px;
+  max-width: 760px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.8);
+  display: flex;
+  flex-direction: column;
+}
+.modal-header {
+  padding: 24px 24px 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+.modal-app-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.modal-icon-box {
+  width: 64px;
+  height: 64px;
+  border-radius: 14px;
+  background: var(--cyan-glow);
+  border: 1px solid var(--border-cyan);
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.modal-icon-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.modal-close {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 24px;
+  cursor: pointer;
+  padding: 4px;
+  line-height: 1;
+  transition: color 0.2s;
+}
+.modal-close:hover {
+  color: var(--text-primary);
+}
+.modal-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px;
+  gap: 20px;
+  background: rgba(0, 0, 0, 0.2);
+  overflow-x: auto;
+}
+.modal-tab {
+  padding: 12px 4px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+.modal-tab:hover {
+  color: var(--text-primary);
+}
+.modal-tab.active {
+  color: var(--cyan);
+  border-color: var(--cyan);
+}
+.modal-body {
+  padding: 24px;
+  flex: 1;
+}
+.tab-pane {
+  display: none;
+}
+.tab-pane.active {
+  display: block;
+}
+.tab-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 10px;
+}
+.tab-text {
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--text-secondary);
+  margin-bottom: 16px;
+}
+.key-val-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.key-val-card {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px;
+}
+.key-val-label {
+  font-size: 11px;
+  font-family: monospace;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+.key-val-val {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  word-break: break-all;
+}
+.modal-footer {
+  padding: 18px 24px;
+  border-top: 1px solid var(--border);
+  background: rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.featured-waptia-card {
+  margin: 28px auto 0;
+  max-width: 860px;
+  background: linear-gradient(135deg, rgba(33, 230, 208, 0.12) 0%, rgba(13, 19, 28, 0.98) 100%);
+  border: 1px solid var(--border-cyan);
+  border-radius: var(--radius);
+  padding: 24px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6), 0 0 24px rgba(33, 230, 208, 0.12);
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  text-align: left;
+}
+@media (min-width: 640px) {
+  .featured-waptia-card {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+.featured-waptia-left {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  flex: 1;
+}
+.featured-waptia-icon {
+  width: 72px;
+  height: 72px;
+  border-radius: 18px;
+  background: var(--cyan-glow);
+  border: 1px solid var(--border-cyan);
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 4px 20px rgba(33, 230, 208, 0.25);
+}
+.featured-waptia-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  font-family: monospace;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: var(--cyan);
+  background: var(--cyan-glow);
+  border: 1px solid var(--border-cyan);
+  padding: 3px 10px;
+  border-radius: 12px;
+  margin-bottom: 6px;
+}
+.featured-waptia-title {
+  font-size: 22px;
+  font-weight: 800;
+  color: #ffffff;
+  margin-bottom: 4px;
+  letter-spacing: -0.4px;
+}
+.featured-waptia-desc {
+  font-size: 13.5px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+.featured-waptia-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  shrink: 0;
+}
+.header-download-btn {
+  background: var(--cyan);
+  color: #06090e !important;
+  font-weight: 700;
+  font-size: 12px;
+  padding: 7px 14px;
+  border-radius: 8px;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: opacity 0.2s, transform 0.2s;
+}
+.header-download-btn:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-container">
+    <a href="/" class="logo-group">
+      <img src="/icons/waptia.png?v=20260916_02" alt="Waptia Logo" class="logo-img">
+      <span class="logo-text">WAPTIA</span>
+      <span class="logo-badge">App Store</span>
+    </a>
+    <nav class="nav-links">
+      <a href="https://infortts.site" class="nav-link">Organization</a>
+      <a href="https://auth.infortts.site" class="nav-link">Glycocalyx Auth</a>
+      <a href="https://meeseeks.infortts.site" class="nav-link">Meeseeks Swarm</a>
+      <a href="https://update.infortts.site/download/waptia.apk" class="header-download-btn" download>📥 Download Waptia APK</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="hero">
+    <div class="hero-tag">Infortts Swarm Registry</div>
+    <h1 class="hero-title">Waptia App Store & Research Portal</h1>
+    <p class="hero-subtitle">
+      Explore 28 production applications, C++ cores, direct APK binaries, over-the-air patch feeds, deep research architectures, and enterprise case studies.
+    </p>
+
+    <!-- Prominent Official Waptia App Download Banner -->
+    <div class="featured-waptia-card">
+      <div class="featured-waptia-left">
+        <div class="featured-waptia-icon">
+          <img src="/icons/waptia.png?v=20260916_02" alt="Waptia App Store" class="card-icon-img">
+        </div>
+        <div>
+          <div class="featured-waptia-badge">★ OFFICIAL ANDROID APP STORE</div>
+          <div class="featured-waptia-title">Waptia Store Native Client</div>
+          <div class="featured-waptia-desc">
+            Autonomous package manager for Android. Direct 1-tap APK installs, high-speed OTA patch streams, and verified cryptographic signatures.
+          </div>
+          <div style="margin-top: 6px; font-size: 11px; font-family: monospace; color: var(--text-muted);">
+            v2026.02.00 · 43.5 MB · ARM64 / x86_64 · Android 8.0+
+          </div>
+        </div>
+      </div>
+      <div class="featured-waptia-actions">
+        <a href="https://update.infortts.site/download/waptia.apk" class="btn btn-primary" download style="padding: 12px 22px; font-size: 14px; font-weight: 700; box-shadow: 0 4px 20px rgba(33, 230, 208, 0.3);">📥 Download Waptia APK</a>
+        <button class="btn btn-secondary" onclick="openModal('waptia')" style="padding: 12px 16px;">Details & Research</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="search-filter-bar">
+    <div class="search-box">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="searchInput" class="search-input" placeholder="Search apps, package IDs, categories, research topics...">
+    </div>
+    <div class="filters-row" id="categoryFilters">
+      <button class="filter-btn active" data-cat="all">All Categories</button>
+      <button class="filter-btn" data-cat="Core Infrastructure">Core Infrastructure</button>
+      <button class="filter-btn" data-cat="Visual Intelligence">Visual Intelligence</button>
+      <button class="filter-btn" data-cat="Memory & Storage">Memory & Storage</button>
+      <button class="filter-btn" data-cat="AI Assistant">AI Assistant</button>
+      <button class="filter-btn" data-cat="Identity & Auth">Identity & Auth</button>
+      <button class="filter-btn" data-cat="eCommerce Platform">eCommerce</button>
+    </div>
+  </div>
+
+  <div class="stats-bar">
+    <span id="resultsCount">Showing 28 Applications</span>
+    <span>Channel: Production / OTA Live</span>
+  </div>
+
+  <div class="grid" id="appsGrid"></div>
+</main>
+
+<div class="modal-overlay" id="appModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <div class="modal-app-header">
+        <div class="modal-icon-box">
+          <img id="modalIcon" src="" alt="" class="modal-icon-img">
+        </div>
+        <div>
+          <div id="modalCategory" class="card-category">CATEGORY</div>
+          <h2 id="modalTitle" class="card-title" style="font-size: 20px;">App Name</h2>
+          <div id="modalPackage" style="font-size: 11px; font-family: monospace; color: var(--text-muted);">com.infortts.app</div>
+        </div>
+      </div>
+      <button class="modal-close" id="modalCloseBtn">&times;</button>
+    </div>
+    
+    <div class="modal-tabs">
+      <div class="modal-tab active" data-tab="overview">Overview</div>
+      <div class="modal-tab" data-tab="research">Research & Architecture</div>
+      <div class="modal-tab" data-tab="casestudy">Case Study</div>
+      <div class="modal-tab" data-tab="updates">Updates & OTA</div>
+    </div>
+
+    <div class="modal-body">
+      <!-- Overview Tab -->
+      <div class="tab-pane active" id="pane-overview">
+        <h3 class="tab-title">Application Overview</h3>
+        <p class="tab-text" id="modalLongDesc"></p>
+        <div class="key-val-grid">
+          <div class="key-val-card">
+            <div class="key-val-label">Version</div>
+            <div class="key-val-val" id="modalVersion"></div>
+          </div>
+          <div class="key-val-card">
+            <div class="key-val-label">Bundle Size</div>
+            <div class="key-val-val" id="modalSize"></div>
+          </div>
+          <div class="key-val-card">
+            <div class="key-val-label">Distribution Status</div>
+            <div class="key-val-val" id="modalStatus"></div>
+          </div>
+          <div class="key-val-card">
+            <div class="key-val-label">Supported Platforms</div>
+            <div class="key-val-val" id="modalPlatforms"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Research Tab -->
+      <div class="tab-pane" id="pane-research">
+        <h3 class="tab-title">Research & Deep-Tech Specification</h3>
+        <p class="tab-text" id="modalResearch"></p>
+      </div>
+
+      <!-- Case Study Tab -->
+      <div class="tab-pane" id="pane-casestudy">
+        <h3 class="tab-title">Production Case Study</h3>
+        <p class="tab-text" id="modalCaseStudy"></p>
+      </div>
+
+      <!-- Updates Tab -->
+      <div class="tab-pane" id="pane-updates">
+        <h3 class="tab-title">Changelog & OTA Channels</h3>
+        <div id="modalUpdatesList" class="tab-text"></div>
+        <div class="key-val-card" style="margin-top: 14px;">
+          <div class="key-val-label">OTA Patch Endpoint</div>
+          <div class="key-val-val" id="modalOtaUrl" style="font-family: monospace; font-size: 12px; color: var(--cyan);"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <a id="modalDownloadApk" href="#" class="btn btn-primary" download>📥 Download APK</a>
+      <a id="modalPlayStore" href="#" target="_blank" rel="noopener" class="btn btn-secondary">Google Play</a>
+    </div>
+  </div>
+</div>
+
+<script>
+const APPS = [
+  {
+    "slug": "waptia",
+    "name": "Waptia Store",
+    "packageId": "com.infortts.waptia",
+    "category": "App Distribution",
+    "shortDescription": "Autonomous package manager and app distribution node for the swarm.",
+    "longDescription": "Waptia Store is the decentralized app marketplace, OTA distribution registry, and package verification hub for the entire Infortts ecosystem. It manages APK binaries, signature validation, update channels, and telemetry reporting.",
+    "platforms": [
+      "android",
+      "web"
+    ],
+    "status": "ready",
+    "version": "v2026.02.00",
+    "bundleSize": "43.5 MB",
+    "optInUrl": "https://play.google.com/apps/internaltest/4973664254685278609",
+    "playStoreUrl": "https://play.google.com/store/apps/details?id=com.infortts.waptia",
+    "apkDownloadUrl": "https://update.infortts.site/download/waptia.apk",
+    "otaChannel": "https://update.infortts.site/ota/waptia/",
+    "research": "Content-addressed differential binary patching reducing OTA payload size by up to 92%.",
+    "caseStudy": "Serves over 28 production applications with instant download speeds and cryptographic integrity.",
+    "updates": [
+      {
+        "version": "v2026.02.00",
+        "date": "2026-09-16",
+        "notes": "Launched standalone Waptia portal with rich app details."
+      }
+    ],
+    "screenshots": [
+      "/screenshots/waptia_1.png"
+    ]
+  },
+  {
+    "slug": "cardiodictyon",
+    "name": "Cardiodictyon Mobile",
+    "packageId": "com.infortts.cardiodictyon",
+    "category": "Telemetry & Control",
+    "shortDescription": "Swarm telemetry and autonomous device control node.",
+    "longDescription": "Cardiodictyon Mobile provides unified hardware and container telemetry across high-density distributed nodes. It aggregates CPU metrics, thermal signatures, packet latency, and device status into a real-time reactive telemetry bus with sub-10ms pub-sub performance.",
+    "platforms": [
+      "android",
+      "web",
+      "linux"
+    ],
+    "status": "live",
+    "version": "v2026.02.00",
+    "bundleSize": "50.1 MB",
+    "optInUrl": "https://play.google.com/apps/internaltest/4701570838917970273",
+    "playStoreUrl": "https://play.google.com/store/apps/details?id=com.infortts.cardiodictyon",
+    "apkDownloadUrl": "https://update.infortts.site/download/cardiodictyon.apk",
+    "otaChannel": "https://update.infortts.site/ota/cardiodictyon/",
+    "research": "Built on a zero-copy ring-buffer telemetry parser implemented in Rust and C++ with NATS JetStream integration.",
+    "caseStudy": "Monitors 140+ edge devices in industrial IoT deployments with 99.999% uptime and zero dropped telemetry frames over cellular uplinks.",
+    "updates": [
+      {
+        "version": "v2026.02.00",
+        "date": "2026-09-16",
+        "notes": "Integrated Glycocalyx IAM gateway and dynamic account switching."
+      }
+    ],
+    "screenshots": [
+      "/screenshots/cardiodictyon_1.png",
+      "/screenshots/cardiodictyon_2.png"
+    ]
+  },
+  {
+    "slug": "cyclomedusa",
+    "name": "Cyclomedusa AR",
+    "packageId": "com.infortts.cyclomedusa",
+    "category": "Visual Intelligence",
+    "shortDescription": "Classifies hand shapes on-device and anchors AR scenes in 3D space.",
+    "longDescription": "Cyclomedusa AR is a spatial computing and perception engine designed for on-device neural vision. It executes real-time 3D hand tracking, volumetric depth estimation, and persistent spatial anchor mapping without transmitting camera feeds off-device.",
+    "platforms": [
+      "android",
+      "ios",
+      "linux",
+      "macos",
+      "web",
+      "windows"
+    ],
+    "status": "live",
+    "version": "v2026.02.00",
+    "bundleSize": "49.1 MB",
+    "optInUrl": "https://play.google.com/apps/internaltest/4701318995429644311",
+    "playStoreUrl": "https://play.google.com/store/apps/details?id=com.infortts.cyclomedusa",
+    "apkDownloadUrl": "https://update.infortts.site/download/cyclomedusa.apk",
+    "otaChannel": "https://update.infortts.site/ota/cyclomedusa/",
+    "research": "Utilizes quantized MobileNetV4 spatial tensors optimized with Apple Metal and Vulkan compute shaders.",
+    "caseStudy": "Deployed in smart factory assembly lines for gesture-driven blueprint navigation with 120 FPS latency-free rendering.",
+    "updates": [
+      {
+        "version": "v2026.02.00",
+        "date": "2026-09-16",
+        "notes": "Added Vulkan pipeline optimizations and Glycocalyx token caching."
+      }
+    ],
+    "screenshots": [
+      "/screenshots/cyclomedusa_1.png"
+    ]
+  },
+  {
+    "slug": "dickinsonia",
+    "name": "Dickinsonia",
+    "packageId": "com.infortts.dickinsonia",
+    "category": "Memory & Storage",
+    "shortDescription": "Content-addressed storage that syncs memory across mesh nodes.",
+    "longDescription": "Dickinsonia is an immutable, content-addressed storage engine designed for planetary-scale mesh synchronization. It deduplicates file chunks with BLAKE3 hashing, builds Merkle DAGs, and guarantees zero data loss across intermittently connected mesh networks.",
+    "platforms": [
+      "android",
+      "ios",
+      "linux",
+      "macos",
+      "web",
+      "windows"
+    ],
+    "status": "live",
+    "version": "v2026.02.00",
+    "bundleSize": "51.7 MB",
+    "optInUrl": "https://play.google.com/apps/internaltest/4701074981878644468",
+    "playStoreUrl": "https://play.google.com/store/apps/details?id=com.infortts.dickinsonia",
+    "apkDownloadUrl": "https://update.infortts.site/download/dickinsonia.apk",
+    "otaChannel": "https://update.infortts.site/ota/dickinsonia/",
+    "research": "Implements an optimized Kademlia DHT with erasure coding (Reed-Solomon 8+4) and end-to-end ChaCha20-Poly1305 encryption.",
+    "caseStudy": "Synchronizes 4TB of research archives across 8 geographic availability zones with sub-second conflict resolution.",
+    "updates": [
+      {
+        "version": "v2026.02.00",
+        "date": "2026-09-16",
+        "notes": "Enabled high-speed chunk streaming and multi-account identity support."
+      }
+    ],
+    "screenshots": [
+      "/screenshots/dickinsonia_1.png"
+    ]
+  },
+  {
+    "slug": "ernietta",
+    "name": "Ernietta",
+    "packageId": "com.infortts.ernietta",
+    "category": "Network Fabric",
+    "shortDescription": "Routes encrypted, short messages peer-to-peer with no central inbox.",
+    "longDescription": "Ernietta is a decentralized, ephemeral messaging fabric that enables zero-metadata peer-to-peer communications. It implements onion-routed forward secrecy, ensuring that messages cannot be intercepted, logged, or correlated by intermediate relay nodes.",
+    "platforms": [
+      "android",
+      "web",
+      "linux"
+    ],
+    "status": "live",
+    "version": "v2026.02.00",
+    "bundleSize": "49.4 MB",
+    "optInUrl": "https://play.google.com/apps/internaltest/4701202267214643622",
+    "playStoreUrl": "https://play.google.com/store/apps/details?id=com.infortts.ernietta",
+    "apkDownloadUrl": "https://update.infortts.site/download/ernietta.apk",
+    "otaChannel": "https://update.infortts.site/ota/ernietta/",
+    "research": "Double Ratchet algorithm combined with multi-hop wireguard tunnels and noise protocol framework.",
+    "caseStudy": "Powers mission-critical covert communications across remote field telemetry teams.",
+    "updates": [
+      {
+        "version": "v2026.02.00",
+        "date": "2026-09-16",
+        "notes": "Unified authentication tokens and improved background daemon reliability."
+      }
+    ],
+    "screenshots": [
+      "/screenshots/ernietta_1.png"
+    ]
+  },
+  {
+    "slug": "fractofusus",
+    "name": "Fractofusus",
+    "packageId": "com.infortts.fractofusus",
+    "category": "Swarm Orchestration",
+    "shortDescription": "Splits large jobs, coordinates agents, and schedules compute across nodes.",
+    "longDescription": "Fractofusus is a distributed DAG scheduler and compute orchestrator. It divides complex AI training, backtesting, and scientific simulation jobs into micro-tasks, distributing them dynamically across GPU clusters, edge servers, and mobile compute units.",
+    "platforms": [
+      "android",
+      "ios",
+      "linux",
+      "macos",
+      "web",
+      "windows"
+    ],
+    "status": "live",
+    "version": "v2026.02.00",
+    "bundleSize": "51.5 MB",
+    "optInUrl": "https://play.google.com/apps/internaltest/4701532130739943923",
+    "playStoreUrl": "https://play.google.com/store/apps/details?id=com.infortts.fractofusus",
+    "apkDownloadUrl": "https://update.infortts.site/download/fractofusus.apk",
+    "otaChannel": "https://update.infortts.site/ota/fractofusus/",
+    "research": "Work-stealing decentralized consensus scheduler with linear scalability up to 10,000 parallel workers.",
+    "caseStudy": "Accelerated backtesting compute pipeline from 4 hours down to 18 seconds across 50 nodes.",
+    "updates": [
+      {
+        "version": "v2026.02.00",
+        "date": "2026-09-16",
+        "notes": "Multi-tenant worker pooling and automatic failover."
+      }
+    ],
+    "screenshots": [
+      "/screenshots/fractofusus_1.png"
+    ]
+  },
+  {
+    "slug": "ikaria",
+    "name": "Ikaria",
+    "packageId": "com.infortts.ikaria",
+    "category": "Bio-Computing",
+    "shortDescription": "Runs evolutionary and simulation workloads in the compute matrix.",
+    "longDescription": "Ikaria is an advanced biocomputing simulator and genetic algorithm workbench. It simulates cellular automata, evolutionary neural strategies, and biochemical reaction networks with GPU-accelerated tensor operations.",
+    "platforms": [
+      "android",
+      "web",
+      "linux"
+    ],
+    "status": "live",
+    "version": "v2026.02.00",
+    "bundleSize": "49.9 MB",
+    "optInUrl": "https://play.google.com/apps/internaltest/4701698683636108581",
+    "playStoreUrl": "https://play.google.com/store/apps/details?id=com.infortts.ikaria",
+    "apkDownloadUrl": "https://update.infortts.site/download/ikaria.apk",
+    "otaChannel": "https://update.infortts.site/ota/ikaria/",
+    "research": "Custom SIMD biological simulation kernels in WebAssembly and OpenCL.",
+    "caseStudy": "Used for simulated drug candidate folding tests and phenotypic variance modeling.",
+    "updates": [
+      {
+        "version": "v2026.02.00",
+        "date": "2026-09-16",
+        "notes": "New visual simulation rendering pipeline and cloud state export."
+      }
+    ],
+    "screenshots": [
+      "/screenshots/ikaria_1.png"
+    ]
+  },
+  {
+    "slug": "meeseeks",
+    "name": "Meeseeks OS Mobile",
+    "packageId": "com.infortts.meeseeks",
+    "category": "AI Assistant",
+    "shortDescription": "Goal-driven multi-agent assistant \u2014 plain language instructions, autonomous execution.",
+    "longDescription": "Meeseeks OS is an autonomous multi-agent task execution system. Given high-level natural language goals, it provisions specialized sub-agents, writes code, queries databases, executes terminal commands, and resolves complex technical workflows autonomously.",
+    "platforms": [
+      "android",
+      "web",
+      "linux",
+      "macos"
+    ],
+    "status": "live",
+    "version": "v2026.02.00",
+    "bundleSize": "50.3 MB",
+    "optInUrl": "https://play.google.com/apps/internaltest/4701299605514848597",
+    "playStoreUrl": "https://play.google.com/store/apps/details?id=com.infortts.meeseeks",
+    "apkDownloadUrl": "https://update.infortts.site/download/meeseeks.apk",
+    "otaChannel": "https://update.infortts.site/ota/meeseeks/",
+    "research": "Hierarchical multi-agent cognitive architecture with dynamic tool dispatch, reflection, and automated unit testing loops.",
+    "caseStudy": "Automates 85% of routine DevOps, server migrations, and CI/CD maintenance across Infortts infrastructure.",
+    "updates": [
+      {
+        "version": "v2026.02.00",
+        "date": "2026-09-16",
+        "notes": "Unified Glycocalyx multi-account switching and Swarm Console dashboard."
+      }
+    ],
+    "screenshots": [
+      "/screenshots/meeseeks_1.png"
+    ]
+  },
+  {
+    "slug": "mitochondria",
+    "name": "Mitochondria Terminal",
+    "packageId": "com.infortts.mitochondria",
+    "category": "Core Infrastructure",
+    "shortDescription": "Manages container lifecycles and energy budgets for the swarm.",
+    "longDescription": "Mitochondria Terminal is the central nervous system of Infortts infrastructure. It provides low-latency interactive shells, real-time Docker/container orchestration, cluster health monitoring, and system metrics visualization across all server clusters.",
+    "platforms": [
+      "android",
+      "macos",
+      "web",
+      "linux"
+    ],
+    "status": "live",
+    "version": "v2026.02.00",
+    "bundleSize": "51.2 MB",
+    "optInUrl": "https://play.google.com/apps/internaltest/4701690297526834866",
+    "playStoreUrl": "https://play.google.com/store/apps/details?id=com.infortts.mitochondria",
+    "apkDownloadUrl": "https://update.infortts.site/download/mitochondria.apk",
+    "otaChannel": "https://update.infortts.site/ota/mitochondria/",
+    "research": "High-throughput WebSocket terminal multiplexer with zero-latency streaming and biometric session protection.",
+    "caseStudy": "Manages 50+ enterprise containers, automated failover routing, and 24/7 cluster health monitoring.",
+    "updates": [
+      {
+        "version": "v2026.02.00",
+        "date": "2026-09-16",
+        "notes": "Google SSO and multi-account chooser integration without mandatory passkeys."
+      }
+    ],
+    "screenshots": [
+      "/screenshots/mitochondria_1.png"
+    ]
+  },
+  {
+    "slug": "opabinia",
+    "name": "Opabinia Vision",
+    "packageId": "com.infortts.opabinia",
+    "category": "Multi-Modal Vision",
+    "shortDescription": "Ingests five video and sensor streams at once for real-time inference.",
+    "longDescription": "Opabinia Vision is a multi-camera perceptual processing system that fuses five simultaneous video and infrared streams into a coherent 3D perception manifold. It detects anomalies, tracks objects, and classifies events in real time.",
+    "platforms": [
+      "android",
+      "ios",
+      "macos",
+      "web"
+    ],
+    "status": "live",
+    "version": "v2026.02.00",
+    "bundleSize": "50.6 MB",
+    "optInUrl": "https://play.google.com/apps/internaltest/4701285546372048102",
+    "playStoreUrl": "https://play.google.com/store/apps/details?id=com.infortts.opabinia",
+    "apkDownloadUrl": "https://update.infortts.site/download/opabinia.apk",
+    "otaChannel": "https://update.infortts.site/ota/opabinia/",
+    "research": "Multi-view transformer attention networks executing on mobile NPUs and edge hardware accelerators.",
+    "caseStudy": "Monitors perimeter security for physical labs with sub-100ms intrusion alerts and zero false alarms.",
+    "updates": [
+      {
+        "version": "v2026.02.00",
+        "date": "2026-09-16",
+        "notes": "Enhanced multi-stream hardware decoder support and dark theme refresh."
+      }
+    ],
+    "screenshots": [
+      "/screenshots/opabinia_1.png"
+    ]
+  },
+  {
+    "slug": "orthrozanclus",
+    "name": "Orthrozanclus",
+    "packageId": "com.infortts.orthrozanclus",
+    "category": "Cyber-Defense",
+    "shortDescription": "Enforces zero-trust boundaries and monitors defensive perimeters.",
+    "longDescription": "Orthrozanclus is an automated cybersecurity monitoring and zero-trust perimeter defense suite. It inspects network traffic packets, blocks intrusion attempts, manages encrypted API keys, and audits authentication compliance in real time.",
+    "platforms": [
+      "android",
+      "ios",
+      "linux",
+      "macos",
+      "web",
+      "windows"
+    ],
+    "status": "live",
+    "version": "v2026.02.00",
+    "bundleSize": "51.5 MB",
+    "optInUrl": "https://play.google.com/apps/internaltest/4701235294408545779",
+    "playStoreUrl": "https://play.google.com/store/apps/details?id=com.infortts.orthrozanclus",
+    "apkDownloadUrl": "https://update.infortts.site/download/orthrozanclus.apk",
+    "otaChannel": "https://update.infortts.site/ota/orthrozanclus/",
+    "research": "eBPF kernel packet inspection engine with automated threat signature synthesis.",
+    "caseStudy": "Defended against 1.2M daily automated bot attacks with 0 breach incidents across cloud endpoints.",
+    "updates": [
+      {
+        "version": "v2026.02.00",
+        "date": "2026-09-16",
+        "notes": "Zero-trust session rotation and unified IAM token validation."
+      }
+    ],
+    "screenshots": [
+      "/screenshots/orthrozanclus_1.png"
+    ]
+  },
+  {
+    "slug": "tridrishti",
+    "name": "Tridrishti Vision",
+    "packageId": "com.infortts.tridrishti",
+    "category": "Tri-Cam Sensory",
+    "shortDescription": "Computes real-time depth from a tri-focal stereo rig.",
+    "longDescription": "Tridrishti Vision leverages tri-camera optical parallax to compute millimeter-accurate depth maps and point clouds at 60 FPS on standard smartphone hardware.",
+    "platforms": [
+      "android",
+      "macos",
+      "web"
+    ],
+    "status": "live",
+    "version": "v2026.02.00",
+    "bundleSize": "52.0 MB",
+    "optInUrl": "https://play.google.com/apps/internaltest/4701589301153857373",
+    "playStoreUrl": "https://play.google.com/store/apps/details?id=com.infortts.tridrishti",
+    "apkDownloadUrl": "https://update.infortts.site/download/tridrishti.apk",
+    "otaChannel": "https://update.infortts.site/ota/tridrishti/",
+    "research": "Epipolar geometry depth solver with neural disparity refinement.",
+    "caseStudy": "Enables 3D scanning and dimensional inspection on commodity mobile devices.",
+    "updates": [
+      {
+        "version": "v2026.02.00",
+        "date": "2026-09-16",
+        "notes": "Improved point cloud export formats (PLY/OBJ)."
+      }
+    ],
+    "screenshots": [
+      "/screenshots/tridrishti_1.png"
+    ]
+  },
+  {
+    "slug": "yorgia",
+    "name": "Yorgia",
+    "packageId": "com.infortts.yorgia",
+    "category": "Planar Compute",
+    "shortDescription": "Parallel tile computation for cellular automata and heavy numeric grids.",
+    "longDescription": "Yorgia is a planar computation engine designed for massive 2D matrix transformations, discrete lattice simulations, and fast mathematical tensor operations across parallel GPU warps.",
+    "platforms": [
+      "android",
+      "ios",
+      "linux",
+      "macos",
+      "web",
+      "windows"
+    ],
+    "status": "live",
+    "version": "v2026.02.00",
+    "bundleSize": "50.6 MB",
+    "optInUrl": "https://play.google.com/apps/internaltest/4701334502307777183",
+    "playStoreUrl": "https://play.google.com/store/apps/details?id=com.infortts.yorgia",
+    "apkDownloadUrl": "https://update.infortts.site/download/yorgia.apk",
+    "otaChannel": "https://update.infortts.site/ota/yorgia/",
+    "research": "Tiled memory access algorithms optimized for unified GPU/CPU memory architectures.",
+    "caseStudy": "Processes 10M cell grid simulations per second on low-power mobile SoCs.",
+    "updates": [
+      {
+        "version": "v2026.02.00",
+        "date": "2026-09-16",
+        "notes": "Added OpenCL tile kernel caching and Glycocalyx auth support."
+      }
+    ],
+    "screenshots": [
+      "/screenshots/yorgia_1.png"
+    ]
+  },
+  {
+    "slug": "charnia",
+    "name": "Charnia",
+    "packageId": "com.infortts.charnia",
+    "category": "Governance & Registry",
+    "shortDescription": "One ledger for org hierarchy, registries, and governance dispatch.",
+    "longDescription": "Charnia provides an immutable organizational ledger for managing entity hierarchies, access policies, resource allocation, and verified voting records.",
+    "platforms": [
+      "android",
+      "web"
+    ],
+    "status": "ready",
+    "version": "v2026.02.00",
+    "bundleSize": "43.5 MB",
+    "optInUrl": "https://play.google.com/apps/testing/com.infortts.charnia",
+    "playStoreUrl": "https://play.google.com/store/apps/details?id=com.infortts.charnia",
+    "apkDownloadUrl": "https://update.infortts.site/download/charnia.apk",
+    "otaChannel": "https://update.infortts.site/ota/charnia/",
+    "research": "Merkle-tree verified ledger with cryptographic signing and audit trails.",
+    "caseStudy": "Manages decentralized governance for 28 Infortts sub-projects.",
+    "updates": [
+      {
+        "version": "v2026.02.00",
+        "date": "2026-09-16",
+        "notes": "Production release bundle."
+      }
+    ],
+    "screenshots": [
+      "/screenshots/charnia_1.png"
+    ]
+  },
+  {
+    "slug": "cloudina",
+    "name": "Cloudina",
+    "packageId": "com.infortts.cloudina",
+    "category": "Financial Ledger",
+    "shortDescription": "Immutable double-entry ledger with automated billing and audit history.",
+    "longDescription": "Cloudina is an enterprise double-entry accounting and financial ledger engine with automatic cryptographic reconciliations and real-time audit verification.",
+    "platforms": [
+      "android",
+      "web"
+    ],
+    "status": "ready",
+    "version": "v2026.02.00",
+    "bundleSize": "43.5 MB",
+    "optInUrl": "https://play.google.com/apps/testing/com.infortts.cloudina",
+    "playStoreUrl": "https://play.google.com/store/apps/details?id=com.infortts.cloudina",
+    "apkDownloadUrl": "https://update.infortts.site/download/cloudina.apk",
+    "otaChannel": "https://update.infortts.site/ota/cloudina/",
+    "research": "Formal verification of transaction integrity and zero-knowledge balance proofs.",
+    "caseStudy": "Processes micro-billing and cloud compute resource charges across all services.",
+    "updates": [
+      {
+        "version": "v2026.02.00",
+        "date": "2026-09-16",
+        "notes": "Production release bundle."
+      }
+    ],
+    "screenshots": [
+      "/screenshots/cloudina_1.png"
+    ]
+  },
+  {
+    "slug": "dropship",
+    "name": "Dropship",
+    "packageId": "com.infortts.dropship",
+    "category": "eCommerce Platform",
+    "shortDescription": "Routes inventory and runs storefronts from a single merchant hub.",
+    "longDescription": "Dropship is an autonomous e-commerce logistics and fulfillment engine that synchronizes multi-channel inventory, coordinates supplier dispatch, and processes orders.",
+    "platforms": [
+      "android",
+      "web"
+    ],
+    "status": "ready",
+    "version": "v2026.02.00",
+    "bundleSize": "43.5 MB",
+    "optInUrl": "https://play.google.com/apps/testing/com.infortts.dropship",
+    "playStoreUrl": "https://play.google.com/store/apps/details?id=com.infortts.dropship",
+    "apkDownloadUrl": "https://update.infortts.site/download/dropship.apk",
+    "otaChannel": "https://update.infortts.site/ota/dropship/",
+    "research": "Dynamic routing algorithms for multi-warehouse order fulfillment optimization.",
+    "caseStudy": "Handles real-time inventory allocation for 50,000+ SKUs.",
+    "updates": [
+      {
+        "version": "v2026.02.00",
+        "date": "2026-09-16",
+        "notes": "Production release bundle."
+      }
+    ],
+    "screenshots": [
+      "/screenshots/dropship_1.png"
+    ]
+  },
+  {
+    "slug": "microdictyon",
+    "name": "Microdictyon",
+    "packageId": "com.infortts.microdictyon",
+    "category": "Usage & Quotas",
+    "shortDescription": "Meters usage, applies rate limits, and aggregates resource telemetry.",
+    "longDescription": "Microdictyon is a high-throughput API gateway and rate-limiting sentinel that protects microservices from DDoS, throttles abuse, and meters API consumption.",
+    "platforms": [
+      "android",
+      "web"
+    ],
+    "status": "ready",
+    "version": "v2026.02.00",
+    "bundleSize": "43.5 MB",
+    "optInUrl": "https://play.google.com/apps/testing/com.infortts.microdictyon",
+    "playStoreUrl": "https://play.google.com/store/apps/details?id=com.infortts.microdictyon",
+    "apkDownloadUrl": "https://update.infortts.site/download/microdictyon.apk",
+    "otaChannel": "https://update.infortts.site/ota/microdictyon/",
+    "research": "Distributed token-bucket rate limiting with sub-millisecond Redis sync.",
+    "caseStudy": "Meters 50M daily API calls across the Infortts API cluster.",
+    "updates": [
+      {
+        "version": "v2026.02.00",
+        "date": "2026-09-16",
+        "notes": "Production release bundle."
+      }
+    ],
+    "screenshots": [
+      "/screenshots/microdictyon_1.png"
+    ]
+  },
+  {
+    "slug": "spriggina",
+    "name": "Spriggina",
+    "packageId": "com.infortts.spriggina",
+    "category": "Identity & Auth",
+    "shortDescription": "Biometric identity, profile sync, and unified auth for the whole mesh.",
+    "longDescription": "Spriggina provides distributed decentralized identity management, biometric profile sync, and zero-knowledge proof credentials across all Infortts nodes.",
+    "platforms": [
+      "android",
+      "web"
+    ],
+    "status": "ready",
+    "version": "v2026.02.00",
+    "bundleSize": "43.5 MB",
+    "optInUrl": "https://play.google.com/apps/testing/com.infortts.spriggina",
+    "playStoreUrl": "https://play.google.com/store/apps/details?id=com.infortts.spriggina",
+    "apkDownloadUrl": "https://update.infortts.site/download/spriggina.apk",
+    "otaChannel": "https://update.infortts.site/ota/spriggina/",
+    "research": "Decentralized Identifiers (DIDs) with verifiable credentials and secure enclave integration.",
+    "caseStudy": "Powers seamless cross-app single sign-on across mobile and web clients.",
+    "updates": [
+      {
+        "version": "v2026.02.00",
+        "date": "2026-09-16",
+        "notes": "Production release bundle."
+      }
+    ],
+    "screenshots": [
+      "/screenshots/spriggina_1.png"
+    ]
+  },
+  {
+    "slug": "tribrachidium",
+    "name": "Tribrachidium",
+    "packageId": "com.infortts.tribrachidium",
+    "category": "Design Systems",
+    "shortDescription": "Distributes design tokens so every client stays in sync.",
+    "longDescription": "Tribrachidium is a design token engine that synchronizes color schemes, typography, spacing scales, and UI component definitions across Web, Android, iOS, and desktop apps.",
+    "platforms": [
+      "android",
+      "web"
+    ],
+    "status": "ready",
+    "version": "v2026.02.00",
+    "bundleSize": "43.5 MB",
+    "optInUrl": "https://play.google.com/apps/testing/com.infortts.tribrachidium",
+    "playStoreUrl": "https://play.google.com/store/apps/details?id=com.infortts.tribrachidium",
+    "apkDownloadUrl": "https://update.infortts.site/download/tribrachidium.apk",
+    "otaChannel": "https://update.infortts.site/ota/tribrachidium/",
+    "research": "Automated AST code generators compiling Figma design tokens to Dart, TypeScript, and Kotlin.",
+    "caseStudy": "Maintains 100% design consistency across 28 multi-platform apps.",
+    "updates": [
+      {
+        "version": "v2026.02.00",
+        "date": "2026-09-16",
+        "notes": "Production release bundle."
+      }
+    ],
+    "screenshots": [
+      "/screenshots/tribrachidium_1.png"
+    ]
+  },
+  {
+    "slug": "trilobite",
+    "name": "Trilobite Forensics",
+    "packageId": "com.infortts.trilobite",
+    "category": "Market Intelligence",
+    "shortDescription": "Tracks order flow anomalies and flags market irregularities.",
+    "longDescription": "Trilobite Forensics is a financial market microstructure analyzer and order-book forensic investigator. It processes high-frequency market depth feeds to detect spoofing, wash-trading, and algorithmic liquidity drains in real time.",
+    "platforms": [
+      "android",
+      "web"
+    ],
+    "status": "ready",
+    "version": "v2026.02.00",
+    "bundleSize": "43.5 MB",
+    "optInUrl": "https://play.google.com/apps/testing/com.infortts.trilobite",
+    "playStoreUrl": "https://play.google.com/store/apps/details?id=com.infortts.trilobite",
+    "apkDownloadUrl": "https://update.infortts.site/download/trilobite.apk",
+    "otaChannel": "https://update.infortts.site/ota/trilobite/",
+    "research": "LOB (Limit Order Book) volumetric neural anomaly detectors and tick-by-tick microsecond analyzers.",
+    "caseStudy": "Monitors multi-exchange liquidity spreads with sub-millisecond execution alerts.",
+    "updates": [
+      {
+        "version": "v2026.02.00",
+        "date": "2026-09-16",
+        "notes": "Production release bundle."
+      }
+    ],
+    "screenshots": [
+      "/screenshots/trilobite_1.png"
+    ]
+  },
+  {
+    "slug": "wiwaxia",
+    "name": "Wiwaxia",
+    "packageId": "com.infortts.wiwaxia",
+    "category": "Secure Enclave",
+    "shortDescription": "Hardware-backed key store and cryptographic signing vault.",
+    "longDescription": "Wiwaxia is a zero-trust cryptographic vault that manages master keys, hardware security modules (HSM), and biometric credential signing.",
+    "platforms": [
+      "android",
+      "web"
+    ],
+    "status": "ready",
+    "version": "v2026.02.00",
+    "bundleSize": "43.5 MB",
+    "optInUrl": "https://play.google.com/apps/testing/com.infortts.wiwaxia",
+    "playStoreUrl": "https://play.google.com/store/apps/details?id=com.infortts.wiwaxia",
+    "apkDownloadUrl": "https://update.infortts.site/download/wiwaxia.apk",
+    "otaChannel": "https://update.infortts.site/ota/wiwaxia/",
+    "research": "Post-quantum lattice cryptography and elliptic-curve threshold signatures.",
+    "caseStudy": "Secures all root authority keys and SSL certificates for Infortts mesh nodes.",
+    "updates": [
+      {
+        "version": "v2026.02.00",
+        "date": "2026-09-16",
+        "notes": "Production release bundle."
+      }
+    ],
+    "screenshots": [
+      "/screenshots/wiwaxia_1.png"
+    ]
+  },
+  {
+    "slug": "hallucigenia",
+    "name": "Hallucigenia",
+    "packageId": "com.infortts.hallucigenia",
+    "category": "Neural Synthesis",
+    "shortDescription": "Generative creative engine for procedural asset and audio generation.",
+    "longDescription": "Hallucigenia is a procedural generation and generative AI audio-visual synthesizer. It creates 3D assets, textures, and adaptive soundscapes.",
+    "platforms": [
+      "android",
+      "web"
+    ],
+    "status": "ready",
+    "version": "v2026.02.00",
+    "bundleSize": "43.5 MB",
+    "optInUrl": "https://play.google.com/apps/testing/com.infortts.hallucigenia",
+    "playStoreUrl": "https://play.google.com/store/apps/details?id=com.infortts.hallucigenia",
+    "apkDownloadUrl": "https://update.infortts.site/download/hallucigenia.apk",
+    "otaChannel": "https://update.infortts.site/ota/hallucigenia/",
+    "research": "Latent diffusion models with real-time neural audio DSP synthesis.",
+    "caseStudy": "Generates real-time ambient soundscapes and branding visuals.",
+    "updates": [
+      {
+        "version": "v2026.02.00",
+        "date": "2026-09-16",
+        "notes": "Production release bundle."
+      }
+    ],
+    "screenshots": [
+      "/screenshots/hallucigenia_1.png"
+    ]
+  },
+  {
+    "slug": "lexi",
+    "name": "Lexi",
+    "packageId": "com.infortts.lexi",
+    "category": "Semantic NLP",
+    "shortDescription": "Vector embeddings and fast similarity retrieval on local text.",
+    "longDescription": "Lexi is an on-device semantic search and natural language embedding library that enables vector search over documents, source code, and conversations without external APIs.",
+    "platforms": [
+      "android",
+      "web"
+    ],
+    "status": "ready",
+    "version": "v2026.02.00",
+    "bundleSize": "43.5 MB",
+    "optInUrl": "https://play.google.com/apps/testing/com.infortts.lexi",
+    "playStoreUrl": "https://play.google.com/store/apps/details?id=com.infortts.lexi",
+    "apkDownloadUrl": "https://update.infortts.site/download/lexi.apk",
+    "otaChannel": "https://update.infortts.site/ota/lexi/",
+    "research": "Quantized miniLM vector models running locally via ONNX Runtime.",
+    "caseStudy": "Indexes 100,000 document chunks with sub-5ms retrieval times.",
+    "updates": [
+      {
+        "version": "v2026.02.00",
+        "date": "2026-09-16",
+        "notes": "Production release bundle."
+      }
+    ],
+    "screenshots": [
+      "/screenshots/lexi_1.png"
+    ]
+  },
+  {
+    "slug": "cursus",
+    "name": "Cursus",
+    "packageId": "com.infortts.cursus",
+    "category": "Workflow Automation",
+    "shortDescription": "Automates multi-step event triggers and reactive data pipelines.",
+    "longDescription": "Cursus connects webhooks, system alerts, and agent triggers into visual reactive execution graphs with conditional branching and automated retries.",
+    "platforms": [
+      "android",
+      "web"
+    ],
+    "status": "ready",
+    "version": "v2026.02.00",
+    "bundleSize": "43.5 MB",
+    "optInUrl": "https://play.google.com/apps/testing/com.infortts.cursus",
+    "playStoreUrl": "https://play.google.com/store/apps/details?id=com.infortts.cursus",
+    "apkDownloadUrl": "https://update.infortts.site/download/cursus.apk",
+    "otaChannel": "https://update.infortts.site/ota/cursus/",
+    "research": "Event-driven reactive stream architecture based on Rx pipelines.",
+    "caseStudy": "Coordinates thousands of webhook actions across Infortts cloud nodes.",
+    "updates": [
+      {
+        "version": "v2026.02.00",
+        "date": "2026-09-16",
+        "notes": "Production release bundle."
+      }
+    ],
+    "screenshots": [
+      "/screenshots/cursus_1.png"
+    ]
+  },
+  {
+    "slug": "glycocalyx",
+    "name": "Glycocalyx IAM",
+    "packageId": "com.infortts.glycocalyx",
+    "category": "Identity & Access",
+    "shortDescription": "Unified IAM gateway, Google SSO, and multi-account switcher.",
+    "longDescription": "Glycocalyx is the unified authentication and Identity & Access Management gateway for the entire Infortts ecosystem. It provides Google SSO, fast multi-account switching, RBAC permissions, and JWT token issuance without forced passkey barriers.",
+    "platforms": [
+      "android",
+      "web",
+      "linux",
+      "macos"
+    ],
+    "status": "live",
+    "version": "v2026.02.00",
+    "bundleSize": "48.5 MB",
+    "optInUrl": "https://play.google.com/apps/internaltest/4701690297526834866",
+    "playStoreUrl": "https://play.google.com/store/apps/details?id=com.infortts.glycocalyx",
+    "apkDownloadUrl": "https://update.infortts.site/download/glycocalyx.apk",
+    "otaChannel": "https://update.infortts.site/ota/glycocalyx/",
+    "research": "High-performance Go IAM service with cryptographic JWT tokens and distributed rate limiting.",
+    "caseStudy": "Handles authentication for all 28 Infortts subdomains and mobile applications.",
+    "updates": [
+      {
+        "version": "v2026.02.00",
+        "date": "2026-09-16",
+        "notes": "Unified Google SSO & multi-account switching."
+      }
+    ],
+    "screenshots": [
+      "/screenshots/glycocalyx_1.png"
+    ]
+  },
+  {
+    "slug": "parvancorina",
+    "name": "Parvancorina",
+    "packageId": "com.infortts.parvancorina",
+    "category": "Telemetry Relay",
+    "shortDescription": "Lightweight UDP telemetry beacon and network ping daemon.",
+    "longDescription": "Parvancorina is an ultra-lightweight telemetry beacon and heartbeat daemon that monitors network latency, packet loss, and jitter across mesh nodes.",
+    "platforms": [
+      "android",
+      "web"
+    ],
+    "status": "ready",
+    "version": "v2026.02.00",
+    "bundleSize": "43.5 MB",
+    "optInUrl": "https://play.google.com/apps/testing/com.infortts.parvancorina",
+    "playStoreUrl": "https://play.google.com/store/apps/details?id=com.infortts.parvancorina",
+    "apkDownloadUrl": "https://update.infortts.site/download/parvancorina.apk",
+    "otaChannel": "https://update.infortts.site/ota/parvancorina/",
+    "research": "Zero-overhead UDP heartbeats with sub-microsecond timestamping.",
+    "caseStudy": "Continuously measures multi-region network quality across 12 datacenters.",
+    "updates": [
+      {
+        "version": "v2026.02.00",
+        "date": "2026-09-16",
+        "notes": "Production release bundle."
+      }
+    ],
+    "screenshots": [
+      "/screenshots/parvancorina_1.png"
+    ]
+  },
+  {
+    "slug": "kimberella",
+    "name": "Kimberella Mobile",
+    "packageId": "com.infortts.kimberella",
+    "category": "Document Engine",
+    "shortDescription": "Encrypted offline note taking, PDF parsing, and document sync.",
+    "longDescription": "Kimberella is a privacy-first document editor and PDF intelligence tool that synchronizes encrypted notes and documents across devices via P2P mesh.",
+    "platforms": [
+      "android",
+      "web"
+    ],
+    "status": "ready",
+    "version": "v2026.02.00",
+    "bundleSize": "43.5 MB",
+    "optInUrl": "https://play.google.com/apps/testing/com.infortts.kimberella",
+    "playStoreUrl": "https://play.google.com/store/apps/details?id=com.infortts.kimberella",
+    "apkDownloadUrl": "https://update.infortts.site/download/kimberella.apk",
+    "otaChannel": "https://update.infortts.site/ota/kimberella/",
+    "research": "CRDT-based collaborative text editing with zero server-side plaintext storage.",
+    "caseStudy": "Stores and synchronizes confidential research notes across team devices.",
+    "updates": [
+      {
+        "version": "v2026.02.00",
+        "date": "2026-09-16",
+        "notes": "Production release bundle."
+      }
+    ],
+    "screenshots": [
+      "/screenshots/kimberella_1.png"
+    ]
+  },
+  {
+    "slug": "care4u",
+    "name": "Care4U Health",
+    "packageId": "com.infortts.care4u",
+    "category": "Health & Bio-Telemetry",
+    "shortDescription": "Patient vitals monitoring, appointment booking, and encrypted health records.",
+    "longDescription": "Care4U Health is a secure telehealth and bio-telemetry platform that tracks continuous biometric vitals, automates medical scheduling, and protects health records with HIPAA-grade encryption.",
+    "platforms": [
+      "android",
+      "web",
+      "ios"
+    ],
+    "status": "ready",
+    "version": "v2026.02.00",
+    "bundleSize": "45.2 MB",
+    "optInUrl": "https://play.google.com/apps/testing/com.infortts.care4u",
+    "playStoreUrl": "https://play.google.com/store/apps/details?id=com.infortts.care4u",
+    "apkDownloadUrl": "https://update.infortts.site/download/care4u.apk",
+    "otaChannel": "https://update.infortts.site/ota/care4u/",
+    "research": "Real-time ECG and PPG signal filtering algorithms with on-device anomaly alerts.",
+    "caseStudy": "Used by clinical pilot studies to monitor post-op patient vital signs remotely.",
+    "updates": [
+      {
+        "version": "v2026.02.00",
+        "date": "2026-09-16",
+        "notes": "Production release bundle with Glycocalyx health portal SSO."
+      }
+    ],
+    "screenshots": [
+      "/screenshots/care4u_1.png"
+    ]
+  }
+];
+
+let currentCategory = "all";
+let searchQuery = "";
+
+const grid = document.getElementById('appsGrid');
+const searchInput = document.getElementById('searchInput');
+const resultsCount = document.getElementById('resultsCount');
+const categoryFilters = document.getElementById('categoryFilters');
+
+const modal = document.getElementById('appModal');
+const modalCloseBtn = document.getElementById('modalCloseBtn');
+
+function renderApps() {
+  const filtered = APPS.filter(app => {
+    const matchesCat = currentCategory === 'all' || app.category.toLowerCase().includes(currentCategory.toLowerCase());
+    const text = (app.name + ' ' + app.packageId + ' ' + app.category + ' ' + app.shortDescription + ' ' + app.longDescription + ' ' + app.research).toLowerCase();
+    const matchesSearch = text.includes(searchQuery.toLowerCase());
+    return matchesCat && matchesSearch;
+  });
+
+  resultsCount.textContent = `Showing ${filtered.length} of ${APPS.length} Applications`;
+
+  grid.innerHTML = filtered.map(app => `
+    <div class="card" onclick="openModal('${app.slug}')">
+      <div>
+        <div class="card-top">
+          <div class="card-icon-box">
+            <img src="/icons/${app.slug}.png?v=20260916" alt="${app.name}" class="card-icon-img" loading="lazy">
+          </div>
+          <div class="card-info">
+            <div class="card-category">${app.category}</div>
+            <h3 class="card-title">${app.name}</h3>
+            <div style="font-size: 10px; font-family: monospace; color: var(--text-muted);">${app.packageId}</div>
+          </div>
+        </div>
+        <p class="card-desc">${app.shortDescription}</p>
+        <div class="card-meta">
+          <span class="pill ${app.status}">${app.status.toUpperCase()}</span>
+          <span class="pill">${app.bundleSize}</span>
+          ${app.platforms.slice(0, 3).map(p => `<span class="pill">${p}</span>`).join('')}
+        </div>
+      </div>
+      <div class="card-actions" onclick="event.stopPropagation()">
+        <button class="btn btn-secondary" style="flex:1;" onclick="openModal('${app.slug}')">Details & Research</button>
+        <a href="${app.apkDownloadUrl}" class="btn btn-primary" download title="Download APK">📥 APK</a>
+        <a href="${app.playStoreUrl}" target="_blank" rel="noopener" class="btn btn-secondary" title="Google Play">Play</a>
+      </div>
+    </div>
+  `).join('');
+}
+
+function openModal(slug) {
+  const app = APPS.find(a => a.slug === slug);
+  if (!app) return;
+
+  document.getElementById('modalIcon').src = `/icons/${app.slug}.png?v=20260916`;
+  document.getElementById('modalTitle').textContent = app.name;
+  document.getElementById('modalCategory').textContent = app.category;
+  document.getElementById('modalPackage').textContent = app.packageId;
+  document.getElementById('modalLongDesc').textContent = app.longDescription;
+  document.getElementById('modalVersion').textContent = app.version;
+  document.getElementById('modalSize').textContent = app.bundleSize;
+  document.getElementById('modalStatus').textContent = app.status.toUpperCase();
+  document.getElementById('modalPlatforms').textContent = app.platforms.join(', ');
+  document.getElementById('modalResearch').textContent = app.research;
+  document.getElementById('modalCaseStudy').textContent = app.caseStudy;
+  document.getElementById('modalOtaUrl').textContent = app.otaChannel;
+  document.getElementById('modalDownloadApk').href = app.apkDownloadUrl;
+  document.getElementById('modalPlayStore').href = app.playStoreUrl;
+
+  const updatesList = document.getElementById('modalUpdatesList');
+  updatesList.innerHTML = (app.updates || []).map(u => `
+    <div style="margin-bottom: 8px;">
+      <span style="color: var(--cyan); font-weight: bold;">${u.version} (${u.date}):</span>
+      <span>${u.notes}</span>
+    </div>
+  `).join('');
+
+  switchTab('overview');
+  modal.classList.add('active');
+}
+
+function closeModal() {
+  modal.classList.remove('active');
+}
+
+function switchTab(tabId) {
+  document.querySelectorAll('.modal-tab').forEach(t => {
+    t.classList.toggle('active', t.dataset.tab === tabId);
+  });
+  document.querySelectorAll('.tab-pane').forEach(p => {
+    p.classList.toggle('active', p.id === `pane-${tabId}`);
+  });
+}
+
+modalCloseBtn.addEventListener('click', closeModal);
+modal.addEventListener('click', (e) => {
+  if (e.target === modal) closeModal();
+});
+
+document.querySelectorAll('.modal-tab').forEach(tab => {
+  tab.addEventListener('click', () => switchTab(tab.dataset.tab));
+});
+
+searchInput.addEventListener('input', (e) => {
+  searchQuery = e.target.value;
+  renderApps();
+});
+
+categoryFilters.addEventListener('click', (e) => {
+  if (e.target.classList.contains('filter-btn')) {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    e.target.classList.add('active');
+    currentCategory = e.target.dataset.cat;
+    renderApps();
+  }
+});
+
+renderApps();
+</script>
+</body>
+</html>

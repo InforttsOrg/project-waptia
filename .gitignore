@@ -1,0 +1,22 @@
+# Build and dependency ignore
+build/
+.dart_tool/
+.packages
+.pub/
+.pub-cache/
+node_modules/
+dist/
+venv/
+.venv/
+env/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.gradle/
+.idea/
+*.iml
+*.log
+.DS_Store
+target/
+Pods/
