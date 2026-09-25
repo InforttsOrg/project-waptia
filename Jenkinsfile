@@ -233,12 +233,18 @@ stage('Cloudflare: waptia-store') {
     }
 stage('Tag success') {
       agent { label 'mac' }
+      when {
+        expression { PLAN?.action == 'playstore' }
+      }
       steps {
         script {
+          if (PLAN?.action != 'playstore') {
+            echo "Not a playstore release — skipping success tag"
+            return
+          }
           try {
             def common = load 'ci/jenkins-common.groovy'
-            def planResult = common.plan([appDir: '', track: 'internal', prefix: 'v-playstore-success-waptia'])
-            common.tag('v-playstore-success-waptia', planResult)
+            common.tag('v-playstore-success-waptia', PLAN)
           } catch (Exception e) {
             echo "Tag step notice: ${e.message}"
           }
