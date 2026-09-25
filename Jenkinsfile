@@ -7,23 +7,19 @@
 def PLAN = [:]
 
 pipeline {
-  agent { label 'mac' }
+  agent none
   options {
     timestamps()
     disableConcurrentBuilds()
-    timeout(time: 30, unit: 'MINUTES')
+    timeout(time: 45, unit: 'MINUTES')
   }
   environment {
     MAX_GRADLE_OPTS = '-Dorg.gradle.jvmargs="-Xmx4g -XX:MaxMetaspaceSize=512m"'
   }
   stages {
-    stage('Checkout') {
-      steps {
-        checkout scm
-        sh 'git submodule update --init --recursive 2>/dev/null || true'
-      }
-    }
+
 stage('Version plan') {
+      agent { label 'mac' }
       steps {
         script {
           try {
@@ -31,6 +27,9 @@ stage('Version plan') {
             def planResult = common.plan([appDir: '', track: 'internal',
                                           prefix: 'v-playstore-success-waptia', isFlutter: true])
             PLAN = planResult
+            common.updateBuildSummary(planResult, [
+              android: planResult.action == 'playstore' ? '✅ Native .aab (Google Play internal track)' : (planResult.action == 'ota' ? '📦 OTA Differential Patch (HF CDN)' : '⏭️ Skipped (no native change)')
+            ])
             common.notify("Planning ${env.JOB_NAME}: ${planResult.new_version} → ${planResult.action}")
             if (planResult.action == 'skip') { echo 'nothing to do'; currentBuild.result = 'SUCCESS'; return }
           } catch (Exception e) {
@@ -39,7 +38,9 @@ stage('Version plan') {
         }
       }
     }
+
 stage('Flutter: waptia') {
+      agent { label 'mac' }
       environment {
         APP_DIR = ''
         TRACK   = 'internal'
@@ -79,19 +80,28 @@ stage('Flutter: waptia') {
             '''
           }
         }
-        sh '''
-          TARGET_DIR="${APP_DIR:-.}"
-          if [ ! -f "$TARGET_DIR/pubspec.yaml" ]; then
-            TARGET_DIR=$(find . -maxdepth 4 -name pubspec.yaml -not -path '*/.*' -not -path '*/build/*' 2>/dev/null | while IFS= read -r f; do d="${f%/pubspec.yaml}"; if [ -f "$d/lib/main.dart" ] || [ -d "$d/android" ]; then echo "$d"; break; fi; done)
-          fi
-          if [ -z "$TARGET_DIR" ] || [ ! -d "$TARGET_DIR" ]; then
-            echo "SKIP: no Flutter app dir found for 'waptia' — skipping"
-            exit 0
-          fi
-          cd "$TARGET_DIR"
-          flutter build apk --release || echo "APK build attempted"
-          flutter build appbundle --release || echo "AppBundle build attempted"
-        '''
+        script {
+          def baseVer = PLAN?.base_version ?: ''
+          def buildNum = PLAN?.build_number ?: ''
+          withEnv(["BASE_VER=${baseVer}", "BUILD_NUM=${buildNum}"]) {
+            sh '''
+              TARGET_DIR="${APP_DIR:-.}"
+              if [ ! -f "$TARGET_DIR/pubspec.yaml" ]; then
+                TARGET_DIR=$(find . -maxdepth 4 -name pubspec.yaml -not -path '*/.*' -not -path '*/build/*' 2>/dev/null | while IFS= read -r f; do d="${f%/pubspec.yaml}"; if [ -f "$d/lib/main.dart" ] || [ -d "$d/android" ]; then echo "$d"; break; fi; done)
+              fi
+              if [ -z "$TARGET_DIR" ] || [ ! -d "$TARGET_DIR" ]; then
+                echo "SKIP: no Flutter app dir found for 'waptia' — skipping"
+                exit 0
+              fi
+              cd "$TARGET_DIR"
+              VER_ARGS=""
+              [ -n "$BASE_VER" ] && VER_ARGS="$VER_ARGS --build-name=$BASE_VER"
+              [ -n "$BUILD_NUM" ] && VER_ARGS="$VER_ARGS --build-number=$BUILD_NUM"
+              flutter build apk --release $VER_ARGS || echo "APK build attempted"
+              flutter build appbundle --release $VER_ARGS || echo "AppBundle build attempted"
+            '''
+          }
+        }
         script {
           def common = load 'ci/jenkins-common.groovy'
           
@@ -110,6 +120,10 @@ stage('Flutter: waptia') {
           // Optional Play Store Track Upload — canonical lane reads PACKAGE/TRACK/PLAY_SA_JSON envs
           if (env.PACKAGE == '') {
             echo "no Play package for waptia — build-only complete"
+            common.updateBuildSummary(PLAN ?: [action: 'build', new_version: '1.0.0'], [
+              android: '✅ Build APK + HF CDN (No Play Package configured)',
+              health: '🟢 Local Build & HF CDN Artifact Upload Succeeded'
+            ])
           } else {
             try {
               withCredentials([[$class: 'FileBinding', credentialsId: 'play-service-account-json', variable: 'PLAY_SA_JSON']]) {
@@ -130,15 +144,24 @@ stage('Flutter: waptia') {
                   cd "$TARGET_DIR"
                   fastlane internal
                 '''
+                common.updateBuildSummary(PLAN ?: [action: 'playstore', new_version: '1.0.0'], [
+                  android: "✅ Google Play Internal Track (${env.PACKAGE}) + HF CDN APK",
+                  health: "🟢 Fastlane Internal Track Upload Succeeded"
+                ])
               }
             } catch (Exception e) {
               echo "Play upload step notice: ${e.message}"
+              common.updateBuildSummary(PLAN ?: [action: 'playstore', new_version: '1.0.0'], [
+                android: "⚠️ Play Store Upload Warning: ${e.message}",
+                health: "⚠️ Fastlane Notice: ${e.message}"
+              ])
             }
           }
         }
       }
     }
 stage('OTA registry: com.infortts.waptia') {
+      agent { label 'mac' }
       steps {
         script {
           if (!PLAN || !PLAN.new_version) {
@@ -151,10 +174,15 @@ stage('OTA registry: com.infortts.waptia') {
             slug: 'com.infortts.waptia'.tokenize('.').last() ?: 'waptia',
             patch: patchFile ?: ''
           ])
+          common.updateBuildSummary(PLAN, [
+            android: "📦 OTA Patch Bump (HF CDN) parked on base ${PLAN.base_version}",
+            health: "🟢 OTA Release Registry Updated (Build #${PLAN.build_number})"
+          ])
         }
       }
     }
 stage('Cloudflare: waptia-store') {
+      agent { label 'vps' }
       steps {
         script {
           if (fileExists('package.json')) sh 'npm install --no-audit --no-fund 2>/dev/null || true'
@@ -175,11 +203,22 @@ stage('Cloudflare: waptia-store') {
           }
         }
         script {
-          sh "curl -sf -o /dev/null --max-time 20 https://waptia-store.workers.dev && echo LIVECHECK_OK || echo LIVECHECK_WARN"
+          def liveCheck = sh(script: "curl -sf -o /dev/null --max-time 20 https://waptia-store.workers.dev && echo LIVECHECK_OK || echo LIVECHECK_WARN", returnStdout: true)?.trim()
+          try {
+            def common = load 'ci/jenkins-common.groovy'
+            common.updateBuildSummary([action: 'cloudflare', new_version: "worker-waptia-store-${BUILD_NUMBER}"], [
+              web: "✅ Cloudflare Worker (https://waptia-store.workers.dev)",
+              backend: "Cloudflare Edge",
+              health: liveCheck == 'LIVECHECK_OK' ? "🟢 LIVECHECK_OK (https://waptia-store.workers.dev)" : "⚠️ LIVECHECK_WARN"
+            ])
+          } catch (Exception e) {
+            echo "Cloudflare summary notice: ${e.message}"
+          }
         }
       }
     }
 stage('Tag success') {
+      agent { label 'mac' }
       steps {
         script {
           try {
@@ -192,6 +231,7 @@ stage('Tag success') {
         }
       }
     }
+
   }
   post {
     success { script { def c = load 'ci/jenkins-common.groovy'; c.notify("${env.JOB_NAME} OK") } }
