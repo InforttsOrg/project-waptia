@@ -81,6 +81,10 @@ stage('Flutter: waptia') {
           }
         }
         script {
+          if (PLAN?.action == 'ota') {
+            echo "OTA action planned (Minor bump) — skipping full Play Store AppBundle build"
+            return
+          }
           def baseVer = PLAN?.base_version ?: ''
           def buildNum = PLAN?.build_number ?: ''
           withEnv(["BASE_VER=${baseVer}", "BUILD_NUM=${buildNum}"]) {
@@ -103,6 +107,10 @@ stage('Flutter: waptia') {
           }
         }
         script {
+          if (PLAN?.action == 'ota') {
+            echo "OTA action planned (Minor bump) — skipping Play Store Fastlane upload"
+            return
+          }
           def common = load 'ci/jenkins-common.groovy'
           
           // Direct build & upload of release APK to Hugging Face CDN

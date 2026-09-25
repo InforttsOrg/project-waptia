@@ -22,13 +22,22 @@ def app_track
   track.empty? ? 'internal' : track
 end
 
-def service_account_key
+def service_account_key_data
   env_key = (ENV['PLAY_SA_JSON'] || '').strip
-  return env_key if !env_key.empty? && File.exist?(env_key)
-  [
+  if !env_key.empty?
+    if File.exist?(env_key)
+      return File.read(env_key)
+    elsif env_key.start_with?('{')
+      return env_key
+    end
+  end
+  candidate = [
+    File.expand_path('~/google_play_key.json'),
     File.expand_path('~/Downloads/infortts-mobile-deployment-key.json'),
     File.expand_path('~/Downloads/infortts-57f65b1569af.json')
   ].find { |p| File.exist?(p) }
+  return File.read(candidate) if candidate
+  nil
 end
 
 platform :android do
@@ -39,8 +48,8 @@ platform :android do
     package = app_package
     UI.user_error!('No Play package: set PACKAGE env or Appfile package_name') if package.nil?
 
-    key = service_account_key
-    UI.user_error!('No Play service-account JSON: set PLAY_SA_JSON env or place infortts deploy key in ~/Downloads') if key.nil?
+    key_data = service_account_key_data
+    UI.user_error!('No Play service-account JSON: set PLAY_SA_JSON env or place in ~/google_play_key.json') if key_data.nil?
 
     unless File.exist?(aab_path)
       UI.message("AAB not found at #{aab_path} — building release appbundle ...")
@@ -52,7 +61,7 @@ platform :android do
     upload_to_play_store(
       package_name: package,
       track: track,
-      json_key: key,
+      json_key_data: key_data,
       aab: aab_path,
       skip_upload_metadata: true,
       skip_upload_images: true,
