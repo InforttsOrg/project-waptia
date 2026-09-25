@@ -41,6 +41,9 @@ stage('Version plan') {
 
 stage('Flutter: waptia') {
       agent { label 'mac' }
+      when {
+        expression { PLAN?.action == 'playstore' }
+      }
       environment {
         APP_DIR = ''
         TRACK   = 'internal'
@@ -81,8 +84,8 @@ stage('Flutter: waptia') {
           }
         }
         script {
-          if (PLAN?.action == 'ota') {
-            echo "OTA action planned (Minor bump) — skipping full Play Store AppBundle build"
+          if (PLAN?.action != 'playstore') {
+            echo "Action is ${PLAN?.action} — skipping Play Store AppBundle build"
             return
           }
           def baseVer = PLAN?.base_version ?: ''
@@ -170,6 +173,9 @@ stage('Flutter: waptia') {
     }
 stage('OTA registry: com.infortts.waptia') {
       agent { label 'mac' }
+      when {
+        expression { PLAN?.action == 'ota' }
+      }
       steps {
         script {
           if (!PLAN || !PLAN.new_version) {

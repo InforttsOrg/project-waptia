@@ -23,20 +23,39 @@ def app_track
 end
 
 def service_account_key_data
+  # 1. Try PLAY_SA_JSON from environment if it contains valid JSON
   env_key = (ENV['PLAY_SA_JSON'] || '').strip
   if !env_key.empty?
-    if File.exist?(env_key)
-      return File.read(env_key)
-    elsif env_key.start_with?('{')
-      return env_key
+    content = File.exist?(env_key) ? File.read(env_key) : (env_key.start_with?('{') ? env_key : nil)
+    if content
+      begin
+        parsed = JSON.parse(content)
+        if parsed.is_a?(Hash) && parsed['client_email']
+          return content
+        end
+      rescue => _
+      end
     end
   end
-  candidate = [
+
+  # 2. Fall back to verified local keys on the runner
+  candidates = [
     File.expand_path('~/google_play_key.json'),
     File.expand_path('~/Downloads/infortts-mobile-deployment-key.json'),
     File.expand_path('~/Downloads/infortts-57f65b1569af.json')
-  ].find { |p| File.exist?(p) }
-  return File.read(candidate) if candidate
+  ]
+  candidates.each do |p|
+    if File.exist?(p)
+      begin
+        content = File.read(p)
+        parsed = JSON.parse(content)
+        if parsed.is_a?(Hash) && parsed['client_email']
+          return content
+        end
+      rescue => _
+      end
+    end
+  end
   nil
 end
 
