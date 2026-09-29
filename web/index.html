@@ -755,20 +755,148 @@ main {
 .footer-link:hover { color: var(--cyan); }
 .footer-meta { font-size: 11px; color: var(--text-muted); font-family: monospace; letter-spacing: 0.3px; }
 
+/* Mobile Navigation Drawer */
+.mobile-menu-btn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text-primary);
+  cursor: pointer;
+  padding: 0;
+  transition: all 0.25s var(--ease);
+}
+.mobile-menu-btn:hover {
+  border-color: var(--cyan);
+  color: var(--cyan);
+}
+.mobile-drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  z-index: 90;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s var(--ease);
+}
+.mobile-drawer-backdrop.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+.mobile-drawer {
+  position: fixed;
+  top: 0;
+  right: -300px;
+  width: 280px;
+  height: 100vh;
+  background: #090e15;
+  border-left: 1px solid var(--border-cyan);
+  z-index: 95;
+  padding: 24px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  transition: right 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: -10px 0 30px rgba(0, 0, 0, 0.8);
+}
+.mobile-drawer.active {
+  right: 0;
+}
+.drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 14px;
+}
+.drawer-title {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--cyan);
+  letter-spacing: 0.5px;
+}
+.drawer-close {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 24px;
+  cursor: pointer;
+  line-height: 1;
+}
+.drawer-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+}
+.drawer-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 8px;
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 13.5px;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+.drawer-link:hover, .drawer-link:active {
+  background: var(--cyan-glow);
+  color: var(--cyan);
+}
+.drawer-cta {
+  margin-top: auto;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+}
+
 /* Responsive */
 @media (max-width: 860px) {
-  .header-container { flex-wrap: wrap; gap: 10px; }
-  .nav-links { gap: 14px; flex-wrap: wrap; }
+  .header-container { flex-wrap: nowrap; gap: 10px; }
+  .nav-link { display: none; }
+  .mobile-menu-btn { display: inline-flex; }
   .logo-text { font-size: 18px; }
 }
-@media (max-width: 560px) {
+@media (max-width: 600px) {
   header { padding: 12px 16px; }
-  .nav-link { display: none; }
-  .header-container { justify-content: space-between; }
-  .nav-links { justify-content: flex-end; }
-  .header-download-btn { padding: 7px 11px; font-size: 11px; }
+  .header-download-btn { display: none; }
   .search-filter-bar { margin-bottom: 20px; }
+  .filters-row {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 6px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .filters-row::-webkit-scrollbar { display: none; }
+  .filter-btn { shrink: 0; white-space: nowrap; }
   .card { padding: 16px; }
+  .modal-overlay { padding: 8px; }
+  .modal-content {
+    max-height: 94vh;
+    border-radius: 14px;
+  }
+  .modal-header { padding: 16px; }
+  .modal-body { padding: 16px; }
+  .modal-footer {
+    padding: 14px 16px;
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .modal-footer .btn {
+    width: 100%;
+    min-height: 44px;
+  }
+  .grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
 }
 
 </style>
@@ -786,13 +914,40 @@ main {
       <a href="https://infortts.site" class="nav-link">Organization</a>
       <a href="https://auth.infortts.site" class="nav-link">Glycocalyx Auth</a>
       <a href="https://meeseeks.infortts.site" class="nav-link">Meeseeks Swarm</a>
+      <a href="https://docs.infortts.site" class="nav-link">Acritarch Docs</a>
       <a href="https://update.infortts.site/download/waptia.apk?v=1.2.0" class="header-download-btn" download>
         <svg class="btn-inline-icon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
         Download Waptia APK
       </a>
+      <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle Menu">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
+      </button>
     </nav>
   </div>
 </header>
+
+<!-- Mobile Slide-out Drawer -->
+<div class="mobile-drawer-backdrop" id="drawerBackdrop"></div>
+<div class="mobile-drawer" id="mobileDrawer">
+  <div class="drawer-header">
+    <div class="drawer-title">INFORTTS ECOSYSTEM</div>
+    <button class="drawer-close" id="drawerCloseBtn">&times;</button>
+  </div>
+  <nav class="drawer-nav">
+    <a href="https://infortts.site" class="drawer-link">🌐 Organization Portal</a>
+    <a href="https://docs.infortts.site" class="drawer-link">📚 Acritarch API Docs</a>
+    <a href="https://auth.infortts.site" class="drawer-link">🛡️ Glycocalyx Auth</a>
+    <a href="https://meeseeks.infortts.site" class="drawer-link">🤖 Meeseeks Swarm</a>
+    <a href="https://shop.infortts.site" class="drawer-link">🛍️ Infortts Store</a>
+    <a href="https://artits.infortts.site" class="drawer-link">🎨 Artits Terminal</a>
+  </nav>
+  <div class="drawer-cta">
+    <a href="https://update.infortts.site/download/waptia.apk?v=1.2.0" class="btn btn-primary" download style="width: 100%; min-height: 44px;">
+      <svg class="btn-inline-icon" xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
+      Download Waptia APK
+    </a>
+  </div>
+</div>
 
 <main>
   <div class="hero">
@@ -2375,6 +2530,28 @@ categoryFilters.addEventListener('click', (e) => {
     renderApps();
   }
 });
+
+// Mobile Drawer Controls
+const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+const mobileDrawer = document.getElementById('mobileDrawer');
+const drawerBackdrop = document.getElementById('drawerBackdrop');
+const drawerCloseBtn = document.getElementById('drawerCloseBtn');
+
+function toggleDrawer(open) {
+  if (open) {
+    mobileDrawer.classList.add('active');
+    drawerBackdrop.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  } else {
+    mobileDrawer.classList.remove('active');
+    drawerBackdrop.classList.remove('active');
+    document.body.style.overflow = '';
+  }
+}
+
+if (mobileMenuBtn) mobileMenuBtn.addEventListener('click', () => toggleDrawer(true));
+if (drawerCloseBtn) drawerCloseBtn.addEventListener('click', () => toggleDrawer(false));
+if (drawerBackdrop) drawerBackdrop.addEventListener('click', () => toggleDrawer(false));
 
 renderApps();
 </script>
