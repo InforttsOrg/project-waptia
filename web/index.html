@@ -19,28 +19,51 @@
   --text-muted: #536474;
   --cyan: #21e6d0;
   --cyan-glow: rgba(33, 230, 208, 0.15);
-  --blue: #3b82f6;
+  --cyan-soft: rgba(33, 230, 208, 0.08);
+  --blue: #4a9eff;
   --green: #10b981;
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
   --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "JetBrains Mono", sans-serif;
   --radius: 14px;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body {
-  background: var(--bg);
+  background:
+    radial-gradient(1000px 420px at 50% -180px, rgba(33, 230, 208, 0.06), transparent 70%),
+    repeating-linear-gradient(0deg, rgba(255,255,255,0.015) 0 1px, transparent 1px 44px),
+    repeating-linear-gradient(90deg, rgba(255,255,255,0.015) 0 1px, transparent 1px 44px),
+    var(--bg);
   color: var(--text-secondary);
   font-family: var(--font);
   min-height: 100vh;
-  padding-bottom: 80px;
+  padding-bottom: 0;
   -webkit-font-smoothing: antialiased;
 }
+:focus-visible {
+  outline: 2px solid var(--cyan);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+::selection { background: rgba(33, 230, 208, 0.25); color: #fff; }
+@media (prefers-reduced-motion: reduce) {
+  * { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+}
 header {
-  background: rgba(6, 9, 14, 0.85);
+  background: rgba(6, 9, 14, 0.82);
   backdrop-filter: blur(16px);
   border-bottom: 1px solid var(--border);
   position: sticky;
   top: 0;
   z-index: 50;
-  padding: 16px 24px;
+  padding: 14px 24px;
+}
+header::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0; bottom: -1px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(33, 230, 208, 0.35), transparent);
+  pointer-events: none;
 }
 .header-container {
   max-width: 1280px;
@@ -60,7 +83,11 @@ header {
   width: 36px;
   height: 36px;
   object-fit: contain;
+  border-radius: 8px;
+  box-shadow: 0 0 18px rgba(33, 230, 208, 0.18);
+  transition: transform 0.3s var(--ease), box-shadow 0.3s var(--ease);
 }
+.logo-group:hover .logo-img { transform: scale(1.06); box-shadow: 0 0 24px rgba(33, 230, 208, 0.3); }
 .logo-text {
   font-weight: 800;
   font-size: 20px;
@@ -88,7 +115,7 @@ header {
   text-decoration: none;
   font-size: 13px;
   font-weight: 500;
-  transition: color 0.2s;
+  transition: color 0.25s var(--ease);
 }
 .nav-link:hover {
   color: var(--cyan);
@@ -96,40 +123,67 @@ header {
 main {
   max-width: 1280px;
   margin: 0 auto;
-  padding: 32px 20px;
+  padding: 40px 20px 48px;
 }
 .hero {
-  margin-bottom: 32px;
+  position: relative;
+  margin-bottom: 36px;
   text-align: center;
+}
+.hero::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -160px;
+  margin: 0 auto;
+  width: min(720px, 100%);
+  height: 320px;
+  background: radial-gradient(closest-side, rgba(33, 230, 208, 0.10), transparent);
+  pointer-events: none;
+  z-index: -1;
 }
 .hero-tag {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 7px;
   font-size: 11px;
   font-family: monospace;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 1.4px;
   color: var(--cyan);
   background: var(--cyan-glow);
-  padding: 5px 12px;
+  padding: 6px 14px;
   border-radius: 20px;
   border: 1px solid var(--border-cyan);
-  margin-bottom: 12px;
+  margin-bottom: 16px;
+}
+.hero-tag::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--cyan);
+  box-shadow: 0 0 8px var(--cyan);
 }
 .hero-title {
-  font-size: 36px;
+  font-size: clamp(28px, 4.6vw, 44px);
   font-weight: 800;
   color: var(--text-primary);
-  margin-bottom: 10px;
+  margin-bottom: 12px;
   letter-spacing: -0.8px;
+  background: linear-gradient(180deg, #ffffff 30%, rgba(33, 230, 208, 0.85));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 2px 18px rgba(33, 230, 208, 0.12));
 }
 .hero-subtitle {
   font-size: 15px;
   color: var(--text-secondary);
-  max-width: 680px;
+  max-width: 720px;
   margin: 0 auto;
-  line-height: 1.6;
+  line-height: 1.65;
 }
 .search-filter-bar {
   display: flex;
@@ -143,19 +197,22 @@ main {
 }
 .search-input {
   width: 100%;
-  padding: 14px 18px 14px 44px;
-  background: var(--bg-card);
+  padding: 14px 18px 14px 46px;
+  background: rgba(11, 16, 23, 0.85);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   color: var(--text-primary);
   font-size: 14px;
   outline: none;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition: border-color 0.25s var(--ease), box-shadow 0.25s var(--ease), background 0.25s var(--ease);
 }
+.search-input:hover { border-color: rgba(255, 255, 255, 0.14); }
 .search-input:focus {
   border-color: var(--cyan);
   box-shadow: 0 0 0 3px rgba(33, 230, 208, 0.12);
+  background: var(--bg-card);
 }
+.search-input::placeholder { color: var(--text-muted); }
 .search-icon {
   position: absolute;
   left: 16px;
@@ -178,47 +235,91 @@ main {
   font-size: 12px;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.25s var(--ease);
 }
 .filter-btn:hover {
   border-color: var(--text-muted);
   color: var(--text-primary);
+  transform: translateY(-1px);
 }
 .filter-btn.active {
   background: var(--cyan-glow);
   border-color: var(--cyan);
   color: var(--cyan);
+  box-shadow: 0 0 14px rgba(33, 230, 208, 0.18);
 }
 .stats-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
   margin-bottom: 20px;
-  font-size: 13px;
+  padding: 12px 16px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: rgba(11, 16, 23, 0.55);
+  font-size: 12px;
   color: var(--text-muted);
   font-family: monospace;
+  letter-spacing: 0.3px;
+}
+.stats-live {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.8);
+  animation: livePulse 2.2s ease-in-out infinite;
+}
+@keyframes livePulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.55; transform: scale(0.8); }
 }
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(340px, 100%), 1fr));
   gap: 20px;
 }
 .card {
-  background: var(--bg-card);
+  position: relative;
+  background:
+    linear-gradient(180deg, rgba(33, 230, 208, 0.03), transparent 40%),
+    var(--bg-card);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 20px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+  transition: transform 0.35s var(--ease), border-color 0.35s var(--ease), box-shadow 0.35s var(--ease);
   cursor: pointer;
 }
-.card:hover {
-  transform: translateY(-2px);
-  border-color: var(--border-cyan);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+.card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius);
+  padding: 1px;
+  background: linear-gradient(160deg, rgba(33, 230, 208, 0.35), transparent 40%);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.35s var(--ease);
+  pointer-events: none;
 }
+.card:hover {
+  transform: translateY(-4px);
+  border-color: var(--border-cyan);
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.55), 0 0 30px rgba(33, 230, 208, 0.08);
+}
+.card:hover::before { opacity: 1; }
 .card-top {
   display: flex;
   align-items: flex-start;
@@ -229,18 +330,24 @@ main {
   width: 52px;
   height: 52px;
   border-radius: 12px;
-  background: rgba(33, 230, 208, 0.05);
+  background: var(--cyan-soft);
   border: 1px solid rgba(33, 230, 208, 0.15);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
   padding: 4px;
+  transition: box-shadow 0.35s var(--ease), transform 0.35s var(--ease);
+}
+.card:hover .card-icon-box {
+  box-shadow: 0 0 22px rgba(33, 230, 208, 0.25);
+  transform: scale(1.04);
 }
 .card-icon-img {
   width: 100%;
   height: 100%;
   object-fit: contain;
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.5));
 }
 .card-info {
   flex: 1;
@@ -261,13 +368,19 @@ main {
 }
 .card-desc {
   font-size: 13px;
-  line-height: 1.5;
+  line-height: 1.55;
   color: var(--text-secondary);
   margin-bottom: 16px;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+}
+.card-pkg {
+  font-size: 10.5px;
+  font-family: monospace;
+  color: var(--text-muted);
+  letter-spacing: 0.2px;
 }
 .card-meta {
   display: flex;
@@ -277,22 +390,28 @@ main {
 }
 .pill {
   font-size: 10px;
-  padding: 3px 8px;
+  padding: 4px 9px;
   border-radius: 6px;
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid var(--border);
   color: var(--text-secondary);
   text-transform: uppercase;
+  letter-spacing: 0.4px;
 }
 .pill.live {
   background: rgba(16, 185, 129, 0.1);
   color: var(--green);
-  border-color: rgba(16, 185, 129, 0.2);
+  border-color: rgba(16, 185, 129, 0.22);
 }
 .pill.ready {
   background: var(--cyan-glow);
   color: var(--cyan);
   border-color: var(--border-cyan);
+}
+.pill.beta {
+  background: rgba(74, 158, 255, 0.1);
+  color: var(--blue);
+  border-color: rgba(74, 158, 255, 0.25);
 }
 .card-actions {
   display: flex;
@@ -305,15 +424,16 @@ main {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 7px;
   padding: 8px 14px;
   border-radius: 8px;
   font-size: 12px;
   font-weight: 600;
   text-decoration: none;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.28s var(--ease);
   border: 1px solid transparent;
+  font-family: inherit;
 }
 .btn-primary {
   background: var(--cyan);
@@ -322,7 +442,8 @@ main {
 }
 .btn-primary:hover {
   background: #2feeda;
-  box-shadow: 0 0 16px rgba(33, 230, 208, 0.3);
+  box-shadow: 0 0 18px rgba(33, 230, 208, 0.35);
+  transform: translateY(-1px);
 }
 .btn-secondary {
   background: rgba(255, 255, 255, 0.05);
@@ -332,7 +453,10 @@ main {
 .btn-secondary:hover {
   background: rgba(255, 255, 255, 0.1);
   border-color: var(--text-muted);
+  transform: translateY(-1px);
 }
+.btn-icon { display: inline-flex; width: 14px; height: 14px; flex-shrink: 0; }
+.btn-inline-icon { flex-shrink: 0; }
 /* Modal Styles */
 .modal-overlay {
   position: fixed;
@@ -349,16 +473,23 @@ main {
   display: flex;
 }
 .modal-content {
-  background: var(--bg-modal);
+  background:
+    linear-gradient(180deg, rgba(33, 230, 208, 0.04), transparent 30%),
+    var(--bg-modal);
   border: 1px solid var(--border-cyan);
   border-radius: 18px;
   max-width: 760px;
   width: 100%;
   max-height: 90vh;
   overflow-y: auto;
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.8);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.8), 0 0 60px rgba(33, 230, 208, 0.08);
   display: flex;
   flex-direction: column;
+  animation: modalIn 0.32s var(--ease);
+}
+@keyframes modalIn {
+  from { opacity: 0; transform: translateY(14px) scale(0.98); }
+  to { opacity: 1; transform: none; }
 }
 .modal-header {
   padding: 24px 24px 16px;
@@ -461,7 +592,9 @@ main {
   border: 1px solid var(--border);
   border-radius: 10px;
   padding: 12px;
+  transition: border-color 0.25s var(--ease);
 }
+.key-val-card:hover { border-color: rgba(33, 230, 208, 0.22); }
 .key-val-label {
   font-size: 11px;
   font-family: monospace;
@@ -487,17 +620,28 @@ main {
 }
 
 .featured-waptia-card {
-  margin: 28px auto 0;
+  margin: 32px auto 0;
   max-width: 860px;
-  background: linear-gradient(135deg, rgba(33, 230, 208, 0.12) 0%, rgba(13, 19, 28, 0.98) 100%);
+  background: linear-gradient(135deg, rgba(33, 230, 208, 0.14) 0%, rgba(13, 19, 28, 0.98) 55%);
   border: 1px solid var(--border-cyan);
   border-radius: var(--radius);
-  padding: 24px;
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6), 0 0 24px rgba(33, 230, 208, 0.12);
+  padding: 26px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6), 0 0 28px rgba(33, 230, 208, 0.14);
   display: flex;
   flex-direction: column;
   gap: 18px;
   text-align: left;
+  overflow: hidden;
+  position: relative;
+}
+.featured-waptia-card::after {
+  content: "";
+  position: absolute;
+  top: -60px; right: -60px;
+  width: 200px; height: 200px;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(33, 230, 208, 0.14), transparent);
+  pointer-events: none;
 }
 @media (min-width: 640px) {
   .featured-waptia-card {
@@ -564,17 +708,67 @@ main {
   color: #06090e !important;
   font-weight: 700;
   font-size: 12px;
-  padding: 7px 14px;
+  padding: 8px 15px;
   border-radius: 8px;
   text-decoration: none;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  transition: opacity 0.2s, transform 0.2s;
+  gap: 7px;
+  transition: opacity 0.25s var(--ease), transform 0.25s var(--ease), box-shadow 0.25s var(--ease);
 }
 .header-download-btn:hover {
-  opacity: 0.9;
+  opacity: 0.92;
   transform: translateY(-1px);
+  box-shadow: 0 0 18px rgba(33, 230, 208, 0.3);
+}
+
+/* Footer */
+.site-footer {
+  border-top: 1px solid var(--border);
+  margin-top: 56px;
+  padding: 28px 24px;
+  background: rgba(11, 16, 23, 0.45);
+  position: relative;
+}
+.site-footer::before {
+  content: "";
+  position: absolute;
+  left: 0; right: 0; top: -1px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(33, 230, 208, 0.3), transparent);
+}
+.footer-inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+}
+.footer-brand { display: flex; align-items: center; gap: 12px; }
+.footer-logo { width: 28px; height: 28px; object-fit: contain; border-radius: 6px; opacity: 0.9; }
+.footer-name { font-weight: 700; color: var(--text-primary); font-size: 14px; letter-spacing: 0.5px; }
+.footer-tag { font-size: 11px; color: var(--text-muted); font-family: monospace; }
+.footer-links { display: flex; flex-wrap: wrap; gap: 20px; }
+.footer-link { color: var(--text-secondary); text-decoration: none; font-size: 12.5px; transition: color 0.25s var(--ease); }
+.footer-link:hover { color: var(--cyan); }
+.footer-meta { font-size: 11px; color: var(--text-muted); font-family: monospace; letter-spacing: 0.3px; }
+
+/* Responsive */
+@media (max-width: 860px) {
+  .header-container { flex-wrap: wrap; gap: 10px; }
+  .nav-links { gap: 14px; flex-wrap: wrap; }
+  .logo-text { font-size: 18px; }
+}
+@media (max-width: 560px) {
+  header { padding: 12px 16px; }
+  .nav-link { display: none; }
+  .header-container { justify-content: space-between; }
+  .nav-links { justify-content: flex-end; }
+  .header-download-btn { padding: 7px 11px; font-size: 11px; }
+  .search-filter-bar { margin-bottom: 20px; }
+  .card { padding: 16px; }
 }
 
 </style>
@@ -592,7 +786,10 @@ main {
       <a href="https://infortts.site" class="nav-link">Organization</a>
       <a href="https://auth.infortts.site" class="nav-link">Glycocalyx Auth</a>
       <a href="https://meeseeks.infortts.site" class="nav-link">Meeseeks Swarm</a>
-      <a href="https://update.infortts.site/download/waptia.apk" class="header-download-btn" download>📥 Download Waptia APK</a>
+      <a href="https://update.infortts.site/download/waptia.apk?v=1.2.0" class="header-download-btn" download>
+        <svg class="btn-inline-icon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
+        Download Waptia APK
+      </a>
     </nav>
   </div>
 </header>
@@ -623,19 +820,22 @@ main {
         </div>
       </div>
       <div class="featured-waptia-actions">
-        <a href="https://update.infortts.site/download/waptia.apk" class="btn btn-primary" download style="padding: 12px 22px; font-size: 14px; font-weight: 700; box-shadow: 0 4px 20px rgba(33, 230, 208, 0.3);">📥 Download Waptia APK</a>
-        <button class="btn btn-secondary" onclick="openModal('waptia')" style="padding: 12px 16px;">Details & Research</button>
+        <a href="https://update.infortts.site/download/waptia.apk?v=1.2.0" class="btn btn-primary" download style="padding: 13px 22px; font-size: 14px; font-weight: 700; box-shadow: 0 4px 20px rgba(33, 230, 208, 0.3);">
+          <svg class="btn-inline-icon" xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
+          Download Waptia APK
+        </a>
+        <button class="btn btn-secondary" onclick="openModal('waptia')" style="padding: 13px 16px;">Details &amp; Research</button>
       </div>
     </div>
   </div>
 
   <div class="search-filter-bar">
     <div class="search-box">
-      <span class="search-icon">🔍</span>
-      <input type="text" id="searchInput" class="search-input" placeholder="Search apps, package IDs, categories, research topics...">
-    </div>
+        <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        <input type="text" id="searchInput" class="search-input" placeholder="Search apps, package IDs, categories, research topics..." aria-label="Search applications">
+      </div>
     <div class="filters-row" id="categoryFilters">
-      <button class="filter-btn active" data-cat="all">All Categories</button>
+      <button class="filter-btn active" data-cat="all" aria-pressed="true">All Categories</button>
       <button class="filter-btn" data-cat="Core Infrastructure">Core Infrastructure</button>
       <button class="filter-btn" data-cat="Visual Intelligence">Visual Intelligence</button>
       <button class="filter-btn" data-cat="Memory & Storage">Memory & Storage</button>
@@ -647,13 +847,32 @@ main {
 
   <div class="stats-bar">
     <span id="resultsCount">Showing 28 Applications</span>
-    <span>Channel: Production / OTA Live</span>
+    <span class="stats-live"><span class="live-dot" aria-hidden="true"></span>Channel: Production / OTA Live</span>
   </div>
 
   <div class="grid" id="appsGrid"></div>
 </main>
 
-<div class="modal-overlay" id="appModal">
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <img src="/icons/waptia.png?v=20260916_02" alt="" class="footer-logo">
+      <div>
+        <div class="footer-name">WAPTIA</div>
+        <div class="footer-tag">Infortts Swarm Registry · App Store &amp; Research Portal</div>
+      </div>
+    </div>
+    <nav class="footer-links" aria-label="Footer">
+      <a class="footer-link" href="https://infortts.site">Organization</a>
+      <a class="footer-link" href="https://auth.infortts.site">Glycocalyx Auth</a>
+      <a class="footer-link" href="https://meeseeks.infortts.site">Meeseeks Swarm</a>
+      <a class="footer-link" href="https://update.infortts.site/download/waptia.apk?v=1.2.0" download>Download APK</a>
+    </nav>
+    <div class="footer-meta">v1.2.0 · update.infortts.site · verified OTA signatures</div>
+  </div>
+</footer>
+
+<div class="modal-overlay" id="appModal" role="dialog" aria-modal="true" aria-label="Application details">
   <div class="modal-content">
     <div class="modal-header">
       <div class="modal-app-header">
@@ -666,7 +885,7 @@ main {
           <div id="modalPackage" style="font-size: 11px; font-family: monospace; color: var(--text-muted);">com.infortts.app</div>
         </div>
       </div>
-      <button class="modal-close" id="modalCloseBtn">&times;</button>
+      <button class="modal-close" id="modalCloseBtn" aria-label="Close">&times;</button>
     </div>
     
     <div class="modal-tabs">
@@ -745,15 +964,25 @@ const APPS = [
       "web"
     ],
     "status": "ready",
-    "version": "v2026.02.00",
-    "bundleSize": "43.5 MB",
+    "version": "v1.1.0",
+    "bundleSize": "46.4 MB",
     "optInUrl": "https://play.google.com/apps/internaltest/4973664254685278609",
     "playStoreUrl": "https://play.google.com/store/apps/details?id=com.infortts.waptia",
-    "apkDownloadUrl": "https://update.infortts.site/download/waptia.apk",
-    "otaChannel": "https://update.infortts.site/ota/waptia/",
+    "apkDownloadUrl": "https://huggingface.co/datasets/rttss/ota-patches/resolve/main/waptia/waptia.apk",
+    "otaChannel": "https://huggingface.co/datasets/rttss/ota-patches/raw/main/waptia/manifest.json",
     "research": "Content-addressed differential binary patching reducing OTA payload size by up to 92%.",
     "caseStudy": "Serves over 28 production applications with instant download speeds and cryptographic integrity.",
     "updates": [
+      {
+        "version": "v1.1.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v1.1.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
+      {
+        "version": "v2.1.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v2.1.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
       {
         "version": "v2026.02.00",
         "date": "2026-09-16",
@@ -761,7 +990,11 @@ const APPS = [
       }
     ],
     "screenshots": [
-      "/screenshots/waptia_1.png"
+      "/screenshots/waptia_1.png",
+      "/screenshots/waptia_2.png",
+      "/screenshots/waptia_3.png",
+      "/screenshots/waptia_4.png",
+      "/screenshots/waptia_5.png"
     ]
   },
   {
@@ -777,15 +1010,25 @@ const APPS = [
       "linux"
     ],
     "status": "live",
-    "version": "v2026.02.00",
-    "bundleSize": "50.1 MB",
+    "version": "v1.2.0",
+    "bundleSize": "42.4 MB",
     "optInUrl": "https://play.google.com/apps/internaltest/4701570838917970273",
     "playStoreUrl": "https://play.google.com/store/apps/details?id=com.infortts.cardiodictyon",
-    "apkDownloadUrl": "https://update.infortts.site/download/cardiodictyon.apk",
-    "otaChannel": "https://update.infortts.site/ota/cardiodictyon/",
+    "apkDownloadUrl": "https://huggingface.co/datasets/rttss/ota-patches/resolve/main/cardiodictyon/cardiodictyon.apk",
+    "otaChannel": "https://huggingface.co/datasets/rttss/ota-patches/raw/main/cardiodictyon/manifest.json",
     "research": "Built on a zero-copy ring-buffer telemetry parser implemented in Rust and C++ with NATS JetStream integration.",
     "caseStudy": "Monitors 140+ edge devices in industrial IoT deployments with 99.999% uptime and zero dropped telemetry frames over cellular uplinks.",
     "updates": [
+      {
+        "version": "v1.2.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v1.2.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
+      {
+        "version": "v1.1.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v1.1.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
       {
         "version": "v2026.02.00",
         "date": "2026-09-16",
@@ -794,7 +1037,10 @@ const APPS = [
     ],
     "screenshots": [
       "/screenshots/cardiodictyon_1.png",
-      "/screenshots/cardiodictyon_2.png"
+      "/screenshots/cardiodictyon_2.png",
+      "/screenshots/cardiodictyon_3.png",
+      "/screenshots/cardiodictyon_4.png",
+      "/screenshots/cardiodictyon_5.png"
     ]
   },
   {
@@ -813,15 +1059,25 @@ const APPS = [
       "windows"
     ],
     "status": "live",
-    "version": "v2026.02.00",
-    "bundleSize": "49.1 MB",
+    "version": "v1.2.0",
+    "bundleSize": "48.2 MB",
     "optInUrl": "https://play.google.com/apps/internaltest/4701318995429644311",
     "playStoreUrl": "https://play.google.com/store/apps/details?id=com.infortts.cyclomedusa",
-    "apkDownloadUrl": "https://update.infortts.site/download/cyclomedusa.apk",
-    "otaChannel": "https://update.infortts.site/ota/cyclomedusa/",
+    "apkDownloadUrl": "https://huggingface.co/datasets/rttss/ota-patches/resolve/main/cyclomedusa/cyclomedusa.apk",
+    "otaChannel": "https://huggingface.co/datasets/rttss/ota-patches/raw/main/cyclomedusa/manifest.json",
     "research": "Utilizes quantized MobileNetV4 spatial tensors optimized with Apple Metal and Vulkan compute shaders.",
     "caseStudy": "Deployed in smart factory assembly lines for gesture-driven blueprint navigation with 120 FPS latency-free rendering.",
     "updates": [
+      {
+        "version": "v1.2.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v1.2.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
+      {
+        "version": "v1.1.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v1.1.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
       {
         "version": "v2026.02.00",
         "date": "2026-09-16",
@@ -829,7 +1085,11 @@ const APPS = [
       }
     ],
     "screenshots": [
-      "/screenshots/cyclomedusa_1.png"
+      "/screenshots/cyclomedusa_1.png",
+      "/screenshots/cyclomedusa_2.png",
+      "/screenshots/cyclomedusa_3.png",
+      "/screenshots/cyclomedusa_4.png",
+      "/screenshots/cyclomedusa_5.png"
     ]
   },
   {
@@ -848,15 +1108,25 @@ const APPS = [
       "windows"
     ],
     "status": "live",
-    "version": "v2026.02.00",
-    "bundleSize": "51.7 MB",
+    "version": "v1.2.0",
+    "bundleSize": "42.4 MB",
     "optInUrl": "https://play.google.com/apps/internaltest/4701074981878644468",
     "playStoreUrl": "https://play.google.com/store/apps/details?id=com.infortts.dickinsonia",
-    "apkDownloadUrl": "https://update.infortts.site/download/dickinsonia.apk",
-    "otaChannel": "https://update.infortts.site/ota/dickinsonia/",
+    "apkDownloadUrl": "https://huggingface.co/datasets/rttss/ota-patches/resolve/main/dickinsonia/dickinsonia.apk",
+    "otaChannel": "https://huggingface.co/datasets/rttss/ota-patches/raw/main/dickinsonia/manifest.json",
     "research": "Implements an optimized Kademlia DHT with erasure coding (Reed-Solomon 8+4) and end-to-end ChaCha20-Poly1305 encryption.",
     "caseStudy": "Synchronizes 4TB of research archives across 8 geographic availability zones with sub-second conflict resolution.",
     "updates": [
+      {
+        "version": "v1.2.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v1.2.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
+      {
+        "version": "v1.1.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v1.1.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
       {
         "version": "v2026.02.00",
         "date": "2026-09-16",
@@ -864,7 +1134,11 @@ const APPS = [
       }
     ],
     "screenshots": [
-      "/screenshots/dickinsonia_1.png"
+      "/screenshots/dickinsonia_1.png",
+      "/screenshots/dickinsonia_2.png",
+      "/screenshots/dickinsonia_3.png",
+      "/screenshots/dickinsonia_4.png",
+      "/screenshots/dickinsonia_5.png"
     ]
   },
   {
@@ -880,15 +1154,25 @@ const APPS = [
       "linux"
     ],
     "status": "live",
-    "version": "v2026.02.00",
-    "bundleSize": "49.4 MB",
+    "version": "v1.2.0",
+    "bundleSize": "42.4 MB",
     "optInUrl": "https://play.google.com/apps/internaltest/4701202267214643622",
     "playStoreUrl": "https://play.google.com/store/apps/details?id=com.infortts.ernietta",
-    "apkDownloadUrl": "https://update.infortts.site/download/ernietta.apk",
-    "otaChannel": "https://update.infortts.site/ota/ernietta/",
+    "apkDownloadUrl": "https://huggingface.co/datasets/rttss/ota-patches/resolve/main/ernietta/ernietta.apk",
+    "otaChannel": "https://huggingface.co/datasets/rttss/ota-patches/raw/main/ernietta/manifest.json",
     "research": "Double Ratchet algorithm combined with multi-hop wireguard tunnels and noise protocol framework.",
     "caseStudy": "Powers mission-critical covert communications across remote field telemetry teams.",
     "updates": [
+      {
+        "version": "v1.2.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v1.2.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
+      {
+        "version": "v1.1.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v1.1.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
       {
         "version": "v2026.02.00",
         "date": "2026-09-16",
@@ -896,7 +1180,11 @@ const APPS = [
       }
     ],
     "screenshots": [
-      "/screenshots/ernietta_1.png"
+      "/screenshots/ernietta_1.png",
+      "/screenshots/ernietta_2.png",
+      "/screenshots/ernietta_3.png",
+      "/screenshots/ernietta_4.png",
+      "/screenshots/ernietta_5.png"
     ]
   },
   {
@@ -915,15 +1203,25 @@ const APPS = [
       "windows"
     ],
     "status": "live",
-    "version": "v2026.02.00",
-    "bundleSize": "51.5 MB",
+    "version": "v1.2.0",
+    "bundleSize": "42.4 MB",
     "optInUrl": "https://play.google.com/apps/internaltest/4701532130739943923",
     "playStoreUrl": "https://play.google.com/store/apps/details?id=com.infortts.fractofusus",
-    "apkDownloadUrl": "https://update.infortts.site/download/fractofusus.apk",
-    "otaChannel": "https://update.infortts.site/ota/fractofusus/",
+    "apkDownloadUrl": "https://huggingface.co/datasets/rttss/ota-patches/resolve/main/fractofusus/fractofusus.apk",
+    "otaChannel": "https://huggingface.co/datasets/rttss/ota-patches/raw/main/fractofusus/manifest.json",
     "research": "Work-stealing decentralized consensus scheduler with linear scalability up to 10,000 parallel workers.",
     "caseStudy": "Accelerated backtesting compute pipeline from 4 hours down to 18 seconds across 50 nodes.",
     "updates": [
+      {
+        "version": "v1.2.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v1.2.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
+      {
+        "version": "v1.1.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v1.1.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
       {
         "version": "v2026.02.00",
         "date": "2026-09-16",
@@ -931,7 +1229,11 @@ const APPS = [
       }
     ],
     "screenshots": [
-      "/screenshots/fractofusus_1.png"
+      "/screenshots/fractofusus_1.png",
+      "/screenshots/fractofusus_2.png",
+      "/screenshots/fractofusus_3.png",
+      "/screenshots/fractofusus_4.png",
+      "/screenshots/fractofusus_5.png"
     ]
   },
   {
@@ -947,15 +1249,25 @@ const APPS = [
       "linux"
     ],
     "status": "live",
-    "version": "v2026.02.00",
-    "bundleSize": "49.9 MB",
+    "version": "v1.2.0",
+    "bundleSize": "42.4 MB",
     "optInUrl": "https://play.google.com/apps/internaltest/4701698683636108581",
     "playStoreUrl": "https://play.google.com/store/apps/details?id=com.infortts.ikaria",
-    "apkDownloadUrl": "https://update.infortts.site/download/ikaria.apk",
-    "otaChannel": "https://update.infortts.site/ota/ikaria/",
+    "apkDownloadUrl": "https://huggingface.co/datasets/rttss/ota-patches/resolve/main/ikaria/ikaria.apk",
+    "otaChannel": "https://huggingface.co/datasets/rttss/ota-patches/raw/main/ikaria/manifest.json",
     "research": "Custom SIMD biological simulation kernels in WebAssembly and OpenCL.",
     "caseStudy": "Used for simulated drug candidate folding tests and phenotypic variance modeling.",
     "updates": [
+      {
+        "version": "v1.2.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v1.2.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
+      {
+        "version": "v1.1.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v1.1.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
       {
         "version": "v2026.02.00",
         "date": "2026-09-16",
@@ -963,7 +1275,11 @@ const APPS = [
       }
     ],
     "screenshots": [
-      "/screenshots/ikaria_1.png"
+      "/screenshots/ikaria_1.png",
+      "/screenshots/ikaria_2.png",
+      "/screenshots/ikaria_3.png",
+      "/screenshots/ikaria_4.png",
+      "/screenshots/ikaria_5.png"
     ]
   },
   {
@@ -980,15 +1296,25 @@ const APPS = [
       "macos"
     ],
     "status": "live",
-    "version": "v2026.02.00",
-    "bundleSize": "50.3 MB",
+    "version": "v1.2.0",
+    "bundleSize": "52.1 MB",
     "optInUrl": "https://play.google.com/apps/internaltest/4701299605514848597",
     "playStoreUrl": "https://play.google.com/store/apps/details?id=com.infortts.meeseeks",
-    "apkDownloadUrl": "https://update.infortts.site/download/meeseeks.apk",
-    "otaChannel": "https://update.infortts.site/ota/meeseeks/",
+    "apkDownloadUrl": "https://huggingface.co/datasets/rttss/ota-patches/resolve/main/meeseeks/meeseeks.apk",
+    "otaChannel": "https://huggingface.co/datasets/rttss/ota-patches/raw/main/meeseeks/manifest.json",
     "research": "Hierarchical multi-agent cognitive architecture with dynamic tool dispatch, reflection, and automated unit testing loops.",
     "caseStudy": "Automates 85% of routine DevOps, server migrations, and CI/CD maintenance across Infortts infrastructure.",
     "updates": [
+      {
+        "version": "v1.2.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v1.2.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
+      {
+        "version": "v1.1.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v1.1.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
       {
         "version": "v2026.02.00",
         "date": "2026-09-16",
@@ -996,7 +1322,11 @@ const APPS = [
       }
     ],
     "screenshots": [
-      "/screenshots/meeseeks_1.png"
+      "/screenshots/meeseeks_1.png",
+      "/screenshots/meeseeks_2.png",
+      "/screenshots/meeseeks_3.png",
+      "/screenshots/meeseeks_4.png",
+      "/screenshots/meeseeks_5.png"
     ]
   },
   {
@@ -1013,15 +1343,25 @@ const APPS = [
       "linux"
     ],
     "status": "live",
-    "version": "v2026.02.00",
-    "bundleSize": "51.2 MB",
+    "version": "v1.2.0",
+    "bundleSize": "42.4 MB",
     "optInUrl": "https://play.google.com/apps/internaltest/4701690297526834866",
     "playStoreUrl": "https://play.google.com/store/apps/details?id=com.infortts.mitochondria",
-    "apkDownloadUrl": "https://update.infortts.site/download/mitochondria.apk",
-    "otaChannel": "https://update.infortts.site/ota/mitochondria/",
+    "apkDownloadUrl": "https://huggingface.co/datasets/rttss/ota-patches/resolve/main/mitochondria/mitochondria.apk",
+    "otaChannel": "https://huggingface.co/datasets/rttss/ota-patches/raw/main/mitochondria/manifest.json",
     "research": "High-throughput WebSocket terminal multiplexer with zero-latency streaming and biometric session protection.",
     "caseStudy": "Manages 50+ enterprise containers, automated failover routing, and 24/7 cluster health monitoring.",
     "updates": [
+      {
+        "version": "v1.2.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v1.2.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
+      {
+        "version": "v1.1.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v1.1.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
       {
         "version": "v2026.02.00",
         "date": "2026-09-16",
@@ -1029,7 +1369,11 @@ const APPS = [
       }
     ],
     "screenshots": [
-      "/screenshots/mitochondria_1.png"
+      "/screenshots/mitochondria_1.png",
+      "/screenshots/mitochondria_2.png",
+      "/screenshots/mitochondria_3.png",
+      "/screenshots/mitochondria_4.png",
+      "/screenshots/mitochondria_5.png"
     ]
   },
   {
@@ -1046,15 +1390,25 @@ const APPS = [
       "web"
     ],
     "status": "live",
-    "version": "v2026.02.00",
-    "bundleSize": "50.6 MB",
+    "version": "v1.2.0",
+    "bundleSize": "42.4 MB",
     "optInUrl": "https://play.google.com/apps/internaltest/4701285546372048102",
     "playStoreUrl": "https://play.google.com/store/apps/details?id=com.infortts.opabinia",
-    "apkDownloadUrl": "https://update.infortts.site/download/opabinia.apk",
-    "otaChannel": "https://update.infortts.site/ota/opabinia/",
+    "apkDownloadUrl": "https://huggingface.co/datasets/rttss/ota-patches/resolve/main/opabinia/opabinia.apk",
+    "otaChannel": "https://huggingface.co/datasets/rttss/ota-patches/raw/main/opabinia/manifest.json",
     "research": "Multi-view transformer attention networks executing on mobile NPUs and edge hardware accelerators.",
     "caseStudy": "Monitors perimeter security for physical labs with sub-100ms intrusion alerts and zero false alarms.",
     "updates": [
+      {
+        "version": "v1.2.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v1.2.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
+      {
+        "version": "v1.1.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v1.1.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
       {
         "version": "v2026.02.00",
         "date": "2026-09-16",
@@ -1062,7 +1416,11 @@ const APPS = [
       }
     ],
     "screenshots": [
-      "/screenshots/opabinia_1.png"
+      "/screenshots/opabinia_1.png",
+      "/screenshots/opabinia_2.png",
+      "/screenshots/opabinia_3.png",
+      "/screenshots/opabinia_4.png",
+      "/screenshots/opabinia_5.png"
     ]
   },
   {
@@ -1081,15 +1439,25 @@ const APPS = [
       "windows"
     ],
     "status": "live",
-    "version": "v2026.02.00",
-    "bundleSize": "51.5 MB",
+    "version": "v1.2.0",
+    "bundleSize": "42.4 MB",
     "optInUrl": "https://play.google.com/apps/internaltest/4701235294408545779",
     "playStoreUrl": "https://play.google.com/store/apps/details?id=com.infortts.orthrozanclus",
-    "apkDownloadUrl": "https://update.infortts.site/download/orthrozanclus.apk",
-    "otaChannel": "https://update.infortts.site/ota/orthrozanclus/",
+    "apkDownloadUrl": "https://huggingface.co/datasets/rttss/ota-patches/resolve/main/orthrozanclus/orthrozanclus.apk",
+    "otaChannel": "https://huggingface.co/datasets/rttss/ota-patches/raw/main/orthrozanclus/manifest.json",
     "research": "eBPF kernel packet inspection engine with automated threat signature synthesis.",
     "caseStudy": "Defended against 1.2M daily automated bot attacks with 0 breach incidents across cloud endpoints.",
     "updates": [
+      {
+        "version": "v1.2.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v1.2.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
+      {
+        "version": "v1.1.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v1.1.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
       {
         "version": "v2026.02.00",
         "date": "2026-09-16",
@@ -1097,7 +1465,11 @@ const APPS = [
       }
     ],
     "screenshots": [
-      "/screenshots/orthrozanclus_1.png"
+      "/screenshots/orthrozanclus_1.png",
+      "/screenshots/orthrozanclus_2.png",
+      "/screenshots/orthrozanclus_3.png",
+      "/screenshots/orthrozanclus_4.png",
+      "/screenshots/orthrozanclus_5.png"
     ]
   },
   {
@@ -1113,15 +1485,25 @@ const APPS = [
       "web"
     ],
     "status": "live",
-    "version": "v2026.02.00",
-    "bundleSize": "52.0 MB",
+    "version": "v1.1.0",
+    "bundleSize": "42.4 MB",
     "optInUrl": "https://play.google.com/apps/internaltest/4701589301153857373",
     "playStoreUrl": "https://play.google.com/store/apps/details?id=com.infortts.tridrishti",
-    "apkDownloadUrl": "https://update.infortts.site/download/tridrishti.apk",
-    "otaChannel": "https://update.infortts.site/ota/tridrishti/",
+    "apkDownloadUrl": "https://huggingface.co/datasets/rttss/ota-patches/resolve/main/tridrishti/tridrishti.apk",
+    "otaChannel": "https://huggingface.co/datasets/rttss/ota-patches/raw/main/tridrishti/manifest.json",
     "research": "Epipolar geometry depth solver with neural disparity refinement.",
     "caseStudy": "Enables 3D scanning and dimensional inspection on commodity mobile devices.",
     "updates": [
+      {
+        "version": "v1.1.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v1.1.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
+      {
+        "version": "v1.1.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v1.1.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
       {
         "version": "v2026.02.00",
         "date": "2026-09-16",
@@ -1129,7 +1511,11 @@ const APPS = [
       }
     ],
     "screenshots": [
-      "/screenshots/tridrishti_1.png"
+      "/screenshots/tridrishti_1.png",
+      "/screenshots/tridrishti_2.png",
+      "/screenshots/tridrishti_3.png",
+      "/screenshots/tridrishti_4.png",
+      "/screenshots/tridrishti_5.png"
     ]
   },
   {
@@ -1148,15 +1534,25 @@ const APPS = [
       "windows"
     ],
     "status": "live",
-    "version": "v2026.02.00",
-    "bundleSize": "50.6 MB",
+    "version": "v1.2.0",
+    "bundleSize": "42.4 MB",
     "optInUrl": "https://play.google.com/apps/internaltest/4701334502307777183",
     "playStoreUrl": "https://play.google.com/store/apps/details?id=com.infortts.yorgia",
-    "apkDownloadUrl": "https://update.infortts.site/download/yorgia.apk",
-    "otaChannel": "https://update.infortts.site/ota/yorgia/",
+    "apkDownloadUrl": "https://huggingface.co/datasets/rttss/ota-patches/resolve/main/yorgia/yorgia.apk",
+    "otaChannel": "https://huggingface.co/datasets/rttss/ota-patches/raw/main/yorgia/manifest.json",
     "research": "Tiled memory access algorithms optimized for unified GPU/CPU memory architectures.",
     "caseStudy": "Processes 10M cell grid simulations per second on low-power mobile SoCs.",
     "updates": [
+      {
+        "version": "v1.2.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v1.2.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
+      {
+        "version": "v1.1.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v1.1.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
       {
         "version": "v2026.02.00",
         "date": "2026-09-16",
@@ -1164,7 +1560,11 @@ const APPS = [
       }
     ],
     "screenshots": [
-      "/screenshots/yorgia_1.png"
+      "/screenshots/yorgia_1.png",
+      "/screenshots/yorgia_2.png",
+      "/screenshots/yorgia_3.png",
+      "/screenshots/yorgia_4.png",
+      "/screenshots/yorgia_5.png"
     ]
   },
   {
@@ -1179,15 +1579,25 @@ const APPS = [
       "web"
     ],
     "status": "ready",
-    "version": "v2026.02.00",
-    "bundleSize": "43.5 MB",
+    "version": "v1.2.0",
+    "bundleSize": "41.7 MB",
     "optInUrl": "https://play.google.com/apps/testing/com.infortts.charnia",
     "playStoreUrl": "https://play.google.com/store/apps/details?id=com.infortts.charnia",
-    "apkDownloadUrl": "https://update.infortts.site/download/charnia.apk",
-    "otaChannel": "https://update.infortts.site/ota/charnia/",
+    "apkDownloadUrl": "https://huggingface.co/datasets/rttss/ota-patches/resolve/main/charnia/charnia.apk",
+    "otaChannel": "https://huggingface.co/datasets/rttss/ota-patches/raw/main/charnia/manifest.json",
     "research": "Merkle-tree verified ledger with cryptographic signing and audit trails.",
     "caseStudy": "Manages decentralized governance for 28 Infortts sub-projects.",
     "updates": [
+      {
+        "version": "v1.2.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v1.2.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
+      {
+        "version": "v1.1.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v1.1.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
       {
         "version": "v2026.02.00",
         "date": "2026-09-16",
@@ -1195,7 +1605,11 @@ const APPS = [
       }
     ],
     "screenshots": [
-      "/screenshots/charnia_1.png"
+      "/screenshots/charnia_1.png",
+      "/screenshots/charnia_2.png",
+      "/screenshots/charnia_3.png",
+      "/screenshots/charnia_4.png",
+      "/screenshots/charnia_5.png"
     ]
   },
   {
@@ -1210,15 +1624,25 @@ const APPS = [
       "web"
     ],
     "status": "ready",
-    "version": "v2026.02.00",
-    "bundleSize": "43.5 MB",
+    "version": "v1.2.0",
+    "bundleSize": "42.4 MB",
     "optInUrl": "https://play.google.com/apps/testing/com.infortts.cloudina",
     "playStoreUrl": "https://play.google.com/store/apps/details?id=com.infortts.cloudina",
-    "apkDownloadUrl": "https://update.infortts.site/download/cloudina.apk",
-    "otaChannel": "https://update.infortts.site/ota/cloudina/",
+    "apkDownloadUrl": "https://huggingface.co/datasets/rttss/ota-patches/resolve/main/cloudina/cloudina.apk",
+    "otaChannel": "https://huggingface.co/datasets/rttss/ota-patches/raw/main/cloudina/manifest.json",
     "research": "Formal verification of transaction integrity and zero-knowledge balance proofs.",
     "caseStudy": "Processes micro-billing and cloud compute resource charges across all services.",
     "updates": [
+      {
+        "version": "v1.2.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v1.2.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
+      {
+        "version": "v1.1.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v1.1.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
       {
         "version": "v2026.02.00",
         "date": "2026-09-16",
@@ -1226,7 +1650,11 @@ const APPS = [
       }
     ],
     "screenshots": [
-      "/screenshots/cloudina_1.png"
+      "/screenshots/cloudina_1.png",
+      "/screenshots/cloudina_2.png",
+      "/screenshots/cloudina_3.png",
+      "/screenshots/cloudina_4.png",
+      "/screenshots/cloudina_5.png"
     ]
   },
   {
@@ -1241,15 +1669,25 @@ const APPS = [
       "web"
     ],
     "status": "ready",
-    "version": "v2026.02.00",
-    "bundleSize": "43.5 MB",
+    "version": "v1.1.0",
+    "bundleSize": "42.4 MB",
     "optInUrl": "https://play.google.com/apps/testing/com.infortts.dropship",
     "playStoreUrl": "https://play.google.com/store/apps/details?id=com.infortts.dropship",
-    "apkDownloadUrl": "https://update.infortts.site/download/dropship.apk",
-    "otaChannel": "https://update.infortts.site/ota/dropship/",
+    "apkDownloadUrl": "https://huggingface.co/datasets/rttss/ota-patches/resolve/main/dropship/dropship.apk",
+    "otaChannel": "https://huggingface.co/datasets/rttss/ota-patches/raw/main/dropship/manifest.json",
     "research": "Dynamic routing algorithms for multi-warehouse order fulfillment optimization.",
     "caseStudy": "Handles real-time inventory allocation for 50,000+ SKUs.",
     "updates": [
+      {
+        "version": "v1.1.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v1.1.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
+      {
+        "version": "v2.1.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v2.1.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
       {
         "version": "v2026.02.00",
         "date": "2026-09-16",
@@ -1257,7 +1695,11 @@ const APPS = [
       }
     ],
     "screenshots": [
-      "/screenshots/dropship_1.png"
+      "/screenshots/dropship_1.png",
+      "/screenshots/dropship_2.png",
+      "/screenshots/dropship_3.png",
+      "/screenshots/dropship_4.png",
+      "/screenshots/dropship_5.png"
     ]
   },
   {
@@ -1272,15 +1714,25 @@ const APPS = [
       "web"
     ],
     "status": "ready",
-    "version": "v2026.02.00",
-    "bundleSize": "43.5 MB",
+    "version": "v1.1.0",
+    "bundleSize": "42.4 MB",
     "optInUrl": "https://play.google.com/apps/testing/com.infortts.microdictyon",
     "playStoreUrl": "https://play.google.com/store/apps/details?id=com.infortts.microdictyon",
-    "apkDownloadUrl": "https://update.infortts.site/download/microdictyon.apk",
-    "otaChannel": "https://update.infortts.site/ota/microdictyon/",
+    "apkDownloadUrl": "https://huggingface.co/datasets/rttss/ota-patches/resolve/main/microdictyon/microdictyon.apk",
+    "otaChannel": "https://huggingface.co/datasets/rttss/ota-patches/raw/main/microdictyon/manifest.json",
     "research": "Distributed token-bucket rate limiting with sub-millisecond Redis sync.",
     "caseStudy": "Meters 50M daily API calls across the Infortts API cluster.",
     "updates": [
+      {
+        "version": "v1.1.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v1.1.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
+      {
+        "version": "v2.1.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v2.1.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
       {
         "version": "v2026.02.00",
         "date": "2026-09-16",
@@ -1288,7 +1740,11 @@ const APPS = [
       }
     ],
     "screenshots": [
-      "/screenshots/microdictyon_1.png"
+      "/screenshots/microdictyon_1.png",
+      "/screenshots/microdictyon_2.png",
+      "/screenshots/microdictyon_3.png",
+      "/screenshots/microdictyon_4.png",
+      "/screenshots/microdictyon_5.png"
     ]
   },
   {
@@ -1303,15 +1759,25 @@ const APPS = [
       "web"
     ],
     "status": "ready",
-    "version": "v2026.02.00",
-    "bundleSize": "43.5 MB",
+    "version": "v1.1.0",
+    "bundleSize": "42.4 MB",
     "optInUrl": "https://play.google.com/apps/testing/com.infortts.spriggina",
     "playStoreUrl": "https://play.google.com/store/apps/details?id=com.infortts.spriggina",
-    "apkDownloadUrl": "https://update.infortts.site/download/spriggina.apk",
-    "otaChannel": "https://update.infortts.site/ota/spriggina/",
+    "apkDownloadUrl": "https://huggingface.co/datasets/rttss/ota-patches/resolve/main/spriggina/spriggina.apk",
+    "otaChannel": "https://huggingface.co/datasets/rttss/ota-patches/raw/main/spriggina/manifest.json",
     "research": "Decentralized Identifiers (DIDs) with verifiable credentials and secure enclave integration.",
     "caseStudy": "Powers seamless cross-app single sign-on across mobile and web clients.",
     "updates": [
+      {
+        "version": "v1.1.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v1.1.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
+      {
+        "version": "v1.1.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v1.1.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
       {
         "version": "v2026.02.00",
         "date": "2026-09-16",
@@ -1319,7 +1785,11 @@ const APPS = [
       }
     ],
     "screenshots": [
-      "/screenshots/spriggina_1.png"
+      "/screenshots/spriggina_1.png",
+      "/screenshots/spriggina_2.png",
+      "/screenshots/spriggina_3.png",
+      "/screenshots/spriggina_4.png",
+      "/screenshots/spriggina_5.png"
     ]
   },
   {
@@ -1334,15 +1804,25 @@ const APPS = [
       "web"
     ],
     "status": "ready",
-    "version": "v2026.02.00",
-    "bundleSize": "43.5 MB",
+    "version": "v1.2.0",
+    "bundleSize": "42.4 MB",
     "optInUrl": "https://play.google.com/apps/testing/com.infortts.tribrachidium",
     "playStoreUrl": "https://play.google.com/store/apps/details?id=com.infortts.tribrachidium",
-    "apkDownloadUrl": "https://update.infortts.site/download/tribrachidium.apk",
-    "otaChannel": "https://update.infortts.site/ota/tribrachidium/",
+    "apkDownloadUrl": "https://huggingface.co/datasets/rttss/ota-patches/resolve/main/tribrachidium/tribrachidium.apk",
+    "otaChannel": "https://huggingface.co/datasets/rttss/ota-patches/raw/main/tribrachidium/manifest.json",
     "research": "Automated AST code generators compiling Figma design tokens to Dart, TypeScript, and Kotlin.",
     "caseStudy": "Maintains 100% design consistency across 28 multi-platform apps.",
     "updates": [
+      {
+        "version": "v1.2.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v1.2.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
+      {
+        "version": "v1.1.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v1.1.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
       {
         "version": "v2026.02.00",
         "date": "2026-09-16",
@@ -1350,7 +1830,11 @@ const APPS = [
       }
     ],
     "screenshots": [
-      "/screenshots/tribrachidium_1.png"
+      "/screenshots/tribrachidium_1.png",
+      "/screenshots/tribrachidium_2.png",
+      "/screenshots/tribrachidium_3.png",
+      "/screenshots/tribrachidium_4.png",
+      "/screenshots/tribrachidium_5.png"
     ]
   },
   {
@@ -1365,15 +1849,25 @@ const APPS = [
       "web"
     ],
     "status": "ready",
-    "version": "v2026.02.00",
-    "bundleSize": "43.5 MB",
+    "version": "v1.2.0",
+    "bundleSize": "42.4 MB",
     "optInUrl": "https://play.google.com/apps/testing/com.infortts.trilobite",
     "playStoreUrl": "https://play.google.com/store/apps/details?id=com.infortts.trilobite",
-    "apkDownloadUrl": "https://update.infortts.site/download/trilobite.apk",
-    "otaChannel": "https://update.infortts.site/ota/trilobite/",
+    "apkDownloadUrl": "https://huggingface.co/datasets/rttss/ota-patches/resolve/main/trilobite/trilobite.apk",
+    "otaChannel": "https://huggingface.co/datasets/rttss/ota-patches/raw/main/trilobite/manifest.json",
     "research": "LOB (Limit Order Book) volumetric neural anomaly detectors and tick-by-tick microsecond analyzers.",
     "caseStudy": "Monitors multi-exchange liquidity spreads with sub-millisecond execution alerts.",
     "updates": [
+      {
+        "version": "v1.2.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v1.2.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
+      {
+        "version": "v1.1.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v1.1.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
       {
         "version": "v2026.02.00",
         "date": "2026-09-16",
@@ -1381,7 +1875,11 @@ const APPS = [
       }
     ],
     "screenshots": [
-      "/screenshots/trilobite_1.png"
+      "/screenshots/trilobite_1.png",
+      "/screenshots/trilobite_2.png",
+      "/screenshots/trilobite_3.png",
+      "/screenshots/trilobite_4.png",
+      "/screenshots/trilobite_5.png"
     ]
   },
   {
@@ -1396,15 +1894,25 @@ const APPS = [
       "web"
     ],
     "status": "ready",
-    "version": "v2026.02.00",
-    "bundleSize": "43.5 MB",
+    "version": "v1.2.0",
+    "bundleSize": "42.4 MB",
     "optInUrl": "https://play.google.com/apps/testing/com.infortts.wiwaxia",
     "playStoreUrl": "https://play.google.com/store/apps/details?id=com.infortts.wiwaxia",
-    "apkDownloadUrl": "https://update.infortts.site/download/wiwaxia.apk",
-    "otaChannel": "https://update.infortts.site/ota/wiwaxia/",
+    "apkDownloadUrl": "https://huggingface.co/datasets/rttss/ota-patches/resolve/main/wiwaxia/wiwaxia.apk",
+    "otaChannel": "https://huggingface.co/datasets/rttss/ota-patches/raw/main/wiwaxia/manifest.json",
     "research": "Post-quantum lattice cryptography and elliptic-curve threshold signatures.",
     "caseStudy": "Secures all root authority keys and SSL certificates for Infortts mesh nodes.",
     "updates": [
+      {
+        "version": "v1.2.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v1.2.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
+      {
+        "version": "v1.1.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v1.1.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
       {
         "version": "v2026.02.00",
         "date": "2026-09-16",
@@ -1412,7 +1920,11 @@ const APPS = [
       }
     ],
     "screenshots": [
-      "/screenshots/wiwaxia_1.png"
+      "/screenshots/wiwaxia_1.png",
+      "/screenshots/wiwaxia_2.png",
+      "/screenshots/wiwaxia_3.png",
+      "/screenshots/wiwaxia_4.png",
+      "/screenshots/wiwaxia_5.png"
     ]
   },
   {
@@ -1427,15 +1939,25 @@ const APPS = [
       "web"
     ],
     "status": "ready",
-    "version": "v2026.02.00",
-    "bundleSize": "43.5 MB",
+    "version": "v1.1.0",
+    "bundleSize": "42.4 MB",
     "optInUrl": "https://play.google.com/apps/testing/com.infortts.hallucigenia",
     "playStoreUrl": "https://play.google.com/store/apps/details?id=com.infortts.hallucigenia",
-    "apkDownloadUrl": "https://update.infortts.site/download/hallucigenia.apk",
-    "otaChannel": "https://update.infortts.site/ota/hallucigenia/",
+    "apkDownloadUrl": "https://huggingface.co/datasets/rttss/ota-patches/resolve/main/hallucigenia/hallucigenia.apk",
+    "otaChannel": "https://huggingface.co/datasets/rttss/ota-patches/raw/main/hallucigenia/manifest.json",
     "research": "Latent diffusion models with real-time neural audio DSP synthesis.",
     "caseStudy": "Generates real-time ambient soundscapes and branding visuals.",
     "updates": [
+      {
+        "version": "v1.1.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v1.1.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
+      {
+        "version": "v0.2.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v0.2.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
       {
         "version": "v2026.02.00",
         "date": "2026-09-16",
@@ -1443,7 +1965,11 @@ const APPS = [
       }
     ],
     "screenshots": [
-      "/screenshots/hallucigenia_1.png"
+      "/screenshots/hallucigenia_1.png",
+      "/screenshots/hallucigenia_2.png",
+      "/screenshots/hallucigenia_3.png",
+      "/screenshots/hallucigenia_4.png",
+      "/screenshots/hallucigenia_5.png"
     ]
   },
   {
@@ -1458,15 +1984,25 @@ const APPS = [
       "web"
     ],
     "status": "ready",
-    "version": "v2026.02.00",
-    "bundleSize": "43.5 MB",
+    "version": "v1.2.0",
+    "bundleSize": "42.4 MB",
     "optInUrl": "https://play.google.com/apps/testing/com.infortts.lexi",
     "playStoreUrl": "https://play.google.com/store/apps/details?id=com.infortts.lexi",
-    "apkDownloadUrl": "https://update.infortts.site/download/lexi.apk",
-    "otaChannel": "https://update.infortts.site/ota/lexi/",
+    "apkDownloadUrl": "https://huggingface.co/datasets/rttss/ota-patches/resolve/main/lexi/lexi.apk",
+    "otaChannel": "https://huggingface.co/datasets/rttss/ota-patches/raw/main/lexi/manifest.json",
     "research": "Quantized miniLM vector models running locally via ONNX Runtime.",
     "caseStudy": "Indexes 100,000 document chunks with sub-5ms retrieval times.",
     "updates": [
+      {
+        "version": "v1.2.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v1.2.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
+      {
+        "version": "v1.1.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v1.1.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
       {
         "version": "v2026.02.00",
         "date": "2026-09-16",
@@ -1474,7 +2010,11 @@ const APPS = [
       }
     ],
     "screenshots": [
-      "/screenshots/lexi_1.png"
+      "/screenshots/lexi_1.png",
+      "/screenshots/lexi_2.png",
+      "/screenshots/lexi_3.png",
+      "/screenshots/lexi_4.png",
+      "/screenshots/lexi_5.png"
     ]
   },
   {
@@ -1489,15 +2029,25 @@ const APPS = [
       "web"
     ],
     "status": "ready",
-    "version": "v2026.02.00",
-    "bundleSize": "43.5 MB",
+    "version": "v0.3.0",
+    "bundleSize": "42.4 MB",
     "optInUrl": "https://play.google.com/apps/testing/com.infortts.cursus",
     "playStoreUrl": "https://play.google.com/store/apps/details?id=com.infortts.cursus",
-    "apkDownloadUrl": "https://update.infortts.site/download/cursus.apk",
-    "otaChannel": "https://update.infortts.site/ota/cursus/",
+    "apkDownloadUrl": "https://huggingface.co/datasets/rttss/ota-patches/resolve/main/cursus/cursus.apk",
+    "otaChannel": "https://huggingface.co/datasets/rttss/ota-patches/raw/main/cursus/manifest.json",
     "research": "Event-driven reactive stream architecture based on Rx pipelines.",
     "caseStudy": "Coordinates thousands of webhook actions across Infortts cloud nodes.",
     "updates": [
+      {
+        "version": "v0.3.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v0.3.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
+      {
+        "version": "v0.2.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v0.2.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
       {
         "version": "v2026.02.00",
         "date": "2026-09-16",
@@ -1505,7 +2055,11 @@ const APPS = [
       }
     ],
     "screenshots": [
-      "/screenshots/cursus_1.png"
+      "/screenshots/cursus_1.png",
+      "/screenshots/cursus_2.png",
+      "/screenshots/cursus_3.png",
+      "/screenshots/cursus_4.png",
+      "/screenshots/cursus_5.png"
     ]
   },
   {
@@ -1522,15 +2076,25 @@ const APPS = [
       "macos"
     ],
     "status": "live",
-    "version": "v2026.02.00",
-    "bundleSize": "48.5 MB",
+    "version": "v2.2.0",
+    "bundleSize": "50.9 MB",
     "optInUrl": "https://play.google.com/apps/internaltest/4701690297526834866",
     "playStoreUrl": "https://play.google.com/store/apps/details?id=com.infortts.glycocalyx",
-    "apkDownloadUrl": "https://update.infortts.site/download/glycocalyx.apk",
-    "otaChannel": "https://update.infortts.site/ota/glycocalyx/",
+    "apkDownloadUrl": "https://huggingface.co/datasets/rttss/ota-patches/resolve/main/glycocalyx/glycocalyx.apk",
+    "otaChannel": "https://huggingface.co/datasets/rttss/ota-patches/raw/main/glycocalyx/manifest.json",
     "research": "High-performance Go IAM service with cryptographic JWT tokens and distributed rate limiting.",
     "caseStudy": "Handles authentication for all 28 Infortts subdomains and mobile applications.",
     "updates": [
+      {
+        "version": "v2.2.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v2.2.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
+      {
+        "version": "v2.1.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v2.1.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
       {
         "version": "v2026.02.00",
         "date": "2026-09-16",
@@ -1538,7 +2102,11 @@ const APPS = [
       }
     ],
     "screenshots": [
-      "/screenshots/glycocalyx_1.png"
+      "/screenshots/glycocalyx_1.png",
+      "/screenshots/glycocalyx_2.png",
+      "/screenshots/glycocalyx_3.png",
+      "/screenshots/glycocalyx_4.png",
+      "/screenshots/glycocalyx_5.png"
     ]
   },
   {
@@ -1553,15 +2121,25 @@ const APPS = [
       "web"
     ],
     "status": "ready",
-    "version": "v2026.02.00",
-    "bundleSize": "43.5 MB",
+    "version": "v1.2.0",
+    "bundleSize": "42.4 MB",
     "optInUrl": "https://play.google.com/apps/testing/com.infortts.parvancorina",
     "playStoreUrl": "https://play.google.com/store/apps/details?id=com.infortts.parvancorina",
-    "apkDownloadUrl": "https://update.infortts.site/download/parvancorina.apk",
-    "otaChannel": "https://update.infortts.site/ota/parvancorina/",
+    "apkDownloadUrl": "https://huggingface.co/datasets/rttss/ota-patches/resolve/main/parvancorina/parvancorina.apk",
+    "otaChannel": "https://huggingface.co/datasets/rttss/ota-patches/raw/main/parvancorina/manifest.json",
     "research": "Zero-overhead UDP heartbeats with sub-microsecond timestamping.",
     "caseStudy": "Continuously measures multi-region network quality across 12 datacenters.",
     "updates": [
+      {
+        "version": "v1.2.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v1.2.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
+      {
+        "version": "v1.1.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v1.1.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
       {
         "version": "v2026.02.00",
         "date": "2026-09-16",
@@ -1569,7 +2147,11 @@ const APPS = [
       }
     ],
     "screenshots": [
-      "/screenshots/parvancorina_1.png"
+      "/screenshots/parvancorina_1.png",
+      "/screenshots/parvancorina_2.png",
+      "/screenshots/parvancorina_3.png",
+      "/screenshots/parvancorina_4.png",
+      "/screenshots/parvancorina_5.png"
     ]
   },
   {
@@ -1584,15 +2166,25 @@ const APPS = [
       "web"
     ],
     "status": "ready",
-    "version": "v2026.02.00",
-    "bundleSize": "43.5 MB",
+    "version": "v1.2.0",
+    "bundleSize": "42.4 MB",
     "optInUrl": "https://play.google.com/apps/testing/com.infortts.kimberella",
     "playStoreUrl": "https://play.google.com/store/apps/details?id=com.infortts.kimberella",
-    "apkDownloadUrl": "https://update.infortts.site/download/kimberella.apk",
-    "otaChannel": "https://update.infortts.site/ota/kimberella/",
+    "apkDownloadUrl": "https://huggingface.co/datasets/rttss/ota-patches/resolve/main/kimberella/kimberella.apk",
+    "otaChannel": "https://huggingface.co/datasets/rttss/ota-patches/raw/main/kimberella/manifest.json",
     "research": "CRDT-based collaborative text editing with zero server-side plaintext storage.",
     "caseStudy": "Stores and synchronizes confidential research notes across team devices.",
     "updates": [
+      {
+        "version": "v1.2.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v1.2.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
+      {
+        "version": "v1.1.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v1.1.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
       {
         "version": "v2026.02.00",
         "date": "2026-09-16",
@@ -1600,7 +2192,11 @@ const APPS = [
       }
     ],
     "screenshots": [
-      "/screenshots/kimberella_1.png"
+      "/screenshots/kimberella_1.png",
+      "/screenshots/kimberella_2.png",
+      "/screenshots/kimberella_3.png",
+      "/screenshots/kimberella_4.png",
+      "/screenshots/kimberella_5.png"
     ]
   },
   {
@@ -1616,15 +2212,25 @@ const APPS = [
       "ios"
     ],
     "status": "ready",
-    "version": "v2026.02.00",
-    "bundleSize": "45.2 MB",
+    "version": "v1.2.0",
+    "bundleSize": "42.4 MB",
     "optInUrl": "https://play.google.com/apps/testing/com.infortts.care4u",
     "playStoreUrl": "https://play.google.com/store/apps/details?id=com.infortts.care4u",
-    "apkDownloadUrl": "https://update.infortts.site/download/care4u.apk",
-    "otaChannel": "https://update.infortts.site/ota/care4u/",
+    "apkDownloadUrl": "https://huggingface.co/datasets/rttss/ota-patches/resolve/main/care4u/care4u.apk",
+    "otaChannel": "https://huggingface.co/datasets/rttss/ota-patches/raw/main/care4u/manifest.json",
     "research": "Real-time ECG and PPG signal filtering algorithms with on-device anomaly alerts.",
     "caseStudy": "Used by clinical pilot studies to monitor post-op patient vital signs remotely.",
     "updates": [
+      {
+        "version": "v1.2.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v1.2.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
+      {
+        "version": "v1.1.0",
+        "date": "2026-09-19",
+        "notes": "Major version bump to v1.1.0: 3D Obsidian iconography & Google Play compliant UI overhaul."
+      },
       {
         "version": "v2026.02.00",
         "date": "2026-09-16",
@@ -1632,7 +2238,11 @@ const APPS = [
       }
     ],
     "screenshots": [
-      "/screenshots/care4u_1.png"
+      "/screenshots/care4u_1.png",
+      "/screenshots/care4u_2.png",
+      "/screenshots/care4u_3.png",
+      "/screenshots/care4u_4.png",
+      "/screenshots/care4u_5.png"
     ]
   }
 ];
@@ -1668,7 +2278,7 @@ function renderApps() {
           <div class="card-info">
             <div class="card-category">${app.category}</div>
             <h3 class="card-title">${app.name}</h3>
-            <div style="font-size: 10px; font-family: monospace; color: var(--text-muted);">${app.packageId}</div>
+            <div class="card-pkg">${app.packageId}</div>
           </div>
         </div>
         <p class="card-desc">${app.shortDescription}</p>
@@ -1679,8 +2289,11 @@ function renderApps() {
         </div>
       </div>
       <div class="card-actions" onclick="event.stopPropagation()">
-        <button class="btn btn-secondary" style="flex:1;" onclick="openModal('${app.slug}')">Details & Research</button>
-        <a href="${app.apkDownloadUrl}" class="btn btn-primary" download title="Download APK">📥 APK</a>
+        <button class="btn btn-secondary" style="flex:1;" onclick="openModal('${app.slug}')">Details &amp; Research</button>
+        <a href="${app.apkDownloadUrl}" class="btn btn-primary" download title="Download APK">
+          <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
+          APK
+        </a>
         <a href="${app.playStoreUrl}" target="_blank" rel="noopener" class="btn btn-secondary" title="Google Play">Play</a>
       </div>
     </div>
@@ -1716,10 +2329,12 @@ function openModal(slug) {
 
   switchTab('overview');
   modal.classList.add('active');
+  document.body.style.overflow = 'hidden';
 }
 
 function closeModal() {
   modal.classList.remove('active');
+  document.body.style.overflow = '';
 }
 
 function switchTab(tabId) {
@@ -1735,6 +2350,9 @@ modalCloseBtn.addEventListener('click', closeModal);
 modal.addEventListener('click', (e) => {
   if (e.target === modal) closeModal();
 });
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && modal.classList.contains('active')) closeModal();
+});
 
 document.querySelectorAll('.modal-tab').forEach(tab => {
   tab.addEventListener('click', () => switchTab(tab.dataset.tab));
@@ -1747,8 +2365,12 @@ searchInput.addEventListener('input', (e) => {
 
 categoryFilters.addEventListener('click', (e) => {
   if (e.target.classList.contains('filter-btn')) {
-    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.filter-btn').forEach(b => {
+      b.classList.remove('active');
+      b.setAttribute('aria-pressed', 'false');
+    });
     e.target.classList.add('active');
+    e.target.setAttribute('aria-pressed', 'true');
     currentCategory = e.target.dataset.cat;
     renderApps();
   }

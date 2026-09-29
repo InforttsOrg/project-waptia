@@ -1,7 +1,7 @@
-name: waptia_store
+name: waptia
 description: "Waptia — Infortts App Store. Download and update Infortts apps."
 publish_to: 'none'
-version: 1.1.0+1
+version: 1.2.0+1
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
@@ -10,11 +10,6 @@ dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.8
-  google_fonts: ^8.2.1
-  http: ^1.2.2
-  flutter_riverpod: ^2.6.1
-  flutter_animate: ^4.5.2
-  url_launcher: ^6.3.1
   infortts_shared:
     path: ../../shared
 
@@ -25,4 +20,3 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
-
