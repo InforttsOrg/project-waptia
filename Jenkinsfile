@@ -24,7 +24,7 @@ stage('Version plan') {
         script {
           try {
             def common = load 'ci/jenkins-common.groovy'
-            def planResult = common.plan([appDir: '', track: 'internal',
+            def planResult = common.plan([appDir: 'store', track: 'internal',
                                           prefix: 'v-playstore-success-waptia', isFlutter: true])
             PLAN = planResult
             common.updateBuildSummary(planResult, [
@@ -45,7 +45,7 @@ stage('Flutter: waptia') {
         expression { PLAN?.action == 'playstore' }
       }
       environment {
-        APP_DIR = ''
+        APP_DIR = 'store'
         TRACK   = 'internal'
         PACKAGE = 'com.infortts.waptia'
       }
@@ -75,11 +75,12 @@ stage('Flutter: waptia') {
             sh '''
               TARGET_DIR="${APP_DIR:-.}"
               if [ ! -f "$TARGET_DIR/pubspec.yaml" ]; then
-                FOUND=$(find . -name pubspec.yaml -not -path '*/.*' -not -path '*/build/*' | head -n 1)
-                [ -n "$FOUND" ] && TARGET_DIR="$(dirname "$FOUND")"
+                TARGET_DIR=$(find . -maxdepth 4 -name pubspec.yaml -not -path '*/.*' -not -path '*/build/*' -not -path '*/shared/*' 2>/dev/null | while IFS= read -r f; do d="${f%/pubspec.yaml}"; if [ -f "$d/lib/main.dart" ] || [ -d "$d/android" ]; then echo "$d"; break; fi; done)
               fi
-              cd "$TARGET_DIR"
-              flutter test --machine > /dev/null 2>&1 || true
+              if [ -n "$TARGET_DIR" ] && [ -d "$TARGET_DIR" ]; then
+                cd "$TARGET_DIR"
+                flutter test --machine > /dev/null 2>&1 || true
+              fi
             '''
           }
         }
@@ -94,7 +95,7 @@ stage('Flutter: waptia') {
             sh '''
               TARGET_DIR="${APP_DIR:-.}"
               if [ ! -f "$TARGET_DIR/pubspec.yaml" ]; then
-                TARGET_DIR=$(find . -maxdepth 4 -name pubspec.yaml -not -path '*/.*' -not -path '*/build/*' 2>/dev/null | while IFS= read -r f; do d="${f%/pubspec.yaml}"; if [ -f "$d/lib/main.dart" ] || [ -d "$d/android" ]; then echo "$d"; break; fi; done)
+                TARGET_DIR=$(find . -maxdepth 4 -name pubspec.yaml -not -path '*/.*' -not -path '*/build/*' -not -path '*/shared/*' 2>/dev/null | while IFS= read -r f; do d="${f%/pubspec.yaml}"; if [ -f "$d/lib/main.dart" ] || [ -d "$d/android" ]; then echo "$d"; break; fi; done)
               fi
               if [ -z "$TARGET_DIR" ] || [ ! -d "$TARGET_DIR" ]; then
                 echo "SKIP: no Flutter app dir found for 'waptia' — skipping"
@@ -142,8 +143,7 @@ stage('Flutter: waptia') {
               sh '''
                 TARGET_DIR="${APP_DIR:-.}"
                 if [ ! -f "$TARGET_DIR/pubspec.yaml" ]; then
-                  FOUND=$(find . -name pubspec.yaml -not -path '*/.*' -not -path '*/build/*' | head -n 1)
-                  [ -n "$FOUND" ] && TARGET_DIR="$(dirname "$FOUND")"
+                  TARGET_DIR=$(find . -maxdepth 4 -name pubspec.yaml -not -path '*/.*' -not -path '*/build/*' -not -path '*/shared/*' 2>/dev/null | while IFS= read -r f; do d="${f%/pubspec.yaml}"; if [ -f "$d/lib/main.dart" ] || [ -d "$d/android" ]; then echo "$d"; break; fi; done)
                 fi
                 if [ -z "$TARGET_DIR" ] || [ ! -d "$TARGET_DIR" ]; then
                   echo "ERROR: no Flutter app dir for waptia — Play upload cannot proceed"
@@ -195,31 +195,49 @@ stage('Cloudflare: waptia-store') {
       agent { label 'vps' }
       steps {
         script {
-          if (fileExists('package.json')) sh 'npm install --no-audit --no-fund 2>/dev/null || true'
-          if (fileExists('wrangler.toml') && fileExists('package.json')) {
-            sh 'npm test -- --passWithNoTests 2>/dev/null || true'
-            sh 'npm run build 2>/dev/null || true'
+          // pnpm-aware, fail-closed install. The 'vps' label is the controller's
+          // built-in node, whose image may not ship pnpm — self-heal via npm.
+          if (fileExists('pnpm-lock.yaml')) {
+            sh '''
+              set -e
+              if ! command -v pnpm >/dev/null 2>&1; then
+                echo "pnpm not found — installing via npm"
+                npm install -g pnpm@9 >/dev/null 2>&1
+              fi
+              pnpm --version
+              pnpm install --frozen-lockfile
+            '''
+          } else if (fileExists('package.json')) {
+            sh 'npm install --no-audit --no-fund'
           }
         }
         script {
-          try {
-            withCredentials([[$class: 'StringBinding', credentialsId: 'cloudflare-api-token', variable: 'CF_API_TOKEN']]) {
-              withEnv(["CLOUDFLARE_API_TOKEN=${CF_API_TOKEN}", "CLOUDFLARE_ACCOUNT_ID=04e1a3c2b99919914aba485175906033"]) {
-                sh "npx wrangler deploy --name waptia-store 2>&1 | tail -20 || echo WRANGLER_DEPLOY_STATUS"
-              }
+          if ((fileExists('wrangler.toml') || fileExists('wrangler.jsonc')) && fileExists('package.json')) {
+            // Fail closed: a failing test/build must fail the build, not be
+            // swallowed by `|| true` as before.
+            def pm = fileExists('pnpm-lock.yaml') ? 'pnpm' : 'npm'
+            sh "${pm} test -- --passWithNoTests"
+            sh "${pm} run build"
+          }
+        }
+        script {
+          withCredentials([[$class: 'StringBinding', credentialsId: 'cloudflare-api-token', variable: 'CF_API_TOKEN']]) {
+            withEnv(["CLOUDFLARE_API_TOKEN=${CF_API_TOKEN}", "CLOUDFLARE_ACCOUNT_ID=04e1a3c2b99919914aba485175906033"]) {
+              // pipefail: a bare `deploy | tail` returns tail's exit code (0),
+              // masking deploy failures. No `|| echo` — a failed deploy fails
+              // the build instead of shipping a broken Worker.
+              sh "set -o pipefail; npx wrangler deploy --name waptia-store 2>&1 | tail -20"
             }
-          } catch (Exception e) {
-            echo "Cloudflare deploy warning: ${e.message}"
           }
         }
         script {
-          def liveCheck = sh(script: "curl -sf -o /dev/null --max-time 20 https://waptia-store.workers.dev && echo LIVECHECK_OK || echo LIVECHECK_WARN", returnStdout: true)?.trim()
+          def liveCheck = sh(script: "curl -sf -o /dev/null --max-time 20 https://waptia-store.infortts.workers.dev && echo LIVECHECK_OK || echo LIVECHECK_WARN", returnStdout: true)?.trim()
           try {
             def common = load 'ci/jenkins-common.groovy'
             common.updateBuildSummary([action: 'cloudflare', new_version: "worker-waptia-store-${BUILD_NUMBER}"], [
-              web: "✅ Cloudflare Worker (https://waptia-store.workers.dev)",
+              web: "✅ Cloudflare Worker (https://waptia-store.infortts.workers.dev)",
               backend: "Cloudflare Edge",
-              health: liveCheck == 'LIVECHECK_OK' ? "🟢 LIVECHECK_OK (https://waptia-store.workers.dev)" : "⚠️ LIVECHECK_WARN"
+              health: liveCheck == 'LIVECHECK_OK' ? "🟢 LIVECHECK_OK" : "⚠️ LIVECHECK_WARN (advisory)"
             ])
           } catch (Exception e) {
             echo "Cloudflare summary notice: ${e.message}"
@@ -227,6 +245,7 @@ stage('Cloudflare: waptia-store') {
         }
       }
     }
+
 stage('Tag success') {
       agent { label 'mac' }
       when {
