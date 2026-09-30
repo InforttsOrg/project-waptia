@@ -843,7 +843,7 @@ class _WaptiaPolicyWorkspaceState extends State<WaptiaPolicyWorkspace> {
                   setState(() {});
                 },
               ),
-              const Divider(height: 1, color: AcousticColors.obsidian),
+              Divider(height: 1, color: AcousticColors.obsidian),
               SwitchListTile(
                 title: Text("Silent Differential OTA Patches", style: GoogleFonts.outfit(color: AcousticColors.titanium, fontWeight: FontWeight.bold)),
                 subtitle: Text("Apply instant bytecode patches without prompting for APK reinstall", style: GoogleFonts.outfit(color: AcousticColors.steel, fontSize: 12)),
@@ -854,7 +854,7 @@ class _WaptiaPolicyWorkspaceState extends State<WaptiaPolicyWorkspace> {
                   setState(() {});
                 },
               ),
-              const Divider(height: 1, color: AcousticColors.obsidian),
+              Divider(height: 1, color: AcousticColors.obsidian),
               SwitchListTile(
                 title: Text("Download Over Wi-Fi Only", style: GoogleFonts.outfit(color: AcousticColors.titanium, fontWeight: FontWeight.bold)),
                 subtitle: Text("Preserve mobile cellular data during large APK downloads", style: GoogleFonts.outfit(color: AcousticColors.steel, fontSize: 12)),
