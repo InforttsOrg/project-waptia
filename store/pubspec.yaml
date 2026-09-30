@@ -1,7 +1,7 @@
 name: waptia
 description: "Waptia — Infortts App Store. Download and update Infortts apps."
 publish_to: 'none'
-version: 1.2.0+1
+version: 2.05.00+20500
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
