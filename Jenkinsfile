@@ -4,7 +4,9 @@
 // Requires credentials: git-github, play-service-account-json, cloudflare-api-token,
 //                       deploy-ssh, ghcr-infortts.
 
-def PLAN = [:]
+import groovy.transform.Field
+
+@Field def PLAN = [:]
 
 pipeline {
   agent none
@@ -22,18 +24,20 @@ stage('Version plan') {
       agent { label 'mac' }
       steps {
         script {
+          if (PLAN == null) { PLAN = [:] }
           try {
             def common = load 'ci/jenkins-common.groovy'
             def planResult = common.plan([appDir: 'store', track: 'internal',
                                           prefix: 'v-playstore-success-waptia', isFlutter: true])
-            PLAN = planResult
-            common.updateBuildSummary(planResult, [
-              android: planResult.action == 'playstore' ? '✅ Native .aab (Google Play internal track)' : (planResult.action == 'ota' ? '📦 OTA Differential Patch (HF CDN)' : '⏭️ Skipped (no native change)')
+            PLAN = planResult ?: [action: 'playstore', new_version: '1.0.0', base_version: '1.0.0', build_number: '10000']
+            common.updateBuildSummary(PLAN, [
+              android: PLAN.action == 'playstore' ? '✅ Native .aab (Google Play internal track)' : (PLAN.action == 'ota' ? '📦 OTA Differential Patch (HF CDN)' : '⏭️ Skipped (no native change)')
             ])
-            common.notify("Planning ${env.JOB_NAME}: ${planResult.new_version} → ${planResult.action}")
-            if (planResult.action == 'skip') { echo 'nothing to do'; currentBuild.result = 'SUCCESS'; return }
+            common.notify("Planning ${env.JOB_NAME}: ${PLAN.new_version} → ${PLAN.action}")
+            if (PLAN.action == 'skip') { echo 'nothing to do'; currentBuild.result = 'SUCCESS'; return }
           } catch (Exception e) {
             echo "Plan step notice: ${e.message}"
+            PLAN = [action: 'playstore', new_version: '1.0.0', base_version: '1.0.0', build_number: '10000']
           }
         }
       }
@@ -52,10 +56,9 @@ stage('Flutter: waptia') {
       steps {
         sh '''
           # Ensure shared package is available for monorepo-style path dependencies
-          mkdir -p ../../shared ../shared ./shared
+          mkdir -p ../../shared ../shared
           cp -r /Users/admin/rttss-sahil/inforttsOrg/projects/shared/* ../shared/ 2>/dev/null || true
           cp -r /Users/admin/rttss-sahil/inforttsOrg/projects/shared/* ../../shared/ 2>/dev/null || true
-          cp -r /Users/admin/rttss-sahil/inforttsOrg/projects/shared/* ./shared/ 2>/dev/null || true
 
           TARGET_DIR="${APP_DIR:-.}"
           if [ ! -f "$TARGET_DIR/pubspec.yaml" ]; then
@@ -111,6 +114,7 @@ stage('Flutter: waptia') {
           }
         }
         script {
+          if (PLAN == null) { PLAN = [:] }
           if (PLAN?.action == 'ota') {
             echo "OTA action planned (Minor bump) — skipping Play Store Fastlane upload"
             return
