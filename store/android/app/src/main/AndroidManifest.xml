@@ -1,6 +1,12 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Required in release builds: the OTA catalogue sync and auto-update
+         manager perform HTTP(S) calls, and remote app icons are loaded over
+         the network. The debug/profile manifests only cover development builds,
+         so this must be declared here for release APKs/AppBundles. -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+
     <application
-        android:label="waptia_store"
+        android:label="Waptia"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
