@@ -183,12 +183,12 @@ class _WaptiaExploreWorkspaceState extends State<WaptiaExploreWorkspace> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AcousticColors.darkCarbon,
+        color: const Color(0xFF111827),
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
           color: app.hasUpdate
-              ? AcousticColors.sonarCyan.withValues(alpha: 0.4)
-              : AcousticColors.steel.withValues(alpha: 0.15),
+              ? const Color(0xFF38BDF8).withValues(alpha: 0.4)
+              : const Color(0xFF1F2937),
         ),
       ),
       child: InkWell(
@@ -201,17 +201,22 @@ class _WaptiaExploreWorkspaceState extends State<WaptiaExploreWorkspace> {
                   width: 48,
                   height: 48,
                   decoration: BoxDecoration(
-                    color: AcousticColors.obsidian,
+                    color: const Color(0xFF0B0F19),
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: AcousticColors.sonarCyan.withValues(alpha: 0.3)),
+                    border: Border.all(color: const Color(0xFF1F2937)),
                   ),
-                  child: Center(
-                    child: Text(
-                      app.name.substring(0, app.name.length >= 2 ? 2 : 1).toUpperCase(),
-                      style: GoogleFonts.outfit(
-                        color: AcousticColors.sonarCyan,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18,
+                  clipBehavior: Clip.antiAlias,
+                  child: Image.network(
+                    'https://cdn.infortts.site/icons/${app.slug}.png',
+                    fit: BoxFit.contain,
+                    errorBuilder: (_, __, ___) => Center(
+                      child: Text(
+                        app.name.substring(0, app.name.length >= 2 ? 2 : 1).toUpperCase(),
+                        style: GoogleFonts.outfit(
+                          color: const Color(0xFF38BDF8),
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
                       ),
                     ),
                   ),
@@ -229,7 +234,7 @@ class _WaptiaExploreWorkspaceState extends State<WaptiaExploreWorkspace> {
                               style: GoogleFonts.outfit(
                                 fontSize: 15,
                                 fontWeight: FontWeight.bold,
-                                color: AcousticColors.titanium,
+                                color: const Color(0xFFF9FAFB),
                               ),
                               overflow: TextOverflow.ellipsis,
                             ),
@@ -239,16 +244,16 @@ class _WaptiaExploreWorkspaceState extends State<WaptiaExploreWorkspace> {
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                               decoration: BoxDecoration(
-                                color: AcousticColors.sonarCyan.withValues(alpha: 0.15),
+                                color: const Color(0xFF38BDF8).withValues(alpha: 0.15),
                                 borderRadius: BorderRadius.circular(4),
-                                border: Border.all(color: AcousticColors.sonarCyan.withValues(alpha: 0.4)),
+                                border: Border.all(color: const Color(0xFF38BDF8).withValues(alpha: 0.4)),
                               ),
                               child: Text(
                                 'UPDATE',
                                 style: GoogleFonts.outfit(
                                   fontSize: 9,
                                   fontWeight: FontWeight.bold,
-                                  color: AcousticColors.sonarCyan,
+                                  color: const Color(0xFF38BDF8),
                                 ),
                               ),
                             ),
@@ -260,13 +265,13 @@ class _WaptiaExploreWorkspaceState extends State<WaptiaExploreWorkspace> {
                         app.packageName,
                         style: GoogleFonts.jetBrainsMono(
                           fontSize: 11,
-                          color: AcousticColors.sonarCyan.withValues(alpha: 0.8),
+                          color: const Color(0xFF38BDF8),
                         ),
                       ),
                       const SizedBox(height: 2),
                       Text(
                         'v${app.installedVersion} • Build ${app.installedBuild}',
-                        style: GoogleFonts.outfit(fontSize: 11, color: AcousticColors.steel),
+                        style: GoogleFonts.outfit(fontSize: 11, color: const Color(0xFF9CA3AF)),
                       ),
                     ],
                   ),
@@ -278,8 +283,8 @@ class _WaptiaExploreWorkspaceState extends State<WaptiaExploreWorkspace> {
               const SizedBox(height: 12),
               LinearProgressIndicator(
                 value: app.downloadProgress > 0 ? app.downloadProgress : null,
-                backgroundColor: AcousticColors.obsidian,
-                valueColor: const AlwaysStoppedAnimation<Color>(AcousticColors.sonarCyan),
+                backgroundColor: const Color(0xFF0B0F19),
+                valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF38BDF8)),
                 borderRadius: BorderRadius.circular(4),
               ),
             ],
@@ -294,17 +299,18 @@ class _WaptiaExploreWorkspaceState extends State<WaptiaExploreWorkspace> {
       return const SizedBox(
         width: 28,
         height: 28,
-        child: CircularProgressIndicator(strokeWidth: 2.5, valueColor: AlwaysStoppedAnimation<Color>(AcousticColors.sonarCyan)),
+        child: CircularProgressIndicator(strokeWidth: 2.5, valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF38BDF8))),
       );
     }
 
     if (!app.isInstalled) {
       return ElevatedButton(
         style: ElevatedButton.styleFrom(
-          backgroundColor: AcousticColors.sonarCyan,
-          foregroundColor: Colors.black,
+          backgroundColor: const Color(0xFF2563EB),
+          foregroundColor: Colors.white,
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          elevation: 0,
         ),
         onPressed: () => WaptiaAutoUpdateManager.instance.installApp(app.slug),
         child: Text('Install', style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 12)),
@@ -314,32 +320,36 @@ class _WaptiaExploreWorkspaceState extends State<WaptiaExploreWorkspace> {
     if (app.hasUpdate) {
       return ElevatedButton(
         style: ElevatedButton.styleFrom(
-          backgroundColor: AcousticColors.sonarCyan,
-          foregroundColor: Colors.black,
+          backgroundColor: const Color(0xFF10B981),
+          foregroundColor: Colors.white,
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          elevation: 0,
         ),
         onPressed: () => WaptiaAutoUpdateManager.instance.updateApp(app.slug),
         child: Text('Update', style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 12)),
       );
     }
 
-    return OutlinedButton(
-      style: OutlinedButton.styleFrom(
-        foregroundColor: AcousticColors.steel,
-        side: BorderSide(color: AcousticColors.steel.withValues(alpha: 0.3)),
+    return ElevatedButton.icon(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: const Color(0xFF1F2937),
+        foregroundColor: const Color(0xFF38BDF8),
+        side: const BorderSide(color: Color(0xFF38BDF8), width: 1),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        elevation: 0,
       ),
-      onPressed: () => _showAppDetailsModal(context, app),
-      child: Text('Installed', style: GoogleFonts.outfit(fontSize: 12)),
+      icon: const Icon(Icons.play_arrow_rounded, size: 16, color: Color(0xFF38BDF8)),
+      onPressed: () => WaptiaAutoUpdateManager.instance.openApp(app.packageName),
+      label: Text('Open', style: GoogleFonts.outfit(fontSize: 12, fontWeight: FontWeight.bold)),
     );
   }
 
   void _showAppDetailsModal(BuildContext context, AppInstallState app) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: AcousticColors.darkCarbon,
+      backgroundColor: const Color(0xFF111827),
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
@@ -347,23 +357,28 @@ class _WaptiaExploreWorkspaceState extends State<WaptiaExploreWorkspace> {
       builder: (ctx) {
         return Container(
           padding: const EdgeInsets.all(24),
-          constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.8),
+          constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.85),
           child: ListView(
             children: [
               Row(
                 children: [
                   Container(
-                    width: 52,
-                    height: 52,
+                    width: 56,
+                    height: 56,
                     decoration: BoxDecoration(
-                      color: AcousticColors.obsidian,
+                      color: const Color(0xFF0B0F19),
                       borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: AcousticColors.sonarCyan),
+                      border: Border.all(color: const Color(0xFF1F2937)),
                     ),
-                    child: Center(
-                      child: Text(
-                        app.name.substring(0, app.name.length >= 2 ? 2 : 1).toUpperCase(),
-                        style: GoogleFonts.outfit(fontSize: 22, fontWeight: FontWeight.bold, color: AcousticColors.sonarCyan),
+                    clipBehavior: Clip.antiAlias,
+                    child: Image.network(
+                      'https://cdn.infortts.site/icons/${app.slug}.png',
+                      fit: BoxFit.contain,
+                      errorBuilder: (_, __, ___) => Center(
+                        child: Text(
+                          app.name.substring(0, app.name.length >= 2 ? 2 : 1).toUpperCase(),
+                          style: GoogleFonts.outfit(fontSize: 22, fontWeight: FontWeight.bold, color: const Color(0xFF38BDF8)),
+                        ),
                       ),
                     ),
                   ),
@@ -372,9 +387,9 @@ class _WaptiaExploreWorkspaceState extends State<WaptiaExploreWorkspace> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(app.name, style: GoogleFonts.outfit(fontSize: 18, fontWeight: FontWeight.bold, color: AcousticColors.titanium)),
-                        Text(app.packageName, style: GoogleFonts.jetBrainsMono(fontSize: 12, color: AcousticColors.sonarCyan)),
-                        Text('Latest: v${app.latestVersion} (Build ${app.latestBuild})', style: GoogleFonts.outfit(fontSize: 12, color: AcousticColors.steel)),
+                        Text(app.name, style: GoogleFonts.outfit(fontSize: 18, fontWeight: FontWeight.bold, color: const Color(0xFFF9FAFB))),
+                        Text(app.packageName, style: GoogleFonts.jetBrainsMono(fontSize: 12, color: const Color(0xFF38BDF8))),
+                        Text('Latest: v${app.latestVersion} (Build ${app.latestBuild})', style: GoogleFonts.outfit(fontSize: 12, color: const Color(0xFF9CA3AF))),
                       ],
                     ),
                   ),
@@ -441,26 +456,68 @@ class _WaptiaExploreWorkspaceState extends State<WaptiaExploreWorkspace> {
                 ),
               ),
               const SizedBox(height: 24),
-              Row(
-                children: [
-                  Expanded(
-                    child: ElevatedButton.icon(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AcousticColors.sonarCyan,
-                        foregroundColor: Colors.black,
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              if (app.isInstalled) ...[
+                Row(
+                  children: [
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AcousticColors.sonarCyan,
+                          foregroundColor: Colors.black,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        ),
+                        icon: const Icon(Icons.launch_rounded, size: 20),
+                        label: Text('Open App', style: GoogleFonts.outfit(fontSize: 15, fontWeight: FontWeight.bold)),
+                        onPressed: () {
+                          Navigator.pop(ctx);
+                          WaptiaAutoUpdateManager.instance.openApp(app.packageName);
+                        },
                       ),
-                      icon: const Icon(Icons.download_rounded, size: 18),
-                      label: Text(app.hasUpdate ? 'Update Now' : 'Download APK', style: GoogleFonts.outfit(fontWeight: FontWeight.bold)),
-                      onPressed: () {
-                        Navigator.pop(ctx);
-                        WaptiaAutoUpdateManager.instance.updateApp(app.slug);
-                      },
                     ),
-                  ),
-                ],
-              ),
+                    if (app.hasUpdate) ...[
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF10B981),
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                          ),
+                          icon: const Icon(Icons.system_update_alt_rounded, size: 18),
+                          label: Text('Update to v${app.latestVersion}', style: GoogleFonts.outfit(fontSize: 13, fontWeight: FontWeight.bold)),
+                          onPressed: () {
+                            Navigator.pop(ctx);
+                            WaptiaAutoUpdateManager.instance.updateApp(app.slug);
+                          },
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ] else ...[
+                Row(
+                  children: [
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AcousticColors.sonarCyan,
+                          foregroundColor: Colors.black,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        ),
+                        icon: const Icon(Icons.download_rounded, size: 18),
+                        label: Text('Download APK', style: GoogleFonts.outfit(fontWeight: FontWeight.bold)),
+                        onPressed: () {
+                          Navigator.pop(ctx);
+                          WaptiaAutoUpdateManager.instance.installApp(app.slug);
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ],
           ),
         );
@@ -796,6 +853,20 @@ class WaptiaUpdatesWorkspace extends StatelessWidget {
               borderRadius: BorderRadius.circular(6),
             ),
             child: Text('Up to date', style: GoogleFonts.outfit(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.greenAccent)),
+          ),
+          const SizedBox(width: 8),
+          ElevatedButton.icon(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF1F2937),
+              foregroundColor: const Color(0xFF38BDF8),
+              side: const BorderSide(color: Color(0xFF38BDF8), width: 1),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              elevation: 0,
+            ),
+            icon: const Icon(Icons.play_arrow_rounded, size: 14, color: Color(0xFF38BDF8)),
+            onPressed: () => WaptiaAutoUpdateManager.instance.openApp(app.packageName),
+            label: Text('Open', style: GoogleFonts.outfit(fontSize: 11, fontWeight: FontWeight.bold)),
           ),
         ],
       ),

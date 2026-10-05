@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:infortts_shared/infortts_shared.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -12,6 +13,8 @@ import 'models.dart';
 class WaptiaAutoUpdateManager {
   static final WaptiaAutoUpdateManager instance = WaptiaAutoUpdateManager._internal();
   WaptiaAutoUpdateManager._internal();
+
+  static const MethodChannel _systemChannel = MethodChannel('com.infortts.waptia/system');
 
   static const String _prefInstalledPrefix = 'waptia_installed_';
   static const String _prefBuildPrefix = 'waptia_build_';
@@ -35,7 +38,7 @@ class WaptiaAutoUpdateManager {
 
   Timer? _bgCronTimer;
 
-  /// Initialize local store, seed catalog states, and start auto-update daemon
+  /// Initialize local store, request notification permission, detect installed packages, and start auto-update daemon
   Future<void> initialize() async {
     final prefs = await SharedPreferences.getInstance();
     autoUpdateMaster = prefs.getBool(_prefAutoUpdateMaster) ?? true;
@@ -43,15 +46,14 @@ class WaptiaAutoUpdateManager {
     silentPatches = prefs.getBool(_prefSilentPatches) ?? true;
     wifiOnly = prefs.getBool(_prefWifiOnly) ?? false;
 
-    // Seed initial app states
+    // Seed initial app states from catalog and cache
     List<AppInstallState> initialList = [];
     for (final app in inforttsCatalog) {
-      final isInstalled = prefs.getBool('$_prefInstalledPrefix${app.slug}') ?? 
-          (app.slug == 'waptia' || app.slug == 'mitochondria' || app.slug == 'glycocalyx'); // default core fleet
+      final isInstalled = prefs.getBool('$_prefInstalledPrefix${app.slug}') ?? false;
       final installedBuild = prefs.getInt('$_prefBuildPrefix${app.slug}') ?? 
-          (app.slug == 'waptia' ? 10000 : (app.slug == 'mitochondria' ? 20600 : 10000));
+          (app.slug == 'waptia' ? 20700 : (app.slug == 'mitochondria' ? 20600 : 10000));
       final installedVer = prefs.getString('$_prefVersionPrefix${app.slug}') ?? 
-          (app.slug == 'waptia' ? '1.1.0' : (app.slug == 'mitochondria' ? '2.06.00' : '1.0.0'));
+          (app.slug == 'waptia' ? '2.07.00' : (app.slug == 'mitochondria' ? '2.06.00' : '1.0.0'));
       final appAuto = prefs.getBool('$_prefAppAutoUpdatePrefix${app.slug}') ?? true;
 
       final latestVer = app.latest['android'] ?? '1.2.0';
@@ -79,11 +81,87 @@ class WaptiaAutoUpdateManager {
     appsNotifier.value = initialList;
     _recomputePendingCount();
 
-    // Start background cron
+    // 1. Request Notification Permission on Android 13+
+    await requestNotificationPermission();
+
+    // 2. Automatically query device PackageManager to detect real installed packages
+    await detectInstalledApps();
+
+    // 3. Start background cron
     _restartCronTimer();
 
-    // Perform initial live check against update.infortts.site
+    // 4. Perform initial live check against update.infortts.site
     await checkAllUpdates(silent: true);
+  }
+
+  /// Query Android PackageManager to detect which apps are truly installed on the device
+  Future<void> detectInstalledApps() async {
+    try {
+      final List<String> packageList = inforttsCatalog
+          .map((a) => a.packageName.isNotEmpty ? a.packageName : 'com.infortts.${a.slug}')
+          .toList();
+      
+      final result = await _systemChannel.invokeMethod<Map>('getInstalledPackages', {'packages': packageList});
+
+      if (result != null) {
+        final prefs = await SharedPreferences.getInstance();
+        final updated = appsNotifier.value.map((app) {
+          final pkgData = result[app.packageName];
+          if (pkgData != null && pkgData is Map) {
+            final isInst = pkgData['installed'] == true;
+            final vName = pkgData['versionName']?.toString() ?? app.installedVersion;
+            final vCode = (pkgData['versionCode'] as num?)?.toInt() ?? app.installedBuild;
+
+            prefs.setBool('$_prefInstalledPrefix${app.slug}', isInst);
+            prefs.setString('$_prefVersionPrefix${app.slug}', vName);
+            prefs.setInt('$_prefBuildPrefix${app.slug}', vCode);
+
+            return app.copyWith(
+              isInstalled: isInst,
+              installedVersion: vName,
+              installedBuild: vCode,
+              hasUpdate: isInst && app.latestBuild > vCode,
+            );
+          } else {
+            // Check if user manually flagged as installed or core app
+            final isSaved = prefs.getBool('$_prefInstalledPrefix${app.slug}') ?? (app.slug == 'waptia');
+            return app.copyWith(
+              isInstalled: isSaved,
+              hasUpdate: isSaved && app.latestBuild > app.installedBuild,
+            );
+          }
+        }).toList();
+
+        appsNotifier.value = updated;
+        _recomputePendingCount();
+      }
+    } catch (e) {
+      if (kDebugMode) print('[WaptiaAutoUpdateManager] Error detecting installed packages: $e');
+    }
+  }
+
+  /// Launch application on device
+  Future<bool> openApp(String packageName) async {
+    try {
+      final res = await _systemChannel.invokeMethod<bool>('openApp', {'packageName': packageName});
+      if (res == true) return true;
+    } catch (_) {}
+
+    try {
+      final uri = Uri.parse('android-app://$packageName');
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri);
+        return true;
+      }
+    } catch (_) {}
+    return false;
+  }
+
+  /// Request POST_NOTIFICATIONS permission
+  Future<void> requestNotificationPermission() async {
+    try {
+      await _systemChannel.invokeMethod('requestNotificationPermission');
+    } catch (_) {}
   }
 
   void _restartCronTimer() {

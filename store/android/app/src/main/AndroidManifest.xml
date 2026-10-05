@@ -37,15 +37,48 @@
             android:name="flutterEmbedding"
             android:value="2" />
     </application>
-    <!-- Required to query activities that can process text, see:
-         https://developer.android.com/training/package-visibility and
-         https://developer.android.com/reference/android/content/Intent#ACTION_PROCESS_TEXT.
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES"/>
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES"/>
 
-         In particular, this is used by the Flutter engine in io.flutter.plugin.text.ProcessTextPlugin. -->
+    <!-- Required to query ecosystem applications on Android 11+ -->
     <queries>
+        <intent>
+            <action android:name="android.intent.action.MAIN"/>
+        </intent>
         <intent>
             <action android:name="android.intent.action.PROCESS_TEXT"/>
             <data android:mimeType="text/plain"/>
         </intent>
+        <package android:name="com.infortts.meeseeks"/>
+        <package android:name="com.infortts.mitochondria"/>
+        <package android:name="com.infortts.ikaria"/>
+        <package android:name="com.infortts.glycocalyx"/>
+        <package android:name="com.infortts.care4u"/>
+        <package android:name="com.infortts.ernietta"/>
+        <package android:name="com.infortts.fractofusus"/>
+        <package android:name="com.infortts.opabinia"/>
+        <package android:name="com.infortts.orthrozanclus"/>
+        <package android:name="com.infortts.tridrishti"/>
+        <package android:name="com.infortts.pikaia"/>
+        <package android:name="com.infortts.wiwaxia"/>
+        <package android:name="com.infortts.hallucigenia"/>
+        <package android:name="com.infortts.anomalocaris"/>
+        <package android:name="com.infortts.canadia"/>
+        <package android:name="com.infortts.kimberella"/>
+        <package android:name="com.infortts.cloudia"/>
+        <package android:name="com.infortts.elysium"/>
+        <package android:name="com.infortts.tunicata"/>
+        <package android:name="com.infortts.marrella"/>
+        <package android:name="com.infortts.vavilov"/>
+        <package android:name="com.infortts.volvocine"/>
+        <package android:name="com.infortts.haikouichthys"/>
+        <package android:name="com.infortts.vetulicolia"/>
+        <package android:name="com.infortts.diania"/>
+        <package android:name="com.infortts.charnia"/>
+        <package android:name="com.infortts.tribrachidium"/>
+        <package android:name="com.infortts.yorgia"/>
+        <package android:name="com.infortts.spriggina"/>
     </queries>
 </manifest>
