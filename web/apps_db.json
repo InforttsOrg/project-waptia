@@ -287,9 +287,9 @@
     "slug": "ikaria",
     "name": "Ikaria",
     "packageId": "com.infortts.ikaria",
-    "category": "Bio-Computing",
-    "shortDescription": "Runs evolutionary and simulation workloads in the compute matrix.",
-    "longDescription": "Ikaria is an advanced biocomputing simulator and genetic algorithm workbench. It simulates cellular automata, evolutionary neural strategies, and biochemical reaction networks with GPU-accelerated tensor operations.",
+    "category": "Career & Automation",
+    "shortDescription": "AI-driven job crawler, auto-apply workflow & LinkedIn career optimizer with Glycocalyx RBAC.",
+    "longDescription": "Ikaria is an autonomous career accelerator and profile synchronizer. It continuously scrapes jobs across LinkedIn, WeWorkRemotely, Hirist, Naukri, and Indeed, tailors applications to candidate resumes, and orchestrates live LinkedIn profile updates.",
     "platforms": [
       "android",
       "web",
