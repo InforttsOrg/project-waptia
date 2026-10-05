@@ -1,4 +1,4 @@
-# waptia_store
+# Waptia Store
 
 A new Flutter project.
 

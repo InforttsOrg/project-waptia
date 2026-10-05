@@ -24,7 +24,7 @@ class WaptiaStoreApp extends StatelessWidget {
         valueListenable: WaptiaAutoUpdateManager.instance.pendingUpdatesCount,
         builder: (context, pendingCount, _) {
           return InforttsAppShell(
-            appName: 'Waptia by Infortts',
+            appName: 'Waptia Store',
             appDescription: 'Sovereign Fleet App Store & Autonomous OTA Package Manager',
             appVersion: '1.2.0',
             additionalTabs: [
