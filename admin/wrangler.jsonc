@@ -7,7 +7,6 @@
     "not_found_handling": "single-page-application"
   },
   "routes": [
-    { "pattern": "admin.waptia.infortts.site", "custom_domain": true },
-    { "pattern": "admin.waptia.infortts.com", "custom_domain": true }
+    { "pattern": "admin.waptia.infortts.site", "custom_domain": true }
   ]
 }

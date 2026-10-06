@@ -8,8 +8,6 @@
   },
   "routes": [
     { "pattern": "waptia.infortts.site", "custom_domain": true },
-    { "pattern": "client.waptia.infortts.site", "custom_domain": true },
-    { "pattern": "waptia.infortts.com", "custom_domain": true },
-    { "pattern": "client.waptia.infortts.com", "custom_domain": true }
+    { "pattern": "client.waptia.infortts.site", "custom_domain": true }
   ]
 }
