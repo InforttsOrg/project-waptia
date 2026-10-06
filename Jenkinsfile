@@ -407,7 +407,7 @@ stage('Cloudflare: waptia-store') {
               // masking deploy failures. No `|| echo` — a failed deploy fails
               // the build instead of shipping a broken Worker.
               sh "set -o pipefail; npx wrangler deploy --name waptia-store 2>&1 | tail -20"
-              sh "npx wrangler pages deploy ./web --project-name=waptia-store 2>&1 | tail -20 || true"
+              sh "npx wrangler pages deploy ./web --project-name=waptia-store --branch=main 2>&1 | tail -20 || true"
             }
           }
         }
