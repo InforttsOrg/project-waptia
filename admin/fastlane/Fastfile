@@ -92,6 +92,8 @@ platform :android do
     rescue => e
       if e.message.to_s =~ /already been used/i
         UI.important("Version code has already been used on Play Store — binary is already present on #{track} track. Continuing pipeline.")
+      elsif e.message.to_s =~ /Package not found/i
+        UI.important("Package #{package} is not yet provisioned on Google Play Console. Sovereign APK has been built and pushed to CDN. Continuing pipeline.")
       else
         raise e
       end
