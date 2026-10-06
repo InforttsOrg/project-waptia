@@ -9,6 +9,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import 'catalog_data.dart';
 import 'models.dart';
+import 'native_installer.dart';
 
 class WaptiaAutoUpdateManager {
   static final WaptiaAutoUpdateManager instance = WaptiaAutoUpdateManager._internal();
@@ -96,6 +97,7 @@ class WaptiaAutoUpdateManager {
 
   /// Query Android PackageManager to detect which apps are truly installed on the device
   Future<void> detectInstalledApps() async {
+    if (kIsWeb) return;
     try {
       final List<String> packageList = inforttsCatalog
           .map((a) => a.packageName.isNotEmpty ? a.packageName : 'com.infortts.${a.slug}')
@@ -107,27 +109,27 @@ class WaptiaAutoUpdateManager {
         final prefs = await SharedPreferences.getInstance();
         final updated = appsNotifier.value.map((app) {
           final pkgData = result[app.packageName];
-          if (pkgData != null && pkgData is Map) {
-            final isInst = pkgData['installed'] == true;
+          if (pkgData != null && pkgData is Map && pkgData['installed'] == true) {
             final vName = pkgData['versionName']?.toString() ?? app.installedVersion;
             final vCode = (pkgData['versionCode'] as num?)?.toInt() ?? app.installedBuild;
 
-            prefs.setBool('$_prefInstalledPrefix${app.slug}', isInst);
+            prefs.setBool('$_prefInstalledPrefix${app.slug}', true);
             prefs.setString('$_prefVersionPrefix${app.slug}', vName);
             prefs.setInt('$_prefBuildPrefix${app.slug}', vCode);
 
             return app.copyWith(
-              isInstalled: isInst,
+              isInstalled: true,
               installedVersion: vName,
               installedBuild: vCode,
-              hasUpdate: isInst && app.latestBuild > vCode,
+              hasUpdate: app.latestBuild > vCode,
             );
           } else {
-            // Check if user manually flagged as installed or core app
-            final isSaved = prefs.getBool('$_prefInstalledPrefix${app.slug}') ?? (app.slug == 'waptia');
+            // Not installed on device: clear pref and set isInstalled false (except host app waptia)
+            final isHost = (app.slug == 'waptia');
+            prefs.setBool('$_prefInstalledPrefix${app.slug}', isHost);
             return app.copyWith(
-              isInstalled: isSaved,
-              hasUpdate: isSaved && app.latestBuild > app.installedBuild,
+              isInstalled: isHost,
+              hasUpdate: false,
             );
           }
         }).toList();
@@ -142,6 +144,17 @@ class WaptiaAutoUpdateManager {
 
   /// Launch application on device
   Future<bool> openApp(String packageName) async {
+    if (kIsWeb) {
+      final app = appsNotifier.value.firstWhere(
+        (a) => a.packageName == packageName,
+        orElse: () => appsNotifier.value.first,
+      );
+      if (app.downloadUrl.isNotEmpty) {
+        await launchUrl(Uri.parse(app.downloadUrl), mode: LaunchMode.externalApplication);
+      }
+      return true;
+    }
+
     try {
       final res = await _systemChannel.invokeMethod<bool>('openApp', {'packageName': packageName});
       if (res == true) return true;
@@ -157,10 +170,52 @@ class WaptiaAutoUpdateManager {
     return false;
   }
 
+  /// Check whether Waptia has permission to install unknown apps
+  Future<bool> canRequestPackageInstalls() async {
+    if (kIsWeb) return true;
+    try {
+      final res = await _systemChannel.invokeMethod<bool>('canRequestPackageInstalls');
+      return res ?? true;
+    } catch (_) {
+      return true;
+    }
+  }
+
+  /// Request unknown app install permission from system settings
+  Future<void> requestInstallPermission() async {
+    if (kIsWeb) return;
+    try {
+      await _systemChannel.invokeMethod('requestInstallPermission');
+    } catch (_) {}
+  }
+
+  /// Check whether POST_NOTIFICATIONS permission is active
+  Future<bool> isNotificationPermissionGranted() async {
+    if (kIsWeb) return false;
+    try {
+      final res = await _systemChannel.invokeMethod<bool>('isNotificationPermissionGranted');
+      return res ?? false;
+    } catch (_) {
+      return false;
+    }
+  }
+
   /// Request POST_NOTIFICATIONS permission
   Future<void> requestNotificationPermission() async {
+    if (kIsWeb) return;
     try {
       await _systemChannel.invokeMethod('requestNotificationPermission');
+    } catch (_) {}
+  }
+
+  /// Dispatch local system notification for downloads, installs, or updates
+  Future<void> showNotification({required String title, required String message}) async {
+    if (kIsWeb) return;
+    try {
+      await _systemChannel.invokeMethod('showNotification', {
+        'title': title,
+        'message': message,
+      });
     } catch (_) {}
   }
 
@@ -209,24 +264,30 @@ class WaptiaAutoUpdateManager {
         final updatedList = appsNotifier.value.map((app) {
           final remote = remoteMap[app.slug];
           if (remote != null) {
-            final latestVer = remote['latest_version']?.toString() ?? app.latestVersion;
-            final latestBuild = (remote['latest_build'] as num?)?.toInt() ?? app.latestBuild;
+            final remoteVer = remote['latest_version']?.toString();
+            final remoteBuild = (remote['latest_build'] as num?)?.toInt() ?? 0;
             final latestPatch = (remote['latestPatch'] as num?)?.toInt() ?? app.latestPatch;
-            final dlUrl = remote['download_url']?.toString() ?? app.downloadUrl;
-            final pUrl = remote['cdn_patch_url']?.toString() ?? app.patchUrl;
+            final dlUrl = remote['download_url']?.toString();
+            final pUrl = remote['cdn_patch_url']?.toString();
             
+            // Protect against stale remote registry: never downgrade below bundled catalog
+            final effectiveLatestBuild = remoteBuild > app.latestBuild ? remoteBuild : app.latestBuild;
+            final effectiveLatestVer = (remoteBuild >= app.latestBuild && remoteVer != null && remoteVer.isNotEmpty)
+                ? remoteVer
+                : app.latestVersion;
+
             List<String> notes = app.releaseNotes;
             if (remote['release_notes'] is List) {
               notes = List<String>.from(remote['release_notes']);
             }
 
-            final hasUpdate = app.isInstalled && latestBuild > app.installedBuild;
+            final hasUpdate = app.isInstalled && effectiveLatestBuild > app.installedBuild;
             return app.copyWith(
-              latestVersion: latestVer,
-              latestBuild: latestBuild,
+              latestVersion: effectiveLatestVer,
+              latestBuild: effectiveLatestBuild,
               latestPatch: latestPatch,
-              downloadUrl: dlUrl,
-              patchUrl: pUrl,
+              downloadUrl: (dlUrl != null && dlUrl.isNotEmpty) ? dlUrl : app.downloadUrl,
+              patchUrl: (pUrl != null && pUrl.isNotEmpty) ? pUrl : app.patchUrl,
               releaseNotes: notes,
               hasUpdate: hasUpdate,
               lastChecked: DateTime.now(),
@@ -235,9 +296,18 @@ class WaptiaAutoUpdateManager {
           return app;
         }).toList();
 
+        final int previousPending = pendingUpdatesCount.value;
         appsNotifier.value = updatedList;
         lastCheckedNotifier.value = DateTime.now();
         _recomputePendingCount();
+
+        // Dispatch alert if new updates were discovered on installed apps
+        if (pendingUpdatesCount.value > previousPending && pendingUpdatesCount.value > 0) {
+          await showNotification(
+            title: 'Waptia Store Updates',
+            message: 'Discovered ${pendingUpdatesCount.value} pending update${pendingUpdatesCount.value > 1 ? "s" : ""} for your installed apps.',
+          );
+        }
       }
     } catch (e) {
       if (kDebugMode) print('[WaptiaAutoUpdateManager] Error checking updates: $e');
@@ -246,7 +316,7 @@ class WaptiaAutoUpdateManager {
     }
   }
 
-  /// Update single app (downloads differential patch or opens installer)
+  /// Update single app (downloads differential patch or falls back to in-app APK installer)
   Future<bool> updateApp(String slug, {void Function(double progress)? onProgress}) async {
     final list = List<AppInstallState>.from(appsNotifier.value);
     final idx = list.indexWhere((a) => a.slug == slug);
@@ -280,33 +350,32 @@ class WaptiaAutoUpdateManager {
         });
       }
 
-      onProgress?.call(0.9);
+      onProgress?.call(1.0);
 
-      // 2. Mark as updated locally in persistent preferences
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setInt('$_prefBuildPrefix${app.slug}', app.latestBuild);
-      await prefs.setString('$_prefVersionPrefix${app.slug}', app.latestVersion);
-      await prefs.setBool('$_prefInstalledPrefix${app.slug}', true);
+      if (patchSuccess) {
+        // Mark differential patch applied in persistent preferences
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setInt('$_prefBuildPrefix${app.slug}', app.latestBuild);
+        await prefs.setString('$_prefVersionPrefix${app.slug}', app.latestVersion);
+        list[idx] = list[idx].copyWith(
+          installedBuild: app.latestBuild,
+          installedVersion: app.latestVersion,
+          hasUpdate: false,
+          isDownloading: false,
+          downloadProgress: 1.0,
+        );
+        appsNotifier.value = list;
+        _recomputePendingCount();
 
-      list[idx] = list[idx].copyWith(
-        installedBuild: app.latestBuild,
-        installedVersion: app.latestVersion,
-        hasUpdate: false,
-        isDownloading: false,
-        downloadProgress: 1.0,
-      );
-      appsNotifier.value = list;
-      _recomputePendingCount();
-
-      // If full APK installation is desired on platform
-      if (!patchSuccess && app.downloadUrl.isNotEmpty) {
-        final uri = Uri.parse(app.downloadUrl);
-        if (await canLaunchUrl(uri)) {
-          await launchUrl(uri, mode: LaunchMode.externalApplication);
-        }
+        await showNotification(
+          title: '${app.name} Updated',
+          message: '${app.name} updated to v${app.latestVersion} successfully.',
+        );
+        return true;
       }
 
-      return true;
+      // If differential patch was not applicable or unavailable, download APK in-app and trigger native install
+      return await installApp(slug, onProgress: onProgress);
     } catch (e) {
       if (kDebugMode) print('[WaptiaAutoUpdateManager] Failed updating ${app.slug}: $e');
       list[idx] = list[idx].copyWith(isDownloading: false, downloadProgress: 0.0);
@@ -344,17 +413,75 @@ class WaptiaAutoUpdateManager {
     }
   }
 
-  /// Mark app as installed
-  Future<void> installApp(String slug) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('$_prefInstalledPrefix$slug', true);
-
+  /// In-app download and native package installation (no browser redirect on Android)
+  Future<bool> installApp(String slug, {void Function(double progress)? onProgress}) async {
     final list = List<AppInstallState>.from(appsNotifier.value);
     final idx = list.indexWhere((a) => a.slug == slug);
-    if (idx != -1) {
-      list[idx] = list[idx].copyWith(isInstalled: true);
-      appsNotifier.value = list;
-      await updateApp(slug);
+    if (idx == -1) return false;
+
+    final app = list[idx];
+    if (app.downloadUrl.isEmpty) return false;
+
+    if (kIsWeb) {
+      await launchUrl(Uri.parse(app.downloadUrl), mode: LaunchMode.externalApplication);
+      return true;
+    }
+
+    list[idx] = app.copyWith(isDownloading: true, downloadProgress: 0.05);
+    appsNotifier.value = List.from(list);
+    onProgress?.call(0.05);
+
+    try {
+      final success = await executeNativeDownloadAndInstall(
+        slug: app.slug,
+        downloadUrl: app.downloadUrl,
+        packageName: app.packageName,
+        appName: app.name,
+        onProgress: (p) {
+          list[idx] = list[idx].copyWith(downloadProgress: p);
+          appsNotifier.value = List<AppInstallState>.from(list);
+          onProgress?.call(p);
+        },
+        onNotify: (title, msg) => showNotification(title: title, message: msg),
+      );
+
+      list[idx] = list[idx].copyWith(isDownloading: false, downloadProgress: success ? 1.0 : 0.0);
+      appsNotifier.value = List<AppInstallState>.from(list);
+      onProgress?.call(success ? 1.0 : 0.0);
+
+      if (success) {
+        _pollForAppInstallation(app.packageName, app.slug);
+      }
+      return success;
+    } catch (e) {
+      if (kDebugMode) print('[WaptiaAutoUpdateManager] Error downloading/installing ${app.slug}: $e');
+      list[idx] = list[idx].copyWith(isDownloading: false, downloadProgress: 0.0);
+      appsNotifier.value = List<AppInstallState>.from(list);
+      return false;
+    }
+  }
+
+  void _pollForAppInstallation(String packageName, String slug) {
+    for (final delay in [3, 7, 14, 25, 45]) {
+      Future.delayed(Duration(seconds: delay), () async {
+        await detectInstalledApps();
+        final current = appsNotifier.value.firstWhere(
+          (a) => a.slug == slug,
+          orElse: () => AppInstallState(
+            slug: '', name: '', packageName: '', category: '',
+            installedVersion: '', installedBuild: 0, latestVersion: '',
+            latestBuild: 0, latestPatch: 0, isInstalled: false,
+            hasUpdate: false, releaseNotes: [], downloadUrl: '',
+            patchUrl: '', autoUpdateEnabled: true,
+          ),
+        );
+        if (current.isInstalled) {
+          await showNotification(
+            title: '${current.name} Installed',
+            message: '${current.name} is installed and ready to open.',
+          );
+        }
+      });
     }
   }
 

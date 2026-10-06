@@ -44,7 +44,7 @@ stage('Version plan') {
       }
     }
 
-stage('Flutter: waptia') {
+stage('Flutter: waptia-store') {
       agent { label 'mac' }
       when {
         expression { PLAN?.action == 'playstore' }
@@ -112,6 +112,11 @@ stage('Flutter: waptia') {
               [ -n "$BUILD_NUM" ] && VER_ARGS="$VER_ARGS --build-number=$BUILD_NUM"
               flutter build apk --release $VER_ARGS || echo "APK build attempted"
               flutter build appbundle --release $VER_ARGS || echo "AppBundle build attempted"
+              flutter build web --release || echo "Web build attempted"
+              if [ -d "build/web" ]; then
+                mkdir -p ../web
+                cp -r build/web/* ../web/ 2>/dev/null || true
+              fi
             '''
           }
         }
@@ -197,7 +202,7 @@ stage('OTA registry: com.infortts.waptia') {
         }
       }
     }
-stage('Flutter: waptia') {
+stage('Flutter: waptia-admin') {
       agent { label 'mac' }
       when {
         expression { PLAN?.action == 'playstore' }
