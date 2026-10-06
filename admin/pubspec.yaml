@@ -1,7 +1,7 @@
 name: waptia_admin
 description: "Waptia Admin Console — Fleet App Management, Release Engineering & Telemetry for Infortts"
 publish_to: 'none'
-version: 2.07.01+20701
+version: 2.08.00+20800
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
