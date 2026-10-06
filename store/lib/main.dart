@@ -5,9 +5,12 @@ import 'package:infortts_shared/infortts_shared.dart';
 import 'auto_update_manager.dart';
 import 'models.dart';
 
+import 'design_skin.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await WaptiaAutoUpdateManager.instance.initialize();
+  // Design skin for this app (generated; see tools/design-pipeline).
+  AppDesignSkin.boot();
   runApp(const WaptiaStoreApp());
 }
 
@@ -19,14 +22,17 @@ class WaptiaStoreApp extends StatelessWidget {
     return MaterialApp(
       title: 'Waptia Store',
       debugShowCheckedModeBanner: false,
-      theme: AcousticTheme.darkTheme,
+      theme: AcousticTheme.themedDark(skin: AppDesignSkin.skin),
       home: ValueListenableBuilder<int>(
         valueListenable: WaptiaAutoUpdateManager.instance.pendingUpdatesCount,
         builder: (context, pendingCount, _) {
           return InforttsAppShell(
             appName: 'Waptia Store',
             appDescription: 'Sovereign Fleet App Store & Autonomous OTA Package Manager',
-            appVersion: '1.2.0',
+            appVersion: '2.07.01',
+            requireAuth: true,
+            allowGuest: true,
+            auth: GlycocalyxAuth(),
             additionalTabs: [
               InforttsTab(
                 label: 'Explore',
@@ -95,17 +101,43 @@ class _WaptiaExploreWorkspaceState extends State<WaptiaExploreWorkspace> {
           children: [
             // Search & Category Header
             Container(
-              padding: const EdgeInsets.all(16.0),
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
               color: AcousticColors.obsidian,
               child: Column(
                 children: [
+                  Row(
+                    children: [
+                      Container(
+                        width: 8,
+                        height: 8,
+                        decoration: const BoxDecoration(
+                          color: Color(0xFF10B981),
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'WAPTIA FLEET STORE',
+                          style: GoogleFonts.outfit(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 2.0,
+                            color: AcousticColors.titanium,
+                          ),
+                        ),
+                      ),
+                      _buildNotificationIcon(context),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
                   TextField(
                     onChanged: (val) => setState(() => _searchQuery = val),
                     style: GoogleFonts.outfit(color: AcousticColors.titanium),
                     decoration: InputDecoration(
                       hintText: 'Search 28 ecosystem applications...',
                       hintStyle: GoogleFonts.outfit(color: AcousticColors.steel),
-                      prefixIcon: const Icon(Icons.search, color: AcousticColors.sonarCyan),
+                      prefixIcon: Icon(Icons.search, color: AcousticColors.sonarCyan),
                       filled: true,
                       fillColor: AcousticColors.darkCarbon,
                       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -119,7 +151,7 @@ class _WaptiaExploreWorkspaceState extends State<WaptiaExploreWorkspace> {
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: AcousticColors.sonarCyan),
+                        borderSide: BorderSide(color: AcousticColors.sonarCyan),
                       ),
                     ),
                   ),
@@ -508,12 +540,27 @@ class _WaptiaExploreWorkspaceState extends State<WaptiaExploreWorkspace> {
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                         ),
                         icon: const Icon(Icons.download_rounded, size: 18),
-                        label: Text('Download APK', style: GoogleFonts.outfit(fontWeight: FontWeight.bold)),
+                        label: Text('Install (In-App)', style: GoogleFonts.outfit(fontWeight: FontWeight.bold)),
                         onPressed: () {
                           Navigator.pop(ctx);
                           WaptiaAutoUpdateManager.instance.installApp(app.slug);
                         },
                       ),
+                    ),
+                    const SizedBox(width: 10),
+                    OutlinedButton.icon(
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: AcousticColors.sonarCyan,
+                        side: BorderSide(color: AcousticColors.sonarCyan),
+                        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      ),
+                      icon: const Icon(Icons.launch_rounded, size: 18),
+                      label: Text('Open', style: GoogleFonts.outfit(fontWeight: FontWeight.bold)),
+                      onPressed: () {
+                        Navigator.pop(ctx);
+                        WaptiaAutoUpdateManager.instance.openApp(app.packageName);
+                      },
                     ),
                   ],
                 ),
@@ -532,6 +579,245 @@ class _WaptiaExploreWorkspaceState extends State<WaptiaExploreWorkspace> {
         Text(label, style: GoogleFonts.outfit(color: AcousticColors.steel, fontSize: 12)),
         Text(val, style: GoogleFonts.jetBrainsMono(color: AcousticColors.titanium, fontSize: 11, fontWeight: FontWeight.w600)),
       ],
+    );
+  }
+
+  Widget _buildNotificationIcon(BuildContext context) {
+    return ValueListenableBuilder<int>(
+      valueListenable: WaptiaAutoUpdateManager.instance.pendingUpdatesCount,
+      builder: (context, pendingCount, _) {
+        return FutureBuilder<bool>(
+          future: WaptiaAutoUpdateManager.instance.isNotificationPermissionGranted(),
+          builder: (context, snapshot) {
+            final isGranted = snapshot.data ?? true;
+            return InkWell(
+              borderRadius: BorderRadius.circular(20),
+              onTap: () => _showNotificationSheet(context, isGranted, pendingCount),
+              child: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: AcousticColors.darkCarbon,
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: !isGranted
+                        ? const Color(0xFFF59E0B).withValues(alpha: 0.5)
+                        : AcousticColors.steel.withValues(alpha: 0.25),
+                  ),
+                ),
+                child: Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    Icon(
+                      !isGranted ? Icons.notifications_outlined : Icons.notifications_active_outlined,
+                      size: 20,
+                      color: !isGranted
+                          ? const Color(0xFFF59E0B)
+                          : (pendingCount > 0 ? AcousticColors.sonarCyan : AcousticColors.titanium),
+                    ),
+                    if (pendingCount > 0 || !isGranted)
+                      Positioned(
+                        right: -2,
+                        top: -2,
+                        child: Container(
+                          padding: const EdgeInsets.all(3),
+                          decoration: BoxDecoration(
+                            color: !isGranted ? const Color(0xFFF59E0B) : AcousticColors.sonarCyan,
+                            shape: BoxShape.circle,
+                          ),
+                          constraints: const BoxConstraints(minWidth: 8, minHeight: 8),
+                          child: pendingCount > 0
+                              ? Text(
+                                  '$pendingCount',
+                                  style: GoogleFonts.outfit(
+                                    fontSize: 8,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                )
+                              : null,
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  void _showNotificationSheet(BuildContext context, bool isGranted, int pendingCount) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: const Color(0xFF111827),
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (context, setSheetState) {
+            return Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(Icons.notifications_active_outlined, color: AcousticColors.sonarCyan, size: 22),
+                          const SizedBox(width: 10),
+                          Text(
+                            'WAPTIA NOTIFICATIONS',
+                            style: GoogleFonts.outfit(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 1.5,
+                              color: AcousticColors.titanium,
+                            ),
+                          ),
+                        ],
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.close, color: Colors.white70, size: 20),
+                        onPressed: () => Navigator.pop(ctx),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Container(
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: AcousticColors.obsidian,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: isGranted ? const Color(0xFF10B981).withValues(alpha: 0.3) : const Color(0xFFF59E0B).withValues(alpha: 0.4),
+                      ),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                              decoration: BoxDecoration(
+                                color: isGranted ? const Color(0xFF10B981).withValues(alpha: 0.15) : const Color(0xFFF59E0B).withValues(alpha: 0.15),
+                                borderRadius: BorderRadius.circular(6),
+                                border: Border.all(
+                                  color: isGranted ? const Color(0xFF10B981) : const Color(0xFFF59E0B),
+                                  width: 0.8,
+                                ),
+                              ),
+                              child: Text(
+                                isGranted ? 'ACTIVE' : 'PERMISSION REQUIRED',
+                                style: GoogleFonts.jetBrainsMono(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold,
+                                  color: isGranted ? const Color(0xFF10B981) : const Color(0xFFF59E0B),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                        Text(
+                          isGranted
+                              ? 'Waptia Store dispatches system notifications solely when:\n• In-app APK downloads complete\n• Ecosystem applications finish installing\n• New version updates are discovered on the cluster'
+                              : 'Notification permission is required so Waptia Store can alert you when APK downloads complete, apps finish installing, or new releases become available.',
+                          style: GoogleFonts.outfit(
+                            fontSize: 12,
+                            color: AcousticColors.titanium,
+                            height: 1.5,
+                          ),
+                        ),
+                        if (!isGranted) ...[
+                          const SizedBox(height: 14),
+                          SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton.icon(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AcousticColors.sonarCyan,
+                                foregroundColor: Colors.black,
+                                padding: const EdgeInsets.symmetric(vertical: 12),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                              ),
+                              icon: const Icon(Icons.check_circle_outline, size: 18),
+                              label: Text(
+                                'GRANT NOTIFICATION ACCESS',
+                                style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 13),
+                              ),
+                              onPressed: () async {
+                                await WaptiaAutoUpdateManager.instance.requestNotificationPermission();
+                                final granted = await WaptiaAutoUpdateManager.instance.isNotificationPermissionGranted();
+                                setSheetState(() {
+                                  isGranted = granted;
+                                });
+                              },
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 18),
+                  Container(
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: AcousticColors.obsidian,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: AcousticColors.steel.withValues(alpha: 0.2)),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              pendingCount > 0 ? '$pendingCount Updates Available' : 'All Apps Up to Date',
+                              style: GoogleFonts.outfit(
+                                fontSize: 13,
+                                fontWeight: FontWeight.bold,
+                                color: pendingCount > 0 ? AcousticColors.sonarCyan : AcousticColors.titanium,
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              'Fleet OTA CDN: update.infortts.site',
+                              style: GoogleFonts.jetBrainsMono(fontSize: 10, color: AcousticColors.steel),
+                            ),
+                          ],
+                        ),
+                        OutlinedButton.icon(
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: AcousticColors.sonarCyan,
+                            side: BorderSide(color: AcousticColors.sonarCyan.withValues(alpha: 0.5)),
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                          ),
+                          icon: const Icon(Icons.refresh_rounded, size: 16),
+                          label: Text('Check', style: GoogleFonts.outfit(fontSize: 12, fontWeight: FontWeight.w600)),
+                          onPressed: () async {
+                            await WaptiaAutoUpdateManager.instance.checkAllUpdates();
+                            if (ctx.mounted) Navigator.pop(ctx);
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                ],
+              ),
+            );
+          },
+        );
+      },
     );
   }
 }
@@ -574,7 +860,7 @@ class WaptiaUpdatesWorkspace extends StatelessWidget {
                   ),
                   TextButton.icon(
                     onPressed: () => WaptiaAutoUpdateManager.instance.checkAllUpdates(),
-                    icon: const Icon(Icons.refresh, size: 14, color: AcousticColors.sonarCyan),
+                    icon: Icon(Icons.refresh, size: 14, color: AcousticColors.sonarCyan),
                     label: Text("Refresh", style: GoogleFonts.outfit(fontSize: 12, color: AcousticColors.sonarCyan)),
                   ),
                 ],
@@ -639,7 +925,7 @@ class WaptiaUpdatesWorkspace extends StatelessWidget {
           children: [
             Row(
               children: [
-                const Icon(Icons.bolt_rounded, color: AcousticColors.sonarCyan, size: 24),
+                Icon(Icons.bolt_rounded, color: AcousticColors.sonarCyan, size: 24),
                 const SizedBox(width: 10),
                 Text(
                   "$pendingCount Updates Available",
@@ -726,9 +1012,27 @@ class WaptiaUpdatesWorkspace extends StatelessWidget {
               ],
             ),
           ),
-          IconButton(
-            icon: const Icon(Icons.refresh, color: AcousticColors.sonarCyan),
-            onPressed: () => WaptiaAutoUpdateManager.instance.checkAllUpdates(),
+          ValueListenableBuilder<bool>(
+            valueListenable: WaptiaAutoUpdateManager.instance.isCheckingUpdates,
+            builder: (context, isChecking, _) {
+              return isChecking
+                  ? Padding(
+                      padding: const EdgeInsets.all(12.0),
+                      child: SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2.2,
+                          valueColor: AlwaysStoppedAnimation<Color>(AcousticColors.sonarCyan),
+                        ),
+                      ),
+                    )
+                  : IconButton(
+                      icon: Icon(Icons.refresh, color: AcousticColors.sonarCyan),
+                      tooltip: "Check for Updates",
+                      onPressed: () => WaptiaAutoUpdateManager.instance.checkAllUpdates(),
+                    );
+            },
           ),
         ],
       ),
@@ -773,7 +1077,7 @@ class WaptiaUpdatesWorkspace extends StatelessWidget {
                     Row(
                       children: [
                         Text('v${app.installedVersion}', style: GoogleFonts.outfit(fontSize: 12, color: AcousticColors.steel)),
-                        const Icon(Icons.arrow_forward_rounded, size: 12, color: AcousticColors.sonarCyan),
+                        Icon(Icons.arrow_forward_rounded, size: 12, color: AcousticColors.sonarCyan),
                         Text('v${app.latestVersion} (Build ${app.latestBuild})', style: GoogleFonts.outfit(fontSize: 12, fontWeight: FontWeight.bold, color: AcousticColors.sonarCyan)),
                       ],
                     ),
@@ -885,7 +1189,41 @@ class WaptiaPolicyWorkspace extends StatefulWidget {
   State<WaptiaPolicyWorkspace> createState() => _WaptiaPolicyWorkspaceState();
 }
 
-class _WaptiaPolicyWorkspaceState extends State<WaptiaPolicyWorkspace> {
+class _WaptiaPolicyWorkspaceState extends State<WaptiaPolicyWorkspace> with WidgetsBindingObserver {
+  bool _canInstallPackages = false;
+  bool _notificationGranted = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _refreshPermissions();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _refreshPermissions();
+    }
+  }
+
+  Future<void> _refreshPermissions() async {
+    final canInst = await WaptiaAutoUpdateManager.instance.canRequestPackageInstalls();
+    final notif = await WaptiaAutoUpdateManager.instance.isNotificationPermissionGranted();
+    if (mounted) {
+      setState(() {
+        _canInstallPackages = canInst;
+        _notificationGranted = notif;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final mgr = WaptiaAutoUpdateManager.instance;
@@ -893,7 +1231,194 @@ class _WaptiaPolicyWorkspaceState extends State<WaptiaPolicyWorkspace> {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        Text("FLEET AUTO-UPDATE POLICY", style: GoogleFonts.outfit(fontSize: 11, fontWeight: FontWeight.bold, color: AcousticColors.sonarCyan, letterSpacing: 1.0)),
+        // 1. SYSTEM PERMISSIONS & PACKAGE INSTALLATION (Direct access to Android Unknown App Sources)
+        Text(
+          "SYSTEM PERMISSIONS & INSTALLATION",
+          style: GoogleFonts.outfit(
+            fontSize: 11,
+            fontWeight: FontWeight.bold,
+            color: AcousticColors.sonarCyan,
+            letterSpacing: 1.0,
+          ),
+        ),
+        const SizedBox(height: 8),
+
+        Container(
+          decoration: BoxDecoration(
+            color: AcousticColors.darkCarbon,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: AcousticColors.steel.withValues(alpha: 0.15)),
+          ),
+          child: Column(
+            children: [
+              ListTile(
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                leading: Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: _canInstallPackages
+                        ? Colors.green.withValues(alpha: 0.15)
+                        : const Color(0xFFF59E0B).withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Icon(
+                    _canInstallPackages ? Icons.verified_user_rounded : Icons.security_rounded,
+                    color: _canInstallPackages ? Colors.greenAccent : const Color(0xFFF59E0B),
+                    size: 22,
+                  ),
+                ),
+                title: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        "Install Unknown Apps",
+                        style: GoogleFonts.outfit(
+                          color: AcousticColors.titanium,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: _canInstallPackages
+                            ? Colors.green.withValues(alpha: 0.2)
+                            : const Color(0xFFF59E0B).withValues(alpha: 0.2),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text(
+                        _canInstallPackages ? "Configured" : "Action Required",
+                        style: GoogleFonts.outfit(
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                          color: _canInstallPackages ? Colors.greenAccent : const Color(0xFFF59E0B),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                subtitle: Padding(
+                  padding: const EdgeInsets.only(top: 4),
+                  child: Text(
+                    "Allow Waptia Store to install APKs & updates directly without redirecting to a browser.",
+                    style: GoogleFonts.outfit(color: AcousticColors.steel, fontSize: 12),
+                  ),
+                ),
+                trailing: ElevatedButton.icon(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: _canInstallPackages ? AcousticColors.darkCarbon : AcousticColors.sonarCyan,
+                    foregroundColor: _canInstallPackages ? AcousticColors.sonarCyan : Colors.black,
+                    side: BorderSide(color: AcousticColors.sonarCyan, width: 1),
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    elevation: 0,
+                  ),
+                  icon: const Icon(Icons.tune_rounded, size: 14),
+                  label: Text("Configure", style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 12)),
+                  onPressed: () async {
+                    await mgr.requestInstallPermission();
+                    await Future.delayed(const Duration(milliseconds: 500));
+                    _refreshPermissions();
+                  },
+                ),
+              ),
+              Divider(height: 1, color: AcousticColors.obsidian),
+              ListTile(
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                leading: Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: _notificationGranted
+                        ? Colors.green.withValues(alpha: 0.15)
+                        : AcousticColors.sonarCyan.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Icon(
+                    _notificationGranted ? Icons.notifications_active_rounded : Icons.notifications_none_rounded,
+                    color: _notificationGranted ? Colors.greenAccent : AcousticColors.sonarCyan,
+                    size: 22,
+                  ),
+                ),
+                title: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        "System Notifications",
+                        style: GoogleFonts.outfit(
+                          color: AcousticColors.titanium,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: _notificationGranted
+                            ? Colors.green.withValues(alpha: 0.2)
+                            : AcousticColors.steel.withValues(alpha: 0.2),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text(
+                        _notificationGranted ? "Enabled" : "Disabled",
+                        style: GoogleFonts.outfit(
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                          color: _notificationGranted ? Colors.greenAccent : AcousticColors.steel,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                subtitle: Padding(
+                  padding: const EdgeInsets.only(top: 4),
+                  child: Text(
+                    "Receive alerts when package downloads complete, apps finish installing, or updates are ready.",
+                    style: GoogleFonts.outfit(color: AcousticColors.steel, fontSize: 12),
+                  ),
+                ),
+                trailing: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: _notificationGranted ? AcousticColors.darkCarbon : const Color(0xFF1F2937),
+                    foregroundColor: _notificationGranted ? AcousticColors.steel : AcousticColors.sonarCyan,
+                    side: BorderSide(
+                      color: _notificationGranted
+                          ? AcousticColors.steel.withValues(alpha: 0.3)
+                          : AcousticColors.sonarCyan,
+                      width: 1,
+                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    elevation: 0,
+                  ),
+                  onPressed: () async {
+                    await mgr.requestNotificationPermission();
+                    await Future.delayed(const Duration(milliseconds: 500));
+                    _refreshPermissions();
+                  },
+                  child: Text(
+                    _notificationGranted ? "Granted" : "Enable",
+                    style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 12),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        const SizedBox(height: 24),
+
+        // 2. FLEET AUTO-UPDATE POLICY
+        Text(
+          "FLEET AUTO-UPDATE POLICY",
+          style: GoogleFonts.outfit(
+            fontSize: 11,
+            fontWeight: FontWeight.bold,
+            color: AcousticColors.sonarCyan,
+            letterSpacing: 1.0,
+          ),
+        ),
         const SizedBox(height: 8),
 
         Container(
@@ -941,7 +1466,17 @@ class _WaptiaPolicyWorkspaceState extends State<WaptiaPolicyWorkspace> {
         ),
 
         const SizedBox(height: 24),
-        Text("SYNC FREQUENCY", style: GoogleFonts.outfit(fontSize: 11, fontWeight: FontWeight.bold, color: AcousticColors.sonarCyan, letterSpacing: 1.0)),
+
+        // 3. SYNC FREQUENCY
+        Text(
+          "SYNC FREQUENCY",
+          style: GoogleFonts.outfit(
+            fontSize: 11,
+            fontWeight: FontWeight.bold,
+            color: AcousticColors.sonarCyan,
+            letterSpacing: 1.0,
+          ),
+        ),
         const SizedBox(height: 8),
 
         Container(
@@ -984,7 +1519,66 @@ class _WaptiaPolicyWorkspaceState extends State<WaptiaPolicyWorkspace> {
         ),
 
         const SizedBox(height: 24),
-        Text("CENTRAL REPOSITORY STATUS", style: GoogleFonts.outfit(fontSize: 11, fontWeight: FontWeight.bold, color: AcousticColors.sonarCyan, letterSpacing: 1.0)),
+
+        // 4. MANUAL SYNC TRIGGER
+        ValueListenableBuilder<bool>(
+          valueListenable: mgr.isCheckingUpdates,
+          builder: (context, isChecking, _) {
+            return SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AcousticColors.sonarCyan,
+                  foregroundColor: Colors.black,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  elevation: 0,
+                ),
+                icon: isChecking
+                    ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black),
+                      )
+                    : const Icon(Icons.sync_rounded, size: 20),
+                label: Text(
+                  isChecking ? "Checking Single-Domain OTA Cluster..." : "Check For Fleet Updates Now",
+                  style: GoogleFonts.outfit(fontSize: 14, fontWeight: FontWeight.bold),
+                ),
+                onPressed: isChecking
+                    ? null
+                    : () async {
+                        await mgr.checkAllUpdates();
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                "Fleet sync complete. ${mgr.pendingUpdatesCount.value} update(s) available.",
+                                style: GoogleFonts.outfit(),
+                              ),
+                              backgroundColor: const Color(0xFF111827),
+                              duration: const Duration(seconds: 3),
+                            ),
+                          );
+                        }
+                      },
+              ),
+            );
+          },
+        ),
+
+        const SizedBox(height: 24),
+
+        // 5. CENTRAL REPOSITORY STATUS
+        Text(
+          "CENTRAL REPOSITORY STATUS",
+          style: GoogleFonts.outfit(
+            fontSize: 11,
+            fontWeight: FontWeight.bold,
+            color: AcousticColors.sonarCyan,
+            letterSpacing: 1.0,
+          ),
+        ),
         const SizedBox(height: 8),
 
         Container(
