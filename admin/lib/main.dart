@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:infortts_shared/infortts_shared.dart';
 
+import 'design_skin.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  // Design skin for this app (generated; see tools/design-pipeline).
+  AppDesignSkin.boot();
   runApp(const WaptiaAdminApp());
 }
 
@@ -15,7 +18,7 @@ class WaptiaAdminApp extends StatelessWidget {
     return MaterialApp(
       title: 'Waptia Admin Console',
       debugShowCheckedModeBanner: false,
-      theme: AcousticTheme.darkTheme,
+      theme: AcousticTheme.themedDark(skin: AppDesignSkin.skin),
       home: InforttsAppShell(
         appName: 'Waptia Admin',
         appDescription: 'Central administration console for Infortts app fleet: manage releases, monitor internal test tracks, approve OTA patches, and audit telemetry.',
