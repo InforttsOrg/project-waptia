@@ -2,7 +2,9 @@
   "name": "waptia-store",
   "compatibility_date": "2026-09-26",
   "assets": {
-    "directory": "./web"
+    "directory": "./web",
+    "html_handling": "auto-trailing-slash",
+    "not_found_handling": "single-page-application"
   },
   "routes": [
     { "pattern": "waptia.infortts.site", "custom_domain": true },
