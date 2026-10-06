@@ -32,6 +32,7 @@ class AppInfo {
   final String repoPath;
   final Map<String, String> latest;
   final List<AppVersion> versions;
+  final bool superadminOnly;
 
   const AppInfo({
     required this.slug,
@@ -45,6 +46,7 @@ class AppInfo {
     required this.repoPath,
     required this.latest,
     required this.versions,
+    this.superadminOnly = false,
   });
 }
 
@@ -67,6 +69,7 @@ class AppInstallState {
   final String patchUrl;
   final bool autoUpdateEnabled;
   final DateTime? lastChecked;
+  final bool superadminOnly;
 
   const AppInstallState({
     required this.slug,
@@ -87,6 +90,7 @@ class AppInstallState {
     required this.patchUrl,
     this.autoUpdateEnabled = true,
     this.lastChecked,
+    this.superadminOnly = false,
   });
 
   AppInstallState copyWith({
@@ -104,6 +108,7 @@ class AppInstallState {
     String? patchUrl,
     bool? autoUpdateEnabled,
     DateTime? lastChecked,
+    bool? superadminOnly,
   }) {
     return AppInstallState(
       slug: slug,
@@ -124,6 +129,7 @@ class AppInstallState {
       patchUrl: patchUrl ?? this.patchUrl,
       autoUpdateEnabled: autoUpdateEnabled ?? this.autoUpdateEnabled,
       lastChecked: lastChecked ?? this.lastChecked,
+      superadminOnly: superadminOnly ?? this.superadminOnly,
     );
   }
 }

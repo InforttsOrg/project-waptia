@@ -40,7 +40,7 @@ class WaptiaAutoUpdateManager {
   Timer? _bgCronTimer;
 
   /// Initialize local store, request notification permission, detect installed packages, and start auto-update daemon
-  Future<void> initialize() async {
+  Future<void> initialize({bool isTest = false}) async {
     final prefs = await SharedPreferences.getInstance();
     autoUpdateMaster = prefs.getBool(_prefAutoUpdateMaster) ?? true;
     checkIntervalMinutes = prefs.getInt(_prefCheckInterval) ?? 15;
@@ -76,11 +76,14 @@ class WaptiaAutoUpdateManager {
         downloadUrl: app.versions.isNotEmpty ? app.versions.first.downloadUrl : 'https://update.infortts.site/download/${app.slug}.apk',
         patchUrl: 'https://update.infortts.site/patches/${app.slug}/patch_1.bin',
         autoUpdateEnabled: appAuto,
+        superadminOnly: app.superadminOnly,
       ));
     }
 
     appsNotifier.value = initialList;
     _recomputePendingCount();
+
+    if (isTest) return;
 
     // 1. Request Notification Permission on Android 13+
     await requestNotificationPermission();

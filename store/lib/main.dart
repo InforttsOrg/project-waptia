@@ -86,16 +86,23 @@ class _WaptiaExploreWorkspaceState extends State<WaptiaExploreWorkspace> {
 
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder<List<AppInstallState>>(
-      valueListenable: WaptiaAutoUpdateManager.instance.appsNotifier,
-      builder: (context, apps, _) {
-        final filtered = apps.where((app) {
-          final matchesSearch = app.name.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-              app.slug.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-              app.packageName.toLowerCase().contains(_searchQuery.toLowerCase());
-          final matchesCat = _selectedCategory == 'All' || app.category.toLowerCase() == _selectedCategory.toLowerCase();
-          return matchesSearch && matchesCat;
-        }).toList();
+    return ValueListenableBuilder<AuthSession?>(
+      valueListenable: InforttsAuthManager.instance.sessionNotifier,
+      builder: (context, session, _) {
+        final isSuperadmin = session?.isSuperadmin ?? false;
+        return ValueListenableBuilder<List<AppInstallState>>(
+          valueListenable: WaptiaAutoUpdateManager.instance.appsNotifier,
+          builder: (context, apps, _) {
+            final filtered = apps.where((app) {
+              if (app.superadminOnly && !isSuperadmin) {
+                return false;
+              }
+              final matchesSearch = app.name.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+                  app.slug.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+                  app.packageName.toLowerCase().contains(_searchQuery.toLowerCase());
+              final matchesCat = _selectedCategory == 'All' || app.category.toLowerCase() == _selectedCategory.toLowerCase();
+              return matchesSearch && matchesCat;
+            }).toList();
 
         return Column(
           children: [
@@ -209,7 +216,9 @@ class _WaptiaExploreWorkspaceState extends State<WaptiaExploreWorkspace> {
         );
       },
     );
-  }
+  },
+);
+}
 
   Widget _buildAppCard(BuildContext context, AppInstallState app) {
     return Container(
@@ -271,6 +280,25 @@ class _WaptiaExploreWorkspaceState extends State<WaptiaExploreWorkspace> {
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
+                          if (app.superadminOnly) ...[
+                            const SizedBox(width: 6),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFF59E0B).withValues(alpha: 0.15),
+                                borderRadius: BorderRadius.circular(4),
+                                border: Border.all(color: const Color(0xFFF59E0B).withValues(alpha: 0.5)),
+                              ),
+                              child: Text(
+                                'SUPERADMIN',
+                                style: GoogleFonts.outfit(
+                                  fontSize: 9,
+                                  fontWeight: FontWeight.bold,
+                                  color: const Color(0xFFF59E0B),
+                                ),
+                              ),
+                            ),
+                          ],
                           if (app.hasUpdate) ...[
                             const SizedBox(width: 6),
                             Container(
@@ -831,11 +859,16 @@ class WaptiaUpdatesWorkspace extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder<List<AppInstallState>>(
-      valueListenable: WaptiaAutoUpdateManager.instance.appsNotifier,
-      builder: (context, apps, _) {
-        final pendingUpdates = apps.where((a) => a.isInstalled && a.hasUpdate).toList();
-        final upToDateApps = apps.where((a) => a.isInstalled && !a.hasUpdate).toList();
+    return ValueListenableBuilder<AuthSession?>(
+      valueListenable: InforttsAuthManager.instance.sessionNotifier,
+      builder: (context, session, _) {
+        final isSuperadmin = session?.isSuperadmin ?? false;
+        return ValueListenableBuilder<List<AppInstallState>>(
+          valueListenable: WaptiaAutoUpdateManager.instance.appsNotifier,
+          builder: (context, apps, _) {
+            final visibleApps = apps.where((a) => !a.superadminOnly || isSuperadmin).toList();
+            final pendingUpdates = visibleApps.where((a) => a.isInstalled && a.hasUpdate).toList();
+            final upToDateApps = visibleApps.where((a) => a.isInstalled && !a.hasUpdate).toList();
 
         return ListView(
           padding: const EdgeInsets.all(16),
@@ -902,7 +935,9 @@ class WaptiaUpdatesWorkspace extends StatelessWidget {
         );
       },
     );
-  }
+  },
+);
+}
 
   Widget _buildHeaderBanner(BuildContext context, int pendingCount) {
     if (pendingCount > 0) {

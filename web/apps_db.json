@@ -1,5 +1,35 @@
 [
   {
+    "slug": "admin",
+    "name": "Infortts Admin",
+    "packageId": "com.infortts.waptia.admin",
+    "category": "Infrastructure",
+    "shortDescription": "Fleet App Management, Release Engineering & Telemetry for Infortts.",
+    "longDescription": "Central administration console for Infortts app fleet: manage releases, monitor internal test tracks, approve OTA patches, and audit telemetry. Restricted exclusively to super-admin (sahil.artits).",
+    "platforms": [
+      "android",
+      "web"
+    ],
+    "status": "ready",
+    "version": "v2.08.00",
+    "bundleSize": "54.0 MB",
+    "optInUrl": "https://waptia.infortts.site/admin",
+    "playStoreUrl": "https://play.google.com/apps/internaltest/4973664254685278609",
+    "apkDownloadUrl": "https://huggingface.co/datasets/rttss/ota-patches/resolve/main/waptia/admin.apk",
+    "otaChannel": "https://update.infortts.site/api/v1/ota/manifest.json",
+    "superadminOnly": true,
+    "updates": [
+      {
+        "version": "v2.08.00",
+        "date": "2026-10-06",
+        "notes": "Sovereign fleet management, RBAC enforcement, and super-admin gatekeeping for sahil.artits."
+      }
+    ],
+    "screenshots": [
+      "/screenshots/waptia_1.png"
+    ]
+  },
+  {
     "slug": "waptia",
     "name": "Waptia Store",
     "packageId": "com.infortts.waptia",

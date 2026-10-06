@@ -2,6 +2,35 @@ import 'models.dart';
 
 final List<AppInfo> inforttsCatalog = [
   const AppInfo(
+    slug: 'admin',
+    name: 'Infortts Admin',
+    packageName: 'com.infortts.waptia.admin',
+    category: 'Infrastructure',
+    tagline: 'Fleet App Management, Release Engineering & Telemetry for Infortts.',
+    description: 'Central administration console for Infortts app fleet: manage releases, monitor internal test tracks, approve OTA patches, and audit telemetry. Restricted exclusively to super-admin (sahil.artits).',
+    iconUrl: 'https://cdn.infortts.site/icons/admin.png',
+    homepageUrl: 'https://waptia.infortts.site/admin',
+    repoPath: 'projects/waptia/admin',
+    latest: {'android': '2.08.00'},
+    superadminOnly: true,
+    versions: [
+      AppVersion(
+        platform: 'android',
+        version: '2.08.00',
+        downloadUrl: 'https://huggingface.co/datasets/rttss/ota-patches/resolve/main/waptia/admin.apk',
+        sha256: '',
+        sizeBytes: 54000000,
+        releaseNotes: [
+          '✓ Sovereign Fleet App Management & Telemetry',
+          '✓ Role-Based Access Governance (RBAC)',
+          '✓ Live OTA Patch Manifest Auditing'
+        ],
+        publishedAt: '2026-10-06T12:00:00Z',
+        buildNumber: 20800,
+      ),
+    ],
+  ),
+  const AppInfo(
     slug: 'waptia',
     name: 'Waptia Store',
     packageName: 'com.infortts.waptia',
