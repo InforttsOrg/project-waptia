@@ -71,6 +71,7 @@ stage('Flutter: waptia-store') {
           fi
           cd "$TARGET_DIR"
           rm -rf android/.gradle build 2>/dev/null || true
+          pkill -9 -f GradleDaemon 2>/dev/null || true
           flutter pub get || true
           flutter analyze || true
         '''
@@ -230,6 +231,7 @@ stage('Flutter: waptia-admin') {
           fi
           cd "$TARGET_DIR"
           rm -rf android/.gradle build 2>/dev/null || true
+          pkill -9 -f GradleDaemon 2>/dev/null || true
           flutter pub get || true
           flutter analyze || true
         '''
