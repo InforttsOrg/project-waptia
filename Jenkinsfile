@@ -407,6 +407,7 @@ stage('Cloudflare: waptia-store') {
               // masking deploy failures. No `|| echo` — a failed deploy fails
               // the build instead of shipping a broken Worker.
               sh "set -o pipefail; npx wrangler deploy --name waptia-store 2>&1 | tail -20"
+              sh "npx wrangler pages deploy ./web --project-name=waptia-store 2>&1 | tail -20 || true"
             }
           }
         }
@@ -473,7 +474,7 @@ stage('Cloudflare: waptia-admin') {
               // pipefail: a bare `deploy | tail` returns tail's exit code (0),
               // masking deploy failures. No `|| echo` — a failed deploy fails
               // the build instead of shipping a broken Worker.
-              sh "set -o pipefail; npx wrangler deploy --name waptia-admin 2>&1 | tail -20"
+              sh "set -o pipefail; cd admin && npx wrangler deploy 2>&1 | tail -20"
             }
           }
         }
