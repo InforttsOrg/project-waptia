@@ -143,7 +143,7 @@ class _FleetOverviewWorkspaceState extends State<FleetOverviewWorkspace> {
                 decoration: InputDecoration(
                   hintText: "Search apps by name, package ID, or category...",
                   hintStyle: GoogleFonts.outfit(fontSize: 12, color: AcousticColors.midGray),
-                  prefixIcon: const Icon(Icons.search, size: 18, color: AcousticColors.sonarCyan),
+                  prefixIcon: Icon(Icons.search, size: 18, color: AcousticColors.sonarCyan),
                   filled: true,
                   fillColor: AcousticColors.black,
                   contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
@@ -366,7 +366,7 @@ class OtaEngineWorkspace extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  const Icon(Icons.cloud_done_rounded, color: AcousticColors.sonarCyan, size: 20),
+                  Icon(Icons.cloud_done_rounded, color: AcousticColors.sonarCyan, size: 20),
                   const SizedBox(width: 8),
                   Text(
                     "OTA MANIFEST REGISTRY (R2 CLOUD)",
