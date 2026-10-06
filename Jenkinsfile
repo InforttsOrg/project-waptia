@@ -70,6 +70,7 @@ stage('Flutter: waptia-store') {
             exit 0
           fi
           cd "$TARGET_DIR"
+          rm -rf android/.gradle build 2>/dev/null || true
           flutter pub get || true
           flutter analyze || true
         '''
@@ -228,6 +229,7 @@ stage('Flutter: waptia-admin') {
             exit 0
           fi
           cd "$TARGET_DIR"
+          rm -rf android/.gradle build 2>/dev/null || true
           flutter pub get || true
           flutter analyze || true
         '''
