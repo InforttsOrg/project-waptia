@@ -11,6 +11,7 @@ void main() {
     SharedPreferences.setMockInitialValues({
       'infortts_auth_userId': 'usr_test_001',
       'infortts_auth_email': 'tester@infortts.site',
+      'infortts_auth_token': 'test_token_123',
       'infortts_auth_profile': '{"display_name":"TESTER"}',
     });
     await WaptiaAutoUpdateManager.instance.initialize(isTest: true);
