@@ -414,189 +414,7 @@ class _WaptiaExploreWorkspaceState extends State<WaptiaExploreWorkspace> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (ctx) {
-        return Container(
-          padding: const EdgeInsets.all(24),
-          constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.85),
-          child: ListView(
-            children: [
-              Row(
-                children: [
-                  Container(
-                    width: 56,
-                    height: 56,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF0B0F19),
-                      borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: const Color(0xFF1F2937)),
-                    ),
-                    clipBehavior: Clip.antiAlias,
-                    child: Image.network(
-                      'https://cdn.infortts.site/icons/${app.slug}.png',
-                      fit: BoxFit.contain,
-                      errorBuilder: (_, __, ___) => Center(
-                        child: Text(
-                          app.name.substring(0, app.name.length >= 2 ? 2 : 1).toUpperCase(),
-                          style: GoogleFonts.outfit(fontSize: 22, fontWeight: FontWeight.bold, color: const Color(0xFF38BDF8)),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(app.name, style: GoogleFonts.outfit(fontSize: 18, fontWeight: FontWeight.bold, color: const Color(0xFFF9FAFB))),
-                        Text(app.packageName, style: GoogleFonts.jetBrainsMono(fontSize: 12, color: const Color(0xFF38BDF8))),
-                        Text('Latest: v${app.latestVersion} (Build ${app.latestBuild})', style: GoogleFonts.outfit(fontSize: 12, color: const Color(0xFF9CA3AF))),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: AcousticColors.obsidian,
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: AcousticColors.steel.withValues(alpha: 0.2)),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text("Automatic OTA Updates", style: GoogleFonts.outfit(color: AcousticColors.titanium, fontSize: 13, fontWeight: FontWeight.w600)),
-                    Switch(
-                      value: app.autoUpdateEnabled,
-                      activeTrackColor: AcousticColors.sonarCyan,
-                      onChanged: (val) {
-                        WaptiaAutoUpdateManager.instance.toggleAppAutoUpdate(app.slug, val);
-                        Navigator.pop(ctx);
-                      },
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 20),
-              Text("RELEASE NOTES", style: GoogleFonts.outfit(fontSize: 11, fontWeight: FontWeight.bold, color: AcousticColors.sonarCyan, letterSpacing: 1.0)),
-              const SizedBox(height: 8),
-              Container(
-                padding: const EdgeInsets.all(14),
-                decoration: BoxDecoration(
-                  color: AcousticColors.obsidian,
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: AcousticColors.steel.withValues(alpha: 0.15)),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: app.releaseNotes.map((note) => Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 3),
-                    child: Text(note, style: GoogleFonts.outfit(fontSize: 13, color: AcousticColors.titanium)),
-                  )).toList(),
-                ),
-              ),
-              const SizedBox(height: 20),
-              Text("DISTRIBUTION & VERIFICATION", style: GoogleFonts.outfit(fontSize: 11, fontWeight: FontWeight.bold, color: AcousticColors.sonarCyan, letterSpacing: 1.0)),
-              const SizedBox(height: 8),
-              Container(
-                padding: const EdgeInsets.all(14),
-                decoration: BoxDecoration(
-                  color: AcousticColors.obsidian,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Column(
-                  children: [
-                    _buildRow("OTA Cluster", "https://update.infortts.site"),
-                    const SizedBox(height: 8),
-                    _buildRow("Direct APK", "update.infortts.site/download/${app.slug}.apk"),
-                    const SizedBox(height: 8),
-                    _buildRow("Integrity", "SHA-256 Verified Signature"),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 24),
-              if (app.isInstalled) ...[
-                Row(
-                  children: [
-                    Expanded(
-                      child: ElevatedButton.icon(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AcousticColors.sonarCyan,
-                          foregroundColor: Colors.black,
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                        ),
-                        icon: const Icon(Icons.launch_rounded, size: 20),
-                        label: Text('Open App', style: GoogleFonts.outfit(fontSize: 15, fontWeight: FontWeight.bold)),
-                        onPressed: () {
-                          Navigator.pop(ctx);
-                          WaptiaAutoUpdateManager.instance.openApp(app.packageName);
-                        },
-                      ),
-                    ),
-                    if (app.hasUpdate) ...[
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: ElevatedButton.icon(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF10B981),
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(vertical: 14),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                          ),
-                          icon: const Icon(Icons.system_update_alt_rounded, size: 18),
-                          label: Text('Update to v${app.latestVersion}', style: GoogleFonts.outfit(fontSize: 13, fontWeight: FontWeight.bold)),
-                          onPressed: () {
-                            Navigator.pop(ctx);
-                            WaptiaAutoUpdateManager.instance.updateApp(app.slug);
-                          },
-                        ),
-                      ),
-                    ],
-                  ],
-                ),
-              ] else ...[
-                Row(
-                  children: [
-                    Expanded(
-                      child: ElevatedButton.icon(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AcousticColors.sonarCyan,
-                          foregroundColor: Colors.black,
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                        ),
-                        icon: const Icon(Icons.download_rounded, size: 18),
-                        label: Text('Install (In-App)', style: GoogleFonts.outfit(fontWeight: FontWeight.bold)),
-                        onPressed: () {
-                          Navigator.pop(ctx);
-                          WaptiaAutoUpdateManager.instance.installApp(app.slug);
-                        },
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    OutlinedButton.icon(
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: AcousticColors.sonarCyan,
-                        side: BorderSide(color: AcousticColors.sonarCyan),
-                        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                      ),
-                      icon: const Icon(Icons.launch_rounded, size: 18),
-                      label: Text('Open', style: GoogleFonts.outfit(fontWeight: FontWeight.bold)),
-                      onPressed: () {
-                        Navigator.pop(ctx);
-                        WaptiaAutoUpdateManager.instance.openApp(app.packageName);
-                      },
-                    ),
-                  ],
-                ),
-              ],
-            ],
-          ),
-        );
-      },
+      builder: (ctx) => AppDetailsModal(app: app),
     );
   }
 
@@ -1646,6 +1464,1172 @@ class _WaptiaPolicyWorkspaceState extends State<WaptiaPolicyWorkspace> with Widg
         Text(label, style: GoogleFonts.outfit(color: AcousticColors.steel, fontSize: 12)),
         Text(val, style: GoogleFonts.jetBrainsMono(color: AcousticColors.sonarCyan, fontSize: 11, fontWeight: FontWeight.w600)),
       ],
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 3. APP DETAILS MODAL (Available on more devices & Infortts DB Ratings)
+// ─────────────────────────────────────────────────────────────────────────────
+
+class AppDetailsModal extends StatefulWidget {
+  final AppInstallState app;
+  const AppDetailsModal({super.key, required this.app});
+
+  @override
+  State<AppDetailsModal> createState() => _AppDetailsModalState();
+}
+
+class _AppDetailsModalState extends State<AppDetailsModal> {
+  bool _devicesExpanded = true;
+  List<GlycocalyxDevice> _devices = [];
+  bool _loadingDevices = true;
+  final Set<String> _installingDevices = {};
+  final Set<String> _installedDevices = {};
+
+  int _selectedRating = 0;
+  String? _userReviewText;
+  bool _submittingRating = false;
+  bool _showReviewInput = false;
+  final TextEditingController _reviewController = TextEditingController();
+
+  AppRatingSummary? _ratingSummary;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedRating = widget.app.userRating ?? 0;
+    _userReviewText = widget.app.userReview;
+    if (_userReviewText != null && _userReviewText!.isNotEmpty) {
+      _reviewController.text = _userReviewText!;
+    }
+    _loadDevices();
+    _loadRatingsSummary();
+  }
+
+  @override
+  void dispose() {
+    _reviewController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _loadDevices() async {
+    final devs = await WaptiaAutoUpdateManager.instance.fetchGlycocalyxDevices();
+    if (mounted) {
+      setState(() {
+        _devices = devs;
+        _loadingDevices = false;
+      });
+    }
+  }
+
+  Future<void> _loadRatingsSummary() async {
+    final summary = await WaptiaAutoUpdateManager.instance.fetchAppRatings(widget.app.slug);
+    if (mounted) {
+      setState(() {
+        _ratingSummary = summary;
+      });
+    }
+  }
+
+  Future<void> _submitRating(int rating, {String? review}) async {
+    setState(() {
+      _selectedRating = rating;
+      _submittingRating = true;
+    });
+
+    final rev = review ?? _reviewController.text.trim();
+    await WaptiaAutoUpdateManager.instance.submitAppRating(
+      widget.app.slug,
+      rating,
+      rev,
+    );
+
+    if (mounted) {
+      setState(() {
+        _submittingRating = false;
+        if (rev.isNotEmpty) {
+          _userReviewText = rev;
+          _showReviewInput = false;
+        }
+      });
+      _loadRatingsSummary();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            '✓ Rating ($rating★) saved to Infortts DB',
+            style: GoogleFonts.outfit(color: Colors.white, fontWeight: FontWeight.w600),
+          ),
+          backgroundColor: const Color(0xFF10B981),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    }
+  }
+
+  Future<void> _installOnRemoteDevice(GlycocalyxDevice dev) async {
+    setState(() {
+      _installingDevices.add(dev.id);
+    });
+
+    await WaptiaAutoUpdateManager.instance.installOnDevice(dev.id, widget.app.slug);
+
+    if (mounted) {
+      setState(() {
+        _installingDevices.remove(dev.id);
+        _installedDevices.add(dev.id);
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            '✓ Installation initiated on ${dev.name} via Glycocalyx',
+            style: GoogleFonts.outfit(color: Colors.black, fontWeight: FontWeight.bold),
+          ),
+          backgroundColor: AcousticColors.sonarCyan,
+          duration: const Duration(seconds: 3),
+        ),
+      );
+    }
+  }
+
+  IconData _getDeviceIcon(String type) {
+    switch (type.toLowerCase()) {
+      case 'tablet':
+        return Icons.tablet_android_rounded;
+      case 'desktop':
+        return Icons.laptop_chromebook_rounded;
+      case 'tv':
+        return Icons.tv_rounded;
+      default:
+        return Icons.phone_android_rounded;
+    }
+  }
+
+  Widget _buildMetricBadge(String label, String sublabel, {IconData? icon}) {
+    return Column(
+      children: [
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (icon != null) ...[
+              Icon(icon, size: 14, color: const Color(0xFFFBBF24)),
+              const SizedBox(width: 4),
+            ],
+            Text(
+              label,
+              style: GoogleFonts.outfit(fontSize: 14, fontWeight: FontWeight.bold, color: AcousticColors.titanium),
+            ),
+          ],
+        ),
+        const SizedBox(height: 2),
+        Text(
+          sublabel,
+          style: GoogleFonts.outfit(fontSize: 11, color: AcousticColors.steel),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildRow(String label, String val) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(label, style: GoogleFonts.outfit(color: AcousticColors.steel, fontSize: 12)),
+        Text(val, style: GoogleFonts.jetBrainsMono(color: AcousticColors.titanium, fontSize: 11, fontWeight: FontWeight.w600)),
+      ],
+    );
+  }
+
+  static const List<String> _featureCaptions = [
+    'Autonomous Sovereign App Distribution & Telemetry',
+    'Instant Differential Bitstream Patching (Sub-10MB)',
+    'Native SHA-256 Cryptographic Fingerprint Verification',
+    'Cross-Device Fleet Synchronization & Remote Push',
+    'Enterprise Governance & Sovereign Role-Based Access',
+  ];
+
+  void _showScreenshotLightbox(BuildContext context, List<String> screenshots, int initialIndex, String appName) {
+    showDialog(
+      context: context,
+      barrierColor: Colors.black.withValues(alpha: 0.92),
+      builder: (ctx) {
+        int currentIndex = initialIndex;
+        final pageController = PageController(initialPage: initialIndex);
+
+        return StatefulBuilder(
+          builder: (dialogContext, setDialogState) {
+            return Dialog(
+              backgroundColor: Colors.transparent,
+              insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+              child: Column(
+                children: [
+                  // Lightbox Header
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            appName,
+                            style: GoogleFonts.outfit(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+                          ),
+                          Text(
+                            'Screen ${currentIndex + 1} of ${screenshots.length}',
+                            style: GoogleFonts.jetBrainsMono(fontSize: 12, color: AcousticColors.sonarCyan),
+                          ),
+                        ],
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.close_rounded, color: Colors.white, size: 28),
+                        onPressed: () => Navigator.pop(ctx),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  // Screenshot Carousel
+                  Expanded(
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        PageView.builder(
+                          controller: pageController,
+                          itemCount: screenshots.length,
+                          onPageChanged: (idx) {
+                            setDialogState(() {
+                              currentIndex = idx;
+                            });
+                          },
+                          itemBuilder: (context, idx) {
+                            final caption = idx < _featureCaptions.length
+                                ? _featureCaptions[idx]
+                                : 'Infortts Sovereign Feature #${idx + 1}';
+                            return Center(
+                              child: Container(
+                                constraints: const BoxConstraints(maxWidth: 420),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(20),
+                                  border: Border.all(color: AcousticColors.sonarCyan.withValues(alpha: 0.3)),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withValues(alpha: 0.6),
+                                      blurRadius: 24,
+                                      spreadRadius: 4,
+                                    ),
+                                  ],
+                                ),
+                                clipBehavior: Clip.antiAlias,
+                                child: Image.network(
+                                  screenshots[idx],
+                                  fit: BoxFit.contain,
+                                  errorBuilder: (_, __, ___) => _buildMockupScreenshot(
+                                    idx,
+                                    caption,
+                                    isExpanded: true,
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                        // Left/Right Controls
+                        if (currentIndex > 0)
+                          Positioned(
+                            left: 0,
+                            child: IconButton(
+                              style: IconButton.styleFrom(backgroundColor: Colors.black54),
+                              icon: const Icon(Icons.chevron_left_rounded, color: Colors.white, size: 36),
+                              onPressed: () {
+                                pageController.previousPage(
+                                  duration: const Duration(milliseconds: 300),
+                                  curve: Curves.easeInOut,
+                                );
+                              },
+                            ),
+                          ),
+                        if (currentIndex < screenshots.length - 1)
+                          Positioned(
+                            right: 0,
+                            child: IconButton(
+                              style: IconButton.styleFrom(backgroundColor: Colors.black54),
+                              icon: const Icon(Icons.chevron_right_rounded, color: Colors.white, size: 36),
+                              onPressed: () {
+                                pageController.nextPage(
+                                  duration: const Duration(milliseconds: 300),
+                                  curve: Curves.easeInOut,
+                                );
+                              },
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  // Feature Caption Bar
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF111827),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: AcousticColors.steel.withValues(alpha: 0.2)),
+                    ),
+                    child: Text(
+                      currentIndex < _featureCaptions.length
+                          ? _featureCaptions[currentIndex]
+                          : 'Feature Preview #${currentIndex + 1}',
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.outfit(
+                        color: AcousticColors.titanium,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildMockupScreenshot(int index, String caption, {bool isExpanded = false}) {
+    return Container(
+      width: isExpanded ? 360 : 175,
+      height: isExpanded ? 580 : 285,
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            Color(0xFF0F172A),
+            Color(0xFF020617),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: AcousticColors.steel.withValues(alpha: 0.2)),
+      ),
+      padding: const EdgeInsets.all(12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Device status bar mockup
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('12:00', style: GoogleFonts.jetBrainsMono(fontSize: 9, color: AcousticColors.steel)),
+              Row(
+                children: [
+                  Icon(Icons.wifi_rounded, size: 10, color: AcousticColors.steel),
+                  const SizedBox(width: 4),
+                  Icon(Icons.battery_5_bar_rounded, size: 10, color: AcousticColors.steel),
+                ],
+              ),
+            ],
+          ),
+          const Spacer(),
+          Center(
+            child: Container(
+              width: isExpanded ? 64 : 44,
+              height: isExpanded ? 64 : 44,
+              decoration: BoxDecoration(
+                color: AcousticColors.obsidian,
+                shape: BoxShape.circle,
+                border: Border.all(color: AcousticColors.sonarCyan.withValues(alpha: 0.6)),
+              ),
+              child: Icon(
+                Icons.hub_rounded,
+                color: AcousticColors.sonarCyan,
+                size: isExpanded ? 32 : 22,
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          Center(
+            child: Text(
+              isExpanded ? widget.app.name : 'Infortts Sovereign',
+              style: GoogleFonts.outfit(
+                fontSize: isExpanded ? 16 : 12,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Center(
+            child: Text(
+              caption,
+              style: GoogleFonts.outfit(
+                fontSize: isExpanded ? 12 : 10,
+                color: AcousticColors.sonarCyan,
+                fontWeight: FontWeight.w600,
+              ),
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          const Spacer(),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+            decoration: BoxDecoration(
+              color: AcousticColors.sonarCyan.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.verified_rounded, size: 10, color: AcousticColors.sonarCyan),
+                const SizedBox(width: 4),
+                Flexible(
+                  child: Text(
+                    'Verified',
+                    style: GoogleFonts.outfit(fontSize: 8, color: AcousticColors.sonarCyan, fontWeight: FontWeight.bold),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final app = widget.app;
+    final avgRating = _ratingSummary?.averageRating ?? app.rating;
+    final totalRatings = _ratingSummary?.totalRatings ?? app.ratingCount;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+      constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.90),
+      child: ListView(
+        children: [
+          // App Header
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 64,
+                height: 64,
+                decoration: BoxDecoration(
+                  color: const Color(0xFF0B0F19),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: const Color(0xFF1F2937)),
+                ),
+                clipBehavior: Clip.antiAlias,
+                child: Image.network(
+                  'https://cdn.infortts.site/icons/${app.slug}.png',
+                  fit: BoxFit.contain,
+                  errorBuilder: (_, __, ___) => Center(
+                    child: Text(
+                      app.name.substring(0, app.name.length >= 2 ? 2 : 1).toUpperCase(),
+                      style: GoogleFonts.outfit(fontSize: 24, fontWeight: FontWeight.bold, color: const Color(0xFF38BDF8)),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(app.name, style: GoogleFonts.outfit(fontSize: 20, fontWeight: FontWeight.bold, color: const Color(0xFFF9FAFB))),
+                    const SizedBox(height: 2),
+                    Text(app.packageName, style: GoogleFonts.jetBrainsMono(fontSize: 11, color: AcousticColors.sonarCyan)),
+                    const SizedBox(height: 4),
+                    Text('v${app.latestVersion} (Build ${app.latestBuild}) • Infortts Ecosystem',
+                        style: GoogleFonts.outfit(fontSize: 12, color: const Color(0xFF9CA3AF))),
+                  ],
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 16),
+
+          // Google Play Store Metrics Summary Bar
+          Container(
+            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+            decoration: BoxDecoration(
+              color: AcousticColors.obsidian,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: AcousticColors.steel.withValues(alpha: 0.15)),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                _buildMetricBadge(
+                  avgRating.toStringAsFixed(1),
+                  '$totalRatings reviews',
+                  icon: Icons.star_rounded,
+                ),
+                Container(height: 24, width: 1, color: AcousticColors.steel.withValues(alpha: 0.2)),
+                _buildMetricBadge('55 MB', 'Direct APK'),
+                Container(height: 24, width: 1, color: AcousticColors.steel.withValues(alpha: 0.2)),
+                _buildMetricBadge('Rated for 3+', 'Sovereign', icon: Icons.verified_user_rounded),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 20),
+
+          // ── App Screenshots & Feature Highlights ──────────────────────────────
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      Icon(Icons.photo_library_outlined, size: 18, color: AcousticColors.sonarCyan),
+                      const SizedBox(width: 8),
+                      Text(
+                        'App Preview & Features',
+                        style: GoogleFonts.outfit(
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                          color: AcousticColors.titanium,
+                        ),
+                      ),
+                    ],
+                  ),
+                  Text(
+                    '${app.screenshots.isNotEmpty ? app.screenshots.length : 5} Screens',
+                    style: GoogleFonts.jetBrainsMono(
+                      fontSize: 11,
+                      color: AcousticColors.sonarCyan,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              SizedBox(
+                height: 285,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  physics: const BouncingScrollPhysics(),
+                  itemCount: app.screenshots.isNotEmpty ? app.screenshots.length : 5,
+                  itemBuilder: (context, index) {
+                    final url = app.screenshots.isNotEmpty
+                        ? app.screenshots[index]
+                        : 'https://waptia.infortts.site/screenshots/${app.slug}_${index + 1}.png';
+                    final caption = index < _featureCaptions.length
+                        ? _featureCaptions[index]
+                        : 'Feature #${index + 1}';
+
+                    return GestureDetector(
+                      onTap: () {
+                        final list = app.screenshots.isNotEmpty
+                            ? app.screenshots
+                            : List.generate(5, (i) => 'https://waptia.infortts.site/screenshots/${app.slug}_${i + 1}.png');
+                        _showScreenshotLightbox(context, list, index, app.name);
+                      },
+                      child: Container(
+                        width: 170,
+                        margin: const EdgeInsets.only(right: 12),
+                        decoration: BoxDecoration(
+                          color: AcousticColors.obsidian,
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(color: AcousticColors.steel.withValues(alpha: 0.2)),
+                        ),
+                        clipBehavior: Clip.antiAlias,
+                        child: Stack(
+                          fit: StackFit.expand,
+                          children: [
+                            Image.network(
+                              url,
+                              fit: BoxFit.cover,
+                              errorBuilder: (_, __, ___) => _buildMockupScreenshot(index, caption),
+                            ),
+                            // Gradient caption overlay
+                            Positioned(
+                              left: 0,
+                              right: 0,
+                              bottom: 0,
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    begin: Alignment.bottomCenter,
+                                    end: Alignment.topCenter,
+                                    colors: [
+                                      Colors.black.withValues(alpha: 0.85),
+                                      Colors.transparent,
+                                    ],
+                                  ),
+                                ),
+                                child: Text(
+                                  caption,
+                                  style: GoogleFonts.outfit(
+                                    color: Colors.white,
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ),
+                            // Expand hint icon
+                            Positioned(
+                              top: 8,
+                              right: 8,
+                              child: Container(
+                                padding: const EdgeInsets.all(4),
+                                decoration: BoxDecoration(
+                                  color: Colors.black.withValues(alpha: 0.6),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(
+                                  Icons.fullscreen_rounded,
+                                  size: 16,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 20),
+
+          // ── Available on more devices (Glycocalyx Cross-Device Integration) ────
+          Container(
+            decoration: BoxDecoration(
+              color: AcousticColors.obsidian,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: AcousticColors.steel.withValues(alpha: 0.2)),
+            ),
+            clipBehavior: Clip.antiAlias,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                InkWell(
+                  onTap: () {
+                    setState(() {
+                      _devicesExpanded = !_devicesExpanded;
+                    });
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                    child: Row(
+                      children: [
+                        Icon(Icons.devices_rounded, size: 20, color: AcousticColors.sonarCyan),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            'Available on more devices',
+                            style: GoogleFonts.outfit(
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold,
+                              color: AcousticColors.titanium,
+                            ),
+                          ),
+                        ),
+                        Icon(
+                          _devicesExpanded ? Icons.keyboard_arrow_up_rounded : Icons.keyboard_arrow_down_rounded,
+                          color: AcousticColors.steel,
+                          size: 24,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                if (_devicesExpanded) ...[
+                  Divider(height: 1, color: AcousticColors.steel.withValues(alpha: 0.15)),
+                  if (_loadingDevices)
+                    const Padding(
+                      padding: EdgeInsets.all(20),
+                      child: Center(
+                        child: SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF38BDF8)),
+                        ),
+                      ),
+                    )
+                  else if (_devices.isEmpty)
+                    Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Text(
+                        'No other Glycocalyx devices connected.',
+                        style: GoogleFonts.outfit(color: AcousticColors.steel, fontSize: 13),
+                      ),
+                    )
+                  else
+                    ..._devices.map((device) {
+                      final isInstalling = _installingDevices.contains(device.id);
+                      final isInstalled = _installedDevices.contains(device.id);
+
+                      return Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        decoration: BoxDecoration(
+                          border: Border(
+                            bottom: BorderSide(color: AcousticColors.steel.withValues(alpha: 0.1)),
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 40,
+                              height: 40,
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF1E293B),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Icon(
+                                _getDeviceIcon(device.type),
+                                color: AcousticColors.sonarCyan,
+                                size: 22,
+                              ),
+                            ),
+                            const SizedBox(width: 14),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    device.name,
+                                    style: GoogleFonts.outfit(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600,
+                                      color: const Color(0xFFF9FAFB),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Row(
+                                    children: [
+                                      Text(
+                                        device.type,
+                                        style: GoogleFonts.outfit(
+                                          fontSize: 12,
+                                          color: AcousticColors.steel,
+                                        ),
+                                      ),
+                                      if (device.isCurrent) ...[
+                                        Text(' • ', style: GoogleFonts.outfit(color: AcousticColors.steel)),
+                                        Text(
+                                          'This device',
+                                          style: GoogleFonts.outfit(
+                                            fontSize: 11,
+                                            color: AcousticColors.sonarCyan,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                      ],
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                            // Google Play Store Style [Install] pill button
+                            if (isInstalling)
+                              const SizedBox(
+                                width: 24,
+                                height: 24,
+                                child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF38BDF8)),
+                              )
+                            else if (isInstalled)
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(Icons.check_circle_rounded, color: Color(0xFF10B981), size: 16),
+                                  const SizedBox(width: 4),
+                                  Text('Installed', style: GoogleFonts.outfit(fontSize: 12, color: const Color(0xFF10B981), fontWeight: FontWeight.w600)),
+                                ],
+                              )
+                            else
+                              OutlinedButton(
+                                style: OutlinedButton.styleFrom(
+                                  foregroundColor: AcousticColors.sonarCyan,
+                                  side: BorderSide(color: AcousticColors.sonarCyan.withValues(alpha: 0.8)),
+                                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  minimumSize: Size.zero,
+                                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                ),
+                                onPressed: () => _installOnRemoteDevice(device),
+                                child: Text(
+                                  'Install',
+                                  style: GoogleFonts.outfit(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                      );
+                    }),
+                ],
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 20),
+
+          // ── Rate this app (Infortts DB Ratings & Reviews) ─────────────────────
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: AcousticColors.obsidian,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: AcousticColors.steel.withValues(alpha: 0.2)),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Rate this app',
+                          style: GoogleFonts.outfit(
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
+                            color: AcousticColors.titanium,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          'Tell others what you think',
+                          style: GoogleFonts.outfit(
+                            fontSize: 12,
+                            color: AcousticColors.steel,
+                          ),
+                        ),
+                      ],
+                    ),
+                    if (_selectedRating > 0)
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF10B981).withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Text(
+                          '$_selectedRating ★ Saved',
+                          style: GoogleFonts.outfit(
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                            color: const Color(0xFF10B981),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                // 5 interactive stars
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: List.generate(5, (index) {
+                    final starNum = index + 1;
+                    final isFilled = starNum <= _selectedRating;
+                    return InkWell(
+                      onTap: () => _submitRating(starNum),
+                      borderRadius: BorderRadius.circular(20),
+                      child: Padding(
+                        padding: const EdgeInsets.all(4),
+                        child: Icon(
+                          isFilled ? Icons.star_rounded : Icons.star_outline_rounded,
+                          size: 38,
+                          color: isFilled ? const Color(0xFFFBBF24) : AcousticColors.steel.withValues(alpha: 0.6),
+                        ),
+                      ),
+                    );
+                  }),
+                ),
+                const SizedBox(height: 8),
+                // Write a review toggle / text
+                if (!_showReviewInput && (_userReviewText == null || _userReviewText!.isEmpty))
+                  GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _showReviewInput = true;
+                      });
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 4),
+                      child: Text(
+                        'Write a review',
+                        style: GoogleFonts.outfit(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: AcousticColors.sonarCyan,
+                        ),
+                      ),
+                    ),
+                  )
+                else if (_userReviewText != null && _userReviewText!.isNotEmpty && !_showReviewInput)
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        width: double.infinity,
+                        margin: const EdgeInsets.only(top: 8),
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF0B0F19),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: AcousticColors.steel.withValues(alpha: 0.15)),
+                        ),
+                        child: Text(
+                          '“$_userReviewText”',
+                          style: GoogleFonts.outfit(
+                            fontSize: 13,
+                            color: AcousticColors.titanium,
+                            fontStyle: FontStyle.italic,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            _showReviewInput = true;
+                          });
+                        },
+                        child: Text(
+                          'Edit your review',
+                          style: GoogleFonts.outfit(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: AcousticColors.sonarCyan,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+
+                // Review input field
+                if (_showReviewInput) ...[
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: _reviewController,
+                    maxLines: 3,
+                    style: GoogleFonts.outfit(color: Colors.white, fontSize: 13),
+                    decoration: InputDecoration(
+                      hintText: 'Describe your experience with ${app.name}...',
+                      hintStyle: GoogleFonts.outfit(color: AcousticColors.steel, fontSize: 12),
+                      filled: true,
+                      fillColor: const Color(0xFF0B0F19),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(color: AcousticColors.steel.withValues(alpha: 0.3)),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(color: AcousticColors.sonarCyan),
+                      ),
+                      contentPadding: const EdgeInsets.all(12),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      TextButton(
+                        onPressed: () {
+                          setState(() {
+                            _showReviewInput = false;
+                          });
+                        },
+                        child: Text('Cancel', style: GoogleFonts.outfit(color: AcousticColors.steel)),
+                      ),
+                      const SizedBox(width: 8),
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AcousticColors.sonarCyan,
+                          foregroundColor: Colors.black,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                        ),
+                        onPressed: _submittingRating ? null : () => _submitRating(_selectedRating > 0 ? _selectedRating : 5),
+                        child: Text(
+                          _submittingRating ? 'Saving...' : 'Submit to Infortts DB',
+                          style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 12),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 20),
+
+          // Automatic Updates Setting
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: AcousticColors.obsidian,
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: AcousticColors.steel.withValues(alpha: 0.2)),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text("Automatic OTA Updates", style: GoogleFonts.outfit(color: AcousticColors.titanium, fontSize: 13, fontWeight: FontWeight.w600)),
+                Switch(
+                  value: app.autoUpdateEnabled,
+                  activeTrackColor: AcousticColors.sonarCyan,
+                  onChanged: (val) {
+                    WaptiaAutoUpdateManager.instance.toggleAppAutoUpdate(app.slug, val);
+                    Navigator.pop(context);
+                  },
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 20),
+
+          // Release Notes
+          Text("RELEASE NOTES", style: GoogleFonts.outfit(fontSize: 11, fontWeight: FontWeight.bold, color: AcousticColors.sonarCyan, letterSpacing: 1.0)),
+          const SizedBox(height: 8),
+          Container(
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: AcousticColors.obsidian,
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: AcousticColors.steel.withValues(alpha: 0.15)),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: app.releaseNotes.map((note) => Padding(
+                padding: const EdgeInsets.symmetric(vertical: 3),
+                child: Text(note, style: GoogleFonts.outfit(fontSize: 13, color: AcousticColors.titanium)),
+              )).toList(),
+            ),
+          ),
+
+          const SizedBox(height: 20),
+
+          // Distribution & Verification
+          Text("DISTRIBUTION & VERIFICATION", style: GoogleFonts.outfit(fontSize: 11, fontWeight: FontWeight.bold, color: AcousticColors.sonarCyan, letterSpacing: 1.0)),
+          const SizedBox(height: 8),
+          Container(
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: AcousticColors.obsidian,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Column(
+              children: [
+                _buildRow("OTA Cluster", "https://update.infortts.site"),
+                const SizedBox(height: 8),
+                _buildRow("Direct APK", "update.infortts.site/download/${app.slug}.apk"),
+                const SizedBox(height: 8),
+                _buildRow("Integrity", "SHA-256 Verified Signature"),
+                const SizedBox(height: 8),
+                _buildRow("Infortts DB", "postgresql://infortts/ratings"),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 24),
+
+          // Install / Open / Update Action Buttons
+          if (app.isInstalled) ...[
+            Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AcousticColors.sonarCyan,
+                      foregroundColor: Colors.black,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    ),
+                    icon: const Icon(Icons.launch_rounded, size: 20),
+                    label: Text('Open App', style: GoogleFonts.outfit(fontSize: 15, fontWeight: FontWeight.bold)),
+                    onPressed: () {
+                      Navigator.pop(context);
+                      WaptiaAutoUpdateManager.instance.openApp(app.packageName);
+                    },
+                  ),
+                ),
+                if (app.hasUpdate) ...[
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF10B981),
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      ),
+                      icon: const Icon(Icons.system_update_alt_rounded, size: 18),
+                      label: Text('Update to v${app.latestVersion}', style: GoogleFonts.outfit(fontSize: 13, fontWeight: FontWeight.bold)),
+                      onPressed: () {
+                        Navigator.pop(context);
+                        WaptiaAutoUpdateManager.instance.updateApp(app.slug);
+                      },
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ] else ...[
+            Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AcousticColors.sonarCyan,
+                      foregroundColor: Colors.black,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    ),
+                    icon: const Icon(Icons.download_rounded, size: 18),
+                    label: Text('Install (In-App)', style: GoogleFonts.outfit(fontWeight: FontWeight.bold)),
+                    onPressed: () {
+                      Navigator.pop(context);
+                      WaptiaAutoUpdateManager.instance.installApp(app.slug);
+                    },
+                  ),
+                ),
+                const SizedBox(width: 10),
+                OutlinedButton.icon(
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AcousticColors.sonarCyan,
+                    side: BorderSide(color: AcousticColors.sonarCyan),
+                    padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
+                  icon: const Icon(Icons.launch_rounded, size: 18),
+                  label: Text('Open', style: GoogleFonts.outfit(fontWeight: FontWeight.bold)),
+                  onPressed: () {
+                    Navigator.pop(context);
+                    WaptiaAutoUpdateManager.instance.openApp(app.packageName);
+                  },
+                ),
+              ],
+            ),
+          ],
+        ],
+      ),
     );
   }
 }

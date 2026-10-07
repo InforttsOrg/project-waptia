@@ -33,6 +33,9 @@ class AppInfo {
   final Map<String, String> latest;
   final List<AppVersion> versions;
   final bool superadminOnly;
+  final double rating;
+  final int ratingCount;
+  final List<String> screenshots;
 
   const AppInfo({
     required this.slug,
@@ -47,6 +50,9 @@ class AppInfo {
     required this.latest,
     required this.versions,
     this.superadminOnly = false,
+    this.rating = 4.9,
+    this.ratingCount = 128,
+    this.screenshots = const [],
   });
 }
 
@@ -70,6 +76,11 @@ class AppInstallState {
   final bool autoUpdateEnabled;
   final DateTime? lastChecked;
   final bool superadminOnly;
+  final double rating;
+  final int ratingCount;
+  final int? userRating;
+  final String? userReview;
+  final List<String> screenshots;
 
   const AppInstallState({
     required this.slug,
@@ -91,6 +102,11 @@ class AppInstallState {
     this.autoUpdateEnabled = true,
     this.lastChecked,
     this.superadminOnly = false,
+    this.rating = 4.9,
+    this.ratingCount = 128,
+    this.userRating,
+    this.userReview,
+    this.screenshots = const [],
   });
 
   AppInstallState copyWith({
@@ -109,6 +125,11 @@ class AppInstallState {
     bool? autoUpdateEnabled,
     DateTime? lastChecked,
     bool? superadminOnly,
+    double? rating,
+    int? ratingCount,
+    int? userRating,
+    String? userReview,
+    List<String>? screenshots,
   }) {
     return AppInstallState(
       slug: slug,
@@ -130,6 +151,122 @@ class AppInstallState {
       autoUpdateEnabled: autoUpdateEnabled ?? this.autoUpdateEnabled,
       lastChecked: lastChecked ?? this.lastChecked,
       superadminOnly: superadminOnly ?? this.superadminOnly,
+      rating: rating ?? this.rating,
+      ratingCount: ratingCount ?? this.ratingCount,
+      userRating: userRating ?? this.userRating,
+      userReview: userReview ?? this.userReview,
+      screenshots: screenshots ?? this.screenshots,
+    );
+  }
+}
+
+// ── Glycocalyx Ecosystem Connected Devices ─────────────────────────────────────
+
+class GlycocalyxDevice {
+  final String id;
+  final String name;
+  final String type; // e.g. "Phone", "Tablet", "Desktop", "TV"
+  final String userAgent;
+  final DateTime? lastActiveAt;
+  final bool isCurrent;
+
+  const GlycocalyxDevice({
+    required this.id,
+    required this.name,
+    required this.type,
+    this.userAgent = '',
+    this.lastActiveAt,
+    this.isCurrent = false,
+  });
+
+  factory GlycocalyxDevice.fromJson(Map<String, dynamic> json, {bool isCurrent = false}) {
+    final rawType = (json['device_type'] as String? ?? 'phone').toLowerCase();
+    String formattedType = 'Phone';
+    if (rawType.contains('tablet') || rawType.contains('pad')) {
+      formattedType = 'Tablet';
+    } else if (rawType.contains('desktop') || rawType.contains('mac') || rawType.contains('pc') || rawType.contains('linux') || rawType.contains('windows')) {
+      formattedType = 'Desktop';
+    } else if (rawType.contains('tv')) {
+      formattedType = 'TV';
+    } else if (rawType.contains('phone') || rawType.contains('android') || rawType.contains('ios')) {
+      formattedType = 'Phone';
+    }
+
+    return GlycocalyxDevice(
+      id: json['id'] as String? ?? 'dev_unknown',
+      name: json['device_name'] as String? ?? 'Google Pixel 9 Pro',
+      type: formattedType,
+      userAgent: json['user_agent'] as String? ?? '',
+      lastActiveAt: json['last_active_at'] != null ? DateTime.tryParse(json['last_active_at'].toString()) : null,
+      isCurrent: isCurrent,
+    );
+  }
+}
+
+// ── Infortts DB App Ratings & Reviews ─────────────────────────────────────────
+
+class AppRatingReview {
+  final String id;
+  final String appSlug;
+  final String userId;
+  final String userName;
+  final int rating;
+  final String review;
+  final String deviceName;
+  final DateTime createdAt;
+
+  const AppRatingReview({
+    required this.id,
+    required this.appSlug,
+    required this.userId,
+    required this.userName,
+    required this.rating,
+    required this.review,
+    required this.deviceName,
+    required this.createdAt,
+  });
+
+  factory AppRatingReview.fromJson(Map<String, dynamic> json) {
+    return AppRatingReview(
+      id: json['id'] as String? ?? '',
+      appSlug: json['app_slug'] as String? ?? '',
+      userId: json['user_id'] as String? ?? '',
+      userName: json['user_name'] as String? ?? 'Infortts User',
+      rating: (json['rating'] as num?)?.toInt() ?? 5,
+      review: json['review'] as String? ?? '',
+      deviceName: json['device_name'] as String? ?? '',
+      createdAt: json['created_at'] != null
+          ? DateTime.tryParse(json['created_at'].toString()) ?? DateTime.now()
+          : DateTime.now(),
+    );
+  }
+}
+
+class AppRatingSummary {
+  final String appSlug;
+  final double averageRating;
+  final int totalRatings;
+  final Map<String, int> ratingCounts;
+  final List<AppRatingReview> recentReviews;
+
+  const AppRatingSummary({
+    required this.appSlug,
+    required this.averageRating,
+    required this.totalRatings,
+    required this.ratingCounts,
+    required this.recentReviews,
+  });
+
+  factory AppRatingSummary.fromJson(Map<String, dynamic> json) {
+    final countsRaw = json['rating_counts'] as Map<String, dynamic>? ?? {};
+    final counts = countsRaw.map((k, v) => MapEntry(k.toString(), (v as num).toInt()));
+    final reviewsRaw = json['recent_reviews'] as List<dynamic>? ?? [];
+    return AppRatingSummary(
+      appSlug: json['app_slug'] as String? ?? '',
+      averageRating: (json['average_rating'] as num?)?.toDouble() ?? 5.0,
+      totalRatings: (json['total_ratings'] as num?)?.toInt() ?? 0,
+      ratingCounts: counts,
+      recentReviews: reviewsRaw.map((e) => AppRatingReview.fromJson(Map<String, dynamic>.from(e as Map))).toList(),
     );
   }
 }

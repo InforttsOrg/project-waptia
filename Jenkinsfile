@@ -19,9 +19,32 @@ pipeline {
     MAX_GRADLE_OPTS = '-Dorg.gradle.jvmargs="-Xmx4g -XX:MaxMetaspaceSize=512m"'
   }
   stages {
+    stage('Live Branch Gate') {
+      steps {
+        script {
+          def targetBranch = env.BRANCH_NAME ?: env.GIT_BRANCH ?: ''
+          if (targetBranch.startsWith('origin/')) {
+            targetBranch = targetBranch.substring(7)
+          }
+          if (targetBranch != '' && targetBranch != 'live') {
+            echo "⏭️ Branch '${targetBranch}' detected. Strictly ONLY 'live' branch triggers deployment. All stages will be skipped."
+          } else {
+            echo "✅ 'live' branch verified. Proceeding with deployment pipeline."
+          }
+        }
+      }
+    }
 
 stage('Version plan') {
       agent { label 'mac' }
+      when {
+        beforeAgent true
+        expression {
+          def b = env.BRANCH_NAME ?: env.GIT_BRANCH ?: ''
+          if (b.startsWith('origin/')) b = b.substring(7)
+          return b == 'live' || b == ''
+        }
+      }
       steps {
         checkout scm
         script {
@@ -44,10 +67,18 @@ stage('Version plan') {
       }
     }
 
-stage('Flutter: waptia-store') {
+stage('Flutter: waptia') {
       agent { label 'mac' }
       when {
-        expression { PLAN?.action == 'playstore' }
+        beforeAgent true
+        allOf {
+          expression {
+            def b = env.BRANCH_NAME ?: env.GIT_BRANCH ?: ''
+            if (b.startsWith('origin/')) b = b.substring(7)
+            return b == 'live' || b == ''
+          }
+          expression { PLAN?.action == 'playstore' }
+        }
       }
       environment {
         APP_DIR = 'store'
@@ -70,8 +101,6 @@ stage('Flutter: waptia-store') {
             exit 0
           fi
           cd "$TARGET_DIR"
-          rm -rf android/.gradle build 2>/dev/null || true
-          pkill -9 -f GradleDaemon 2>/dev/null || true
           flutter pub get || true
           flutter analyze || true
         '''
@@ -114,11 +143,6 @@ stage('Flutter: waptia-store') {
               [ -n "$BUILD_NUM" ] && VER_ARGS="$VER_ARGS --build-number=$BUILD_NUM"
               flutter build apk --release $VER_ARGS || echo "APK build attempted"
               flutter build appbundle --release $VER_ARGS || echo "AppBundle build attempted"
-              flutter build web --release || echo "Web build attempted"
-              if [ -d "build/web" ]; then
-                mkdir -p ../web
-                cp -r build/web/* ../web/ 2>/dev/null || true
-              fi
             '''
           }
         }
@@ -183,7 +207,15 @@ stage('Flutter: waptia-store') {
 stage('OTA registry: com.infortts.waptia') {
       agent { label 'mac' }
       when {
-        expression { PLAN?.action == 'ota' }
+        beforeAgent true
+        allOf {
+          expression {
+            def b = env.BRANCH_NAME ?: env.GIT_BRANCH ?: ''
+            if (b.startsWith('origin/')) b = b.substring(7)
+            return b == 'live' || b == ''
+          }
+          expression { PLAN?.action == 'ota' }
+        }
       }
       steps {
         script {
@@ -204,10 +236,18 @@ stage('OTA registry: com.infortts.waptia') {
         }
       }
     }
-stage('Flutter: waptia-admin') {
+stage('Flutter: waptia') {
       agent { label 'mac' }
       when {
-        expression { PLAN?.action == 'playstore' }
+        beforeAgent true
+        allOf {
+          expression {
+            def b = env.BRANCH_NAME ?: env.GIT_BRANCH ?: ''
+            if (b.startsWith('origin/')) b = b.substring(7)
+            return b == 'live' || b == ''
+          }
+          expression { PLAN?.action == 'playstore' }
+        }
       }
       environment {
         APP_DIR = 'admin'
@@ -230,8 +270,6 @@ stage('Flutter: waptia-admin') {
             exit 0
           fi
           cd "$TARGET_DIR"
-          rm -rf android/.gradle build 2>/dev/null || true
-          pkill -9 -f GradleDaemon 2>/dev/null || true
           flutter pub get || true
           flutter analyze || true
         '''
@@ -338,7 +376,15 @@ stage('Flutter: waptia-admin') {
 stage('OTA registry: com.infortts.waptia.admin') {
       agent { label 'mac' }
       when {
-        expression { PLAN?.action == 'ota' }
+        beforeAgent true
+        allOf {
+          expression {
+            def b = env.BRANCH_NAME ?: env.GIT_BRANCH ?: ''
+            if (b.startsWith('origin/')) b = b.substring(7)
+            return b == 'live' || b == ''
+          }
+          expression { PLAN?.action == 'ota' }
+        }
       }
       steps {
         script {
@@ -361,6 +407,14 @@ stage('OTA registry: com.infortts.waptia.admin') {
     }
 stage('Cloudflare: waptia-store') {
       agent { label 'vps' }
+      when {
+        beforeAgent true
+        expression {
+          def b = env.BRANCH_NAME ?: env.GIT_BRANCH ?: ''
+          if (b.startsWith('origin/')) b = b.substring(7)
+          return b == 'live' || b == ''
+        }
+      }
       steps {
         checkout scm
         script {
@@ -407,7 +461,6 @@ stage('Cloudflare: waptia-store') {
               // masking deploy failures. No `|| echo` — a failed deploy fails
               // the build instead of shipping a broken Worker.
               sh "set -o pipefail; npx wrangler deploy --name waptia-store 2>&1 | tail -20"
-              sh "npx wrangler pages deploy ./web --project-name=waptia-store --branch=main 2>&1 | tail -20 || true"
             }
           }
         }
@@ -429,6 +482,14 @@ stage('Cloudflare: waptia-store') {
 
 stage('Cloudflare: waptia-admin') {
       agent { label 'vps' }
+      when {
+        beforeAgent true
+        expression {
+          def b = env.BRANCH_NAME ?: env.GIT_BRANCH ?: ''
+          if (b.startsWith('origin/')) b = b.substring(7)
+          return b == 'live' || b == ''
+        }
+      }
       steps {
         checkout scm
         script {
@@ -474,7 +535,7 @@ stage('Cloudflare: waptia-admin') {
               // pipefail: a bare `deploy | tail` returns tail's exit code (0),
               // masking deploy failures. No `|| echo` — a failed deploy fails
               // the build instead of shipping a broken Worker.
-              sh "set -o pipefail; cd admin && npx wrangler deploy 2>&1 | tail -20"
+              sh "set -o pipefail; npx wrangler deploy --name waptia-admin 2>&1 | tail -20"
             }
           }
         }
@@ -497,9 +558,17 @@ stage('Cloudflare: waptia-admin') {
 stage('Tag success') {
       agent { label 'mac' }
       when {
-        expression {
-          PLAN?.action == 'playstore' &&
-          (env.PACKAGE == '' ? PLAN?.apk_uploaded == true : (PLAN?.playstore_uploaded == true && PLAN?.apk_uploaded == true))
+        beforeAgent true
+        allOf {
+          expression {
+            def b = env.BRANCH_NAME ?: env.GIT_BRANCH ?: ''
+            if (b.startsWith('origin/')) b = b.substring(7)
+            return b == 'live' || b == ''
+          }
+          expression {
+            PLAN?.action == 'playstore' &&
+            (env.PACKAGE == '' ? PLAN?.apk_uploaded == true : (PLAN?.playstore_uploaded == true && PLAN?.apk_uploaded == true))
+          }
         }
       }
       steps {

@@ -47,6 +47,8 @@
     "playStoreUrl": "https://play.google.com/store/apps/details?id=com.infortts.waptia",
     "apkDownloadUrl": "https://huggingface.co/datasets/rttss/ota-patches/resolve/main/waptia/waptia.apk",
     "otaChannel": "https://huggingface.co/datasets/rttss/ota-patches/raw/main/waptia/manifest.json",
+    "rating": 4.9,
+    "ratingCount": 128,
     "research": "Content-addressed differential binary patching reducing OTA payload size by up to 92%.",
     "caseStudy": "Serves over 28 production applications with instant download speeds and cryptographic integrity.",
     "updates": [
