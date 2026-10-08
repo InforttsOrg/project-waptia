@@ -236,7 +236,7 @@ stage('OTA registry: com.infortts.waptia') {
         }
       }
     }
-stage('Flutter: waptia') {
+stage('Flutter: waptia-admin') {
       agent { label 'mac' }
       when {
         beforeAgent true

@@ -38,7 +38,7 @@ class WaptiaStoreApp extends StatelessWidget {
                   appName: 'Waptia Store',
                   appDescription: 'Sovereign Fleet App Store & Autonomous OTA Package Manager',
                   appVersion: '2.09.01',
-                  requireAuth: true,
+                  requireAuth: false,
                   allowGuest: true,
                   auth: GlycocalyxAuth(),
                   additionalTabs: [
