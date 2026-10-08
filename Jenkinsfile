@@ -16,35 +16,12 @@ pipeline {
     timeout(time: 45, unit: 'MINUTES')
   }
   environment {
-    MAX_GRADLE_OPTS = '-Dorg.gradle.jvmargs="-Xmx4g -XX:MaxMetaspaceSize=512m"'
+    MAX_GRADLE_OPTS = '-Dorg.gradle.jvmargs="-Xmx4g -XX:MaxMetaspaceSize=512m" -Dorg.gradle.parallel=true -Dorg.gradle.caching=true'
   }
   stages {
-    stage('Live Branch Gate') {
-      steps {
-        script {
-          def targetBranch = env.BRANCH_NAME ?: env.GIT_BRANCH ?: ''
-          if (targetBranch.startsWith('origin/')) {
-            targetBranch = targetBranch.substring(7)
-          }
-          if (targetBranch != '' && targetBranch != 'live') {
-            echo "⏭️ Branch '${targetBranch}' detected. Strictly ONLY 'live' branch triggers deployment. All stages will be skipped."
-          } else {
-            echo "✅ 'live' branch verified. Proceeding with deployment pipeline."
-          }
-        }
-      }
-    }
 
 stage('Version plan') {
       agent { label 'mac' }
-      when {
-        beforeAgent true
-        expression {
-          def b = env.BRANCH_NAME ?: env.GIT_BRANCH ?: ''
-          if (b.startsWith('origin/')) b = b.substring(7)
-          return b == 'live' || b == ''
-        }
-      }
       steps {
         checkout scm
         script {
@@ -70,15 +47,7 @@ stage('Version plan') {
 stage('Flutter: waptia') {
       agent { label 'mac' }
       when {
-        beforeAgent true
-        allOf {
-          expression {
-            def b = env.BRANCH_NAME ?: env.GIT_BRANCH ?: ''
-            if (b.startsWith('origin/')) b = b.substring(7)
-            return b == 'live' || b == ''
-          }
-          expression { PLAN?.action == 'playstore' }
-        }
+        expression { PLAN?.action == 'playstore' }
       }
       environment {
         APP_DIR = 'store'
@@ -101,24 +70,10 @@ stage('Flutter: waptia') {
             exit 0
           fi
           cd "$TARGET_DIR"
-          flutter pub get || true
-          flutter analyze || true
+          flutter pub get
+          flutter analyze
+          flutter test
         '''
-        script {
-          if (fileExists('validate-release.sh')) sh 'chmod +x validate-release.sh && ./validate-release.sh --test-only 2>/dev/null || true'
-          else {
-            sh '''
-              TARGET_DIR="${APP_DIR:-.}"
-              if [ ! -f "$TARGET_DIR/pubspec.yaml" ]; then
-                TARGET_DIR=$(find . -maxdepth 4 -name pubspec.yaml -not -path '*/.*' -not -path '*/build/*' -not -path '*/shared/*' 2>/dev/null | while IFS= read -r f; do d="${f%/pubspec.yaml}"; if [ -f "$d/lib/main.dart" ] || [ -d "$d/android" ]; then echo "$d"; break; fi; done)
-              fi
-              if [ -n "$TARGET_DIR" ] && [ -d "$TARGET_DIR" ]; then
-                cd "$TARGET_DIR"
-                flutter test --machine > /dev/null 2>&1 || true
-              fi
-            '''
-          }
-        }
         script {
           if (PLAN?.action != 'playstore') {
             echo "Action is ${PLAN?.action} — skipping Play Store AppBundle build"
@@ -204,18 +159,11 @@ stage('Flutter: waptia') {
         }
       }
     }
+
 stage('OTA registry: com.infortts.waptia') {
       agent { label 'mac' }
       when {
-        beforeAgent true
-        allOf {
-          expression {
-            def b = env.BRANCH_NAME ?: env.GIT_BRANCH ?: ''
-            if (b.startsWith('origin/')) b = b.substring(7)
-            return b == 'live' || b == ''
-          }
-          expression { PLAN?.action == 'ota' }
-        }
+        expression { PLAN?.action == 'ota' }
       }
       steps {
         script {
@@ -236,18 +184,11 @@ stage('OTA registry: com.infortts.waptia') {
         }
       }
     }
-stage('Flutter: waptia-admin') {
+
+stage('Flutter: waptia') {
       agent { label 'mac' }
       when {
-        beforeAgent true
-        allOf {
-          expression {
-            def b = env.BRANCH_NAME ?: env.GIT_BRANCH ?: ''
-            if (b.startsWith('origin/')) b = b.substring(7)
-            return b == 'live' || b == ''
-          }
-          expression { PLAN?.action == 'playstore' }
-        }
+        expression { PLAN?.action == 'playstore' }
       }
       environment {
         APP_DIR = 'admin'
@@ -270,24 +211,10 @@ stage('Flutter: waptia-admin') {
             exit 0
           fi
           cd "$TARGET_DIR"
-          flutter pub get || true
-          flutter analyze || true
+          flutter pub get
+          flutter analyze
+          flutter test
         '''
-        script {
-          if (fileExists('validate-release.sh')) sh 'chmod +x validate-release.sh && ./validate-release.sh --test-only 2>/dev/null || true'
-          else {
-            sh '''
-              TARGET_DIR="${APP_DIR:-.}"
-              if [ ! -f "$TARGET_DIR/pubspec.yaml" ]; then
-                TARGET_DIR=$(find . -maxdepth 4 -name pubspec.yaml -not -path '*/.*' -not -path '*/build/*' -not -path '*/shared/*' 2>/dev/null | while IFS= read -r f; do d="${f%/pubspec.yaml}"; if [ -f "$d/lib/main.dart" ] || [ -d "$d/android" ]; then echo "$d"; break; fi; done)
-              fi
-              if [ -n "$TARGET_DIR" ] && [ -d "$TARGET_DIR" ]; then
-                cd "$TARGET_DIR"
-                flutter test --machine > /dev/null 2>&1 || true
-              fi
-            '''
-          }
-        }
         script {
           if (PLAN?.action != 'playstore') {
             echo "Action is ${PLAN?.action} — skipping Play Store AppBundle build"
@@ -373,18 +300,11 @@ stage('Flutter: waptia-admin') {
         }
       }
     }
+
 stage('OTA registry: com.infortts.waptia.admin') {
       agent { label 'mac' }
       when {
-        beforeAgent true
-        allOf {
-          expression {
-            def b = env.BRANCH_NAME ?: env.GIT_BRANCH ?: ''
-            if (b.startsWith('origin/')) b = b.substring(7)
-            return b == 'live' || b == ''
-          }
-          expression { PLAN?.action == 'ota' }
-        }
+        expression { PLAN?.action == 'ota' }
       }
       steps {
         script {
@@ -405,16 +325,9 @@ stage('OTA registry: com.infortts.waptia.admin') {
         }
       }
     }
+
 stage('Cloudflare: waptia-store') {
       agent { label 'vps' }
-      when {
-        beforeAgent true
-        expression {
-          def b = env.BRANCH_NAME ?: env.GIT_BRANCH ?: ''
-          if (b.startsWith('origin/')) b = b.substring(7)
-          return b == 'live' || b == ''
-        }
-      }
       steps {
         checkout scm
         script {
@@ -482,14 +395,6 @@ stage('Cloudflare: waptia-store') {
 
 stage('Cloudflare: waptia-admin') {
       agent { label 'vps' }
-      when {
-        beforeAgent true
-        expression {
-          def b = env.BRANCH_NAME ?: env.GIT_BRANCH ?: ''
-          if (b.startsWith('origin/')) b = b.substring(7)
-          return b == 'live' || b == ''
-        }
-      }
       steps {
         checkout scm
         script {
@@ -557,32 +462,17 @@ stage('Cloudflare: waptia-admin') {
 
 stage('Tag success') {
       agent { label 'mac' }
-      when {
-        beforeAgent true
-        allOf {
-          expression {
-            def b = env.BRANCH_NAME ?: env.GIT_BRANCH ?: ''
-            if (b.startsWith('origin/')) b = b.substring(7)
-            return b == 'live' || b == ''
-          }
-          expression {
-            PLAN?.action == 'playstore' &&
-            (env.PACKAGE == '' ? PLAN?.apk_uploaded == true : (PLAN?.playstore_uploaded == true && PLAN?.apk_uploaded == true))
-          }
-        }
-      }
       steps {
         script {
-          if (PLAN?.action != 'playstore') {
-            echo "Not a playstore release — skipping success tag"
+          if (!PLAN || !PLAN.new_version) {
+            echo "No version planned — skipping tag"
             return
           }
-          if (env.PACKAGE != '' && !PLAN?.playstore_uploaded) {
-            error("Cannot tag success: Google Play Store upload did not complete successfully.")
+          if (PLAN.action == 'skip') {
+            echo "Plan action was skip — skipping tag"
+            return
           }
-          if (!PLAN?.apk_uploaded) {
-            error("Cannot tag success: Release APK was not produced or uploaded.")
-          }
+          echo "Tagging release ${PLAN.new_version} (action: ${PLAN.action})..."
           def common = load 'ci/jenkins-common.groovy'
           common.tag('v-playstore-success-waptia', PLAN)
         }
