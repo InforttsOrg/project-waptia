@@ -335,7 +335,14 @@ class WaptiaAutoUpdateManager {
     if (idx == -1) return false;
 
     final app = list[idx];
-    list[idx] = app.copyWith(isDownloading: true, downloadProgress: 0.1);
+    list[idx] = app.copyWith(
+      isDownloading: true,
+      downloadProgress: 0.1,
+      downloadStatus: 'Checking updates...',
+      downloadSpeed: '',
+      downloadedMb: 0.0,
+      totalMb: 0.0,
+    );
     appsNotifier.value = list;
 
     try {
@@ -350,13 +357,19 @@ class WaptiaAutoUpdateManager {
       bool patchSuccess = false;
       if (manifest != null && manifest.latestPatch > 0) {
         onProgress?.call(0.4);
-        list[idx] = list[idx].copyWith(downloadProgress: 0.4);
+        list[idx] = list[idx].copyWith(
+          downloadProgress: 0.4,
+          downloadStatus: 'Downloading differential patch...',
+        );
         appsNotifier.value = List.from(list);
 
         patchSuccess = await otaEngine.downloadAndApplyPatch(manifest, onStatusChanged: (status, patch) {
           if (status == InforttsCdnOtaStatus.downloading) {
             onProgress?.call(0.7);
-            list[idx] = list[idx].copyWith(downloadProgress: 0.7);
+            list[idx] = list[idx].copyWith(
+              downloadProgress: 0.7,
+              downloadStatus: 'Applying differential patch...',
+            );
             appsNotifier.value = List.from(list);
           }
         });
@@ -375,6 +388,8 @@ class WaptiaAutoUpdateManager {
           hasUpdate: false,
           isDownloading: false,
           downloadProgress: 1.0,
+          downloadSpeed: '',
+          downloadStatus: 'Updated',
         );
         appsNotifier.value = list;
         _recomputePendingCount();
@@ -390,7 +405,12 @@ class WaptiaAutoUpdateManager {
       return await installApp(slug, onProgress: onProgress);
     } catch (e) {
       if (kDebugMode) print('[WaptiaAutoUpdateManager] Failed updating ${app.slug}: $e');
-      list[idx] = list[idx].copyWith(isDownloading: false, downloadProgress: 0.0);
+      list[idx] = list[idx].copyWith(
+        isDownloading: false,
+        downloadProgress: 0.0,
+        downloadSpeed: '',
+        downloadStatus: '',
+      );
       appsNotifier.value = list;
       return false;
     }
@@ -439,7 +459,14 @@ class WaptiaAutoUpdateManager {
       return true;
     }
 
-    list[idx] = app.copyWith(isDownloading: true, downloadProgress: 0.05);
+    list[idx] = app.copyWith(
+      isDownloading: true,
+      downloadProgress: 0.05,
+      downloadStatus: 'Connecting...',
+      downloadSpeed: '',
+      downloadedMb: 0.0,
+      totalMb: 0.0,
+    );
     appsNotifier.value = List.from(list);
     onProgress?.call(0.05);
 
@@ -449,15 +476,26 @@ class WaptiaAutoUpdateManager {
         downloadUrl: app.downloadUrl,
         packageName: app.packageName,
         appName: app.name,
-        onProgress: (p) {
-          list[idx] = list[idx].copyWith(downloadProgress: p);
+        onProgress: onProgress,
+        onProgressDetails: (details) {
+          list[idx] = list[idx].copyWith(
+            downloadProgress: details.progress,
+            downloadedMb: details.downloadedMb,
+            totalMb: details.totalMb,
+            downloadSpeed: details.speed,
+            downloadStatus: details.status,
+          );
           appsNotifier.value = List<AppInstallState>.from(list);
-          onProgress?.call(p);
         },
         onNotify: (title, msg) => showNotification(title: title, message: msg),
       );
 
-      list[idx] = list[idx].copyWith(isDownloading: false, downloadProgress: success ? 1.0 : 0.0);
+      list[idx] = list[idx].copyWith(
+        isDownloading: false,
+        downloadProgress: success ? 1.0 : 0.0,
+        downloadSpeed: '',
+        downloadStatus: success ? 'Installed' : '',
+      );
       appsNotifier.value = List<AppInstallState>.from(list);
       onProgress?.call(success ? 1.0 : 0.0);
 
@@ -467,7 +505,12 @@ class WaptiaAutoUpdateManager {
       return success;
     } catch (e) {
       if (kDebugMode) print('[WaptiaAutoUpdateManager] Error downloading/installing ${app.slug}: $e');
-      list[idx] = list[idx].copyWith(isDownloading: false, downloadProgress: 0.0);
+      list[idx] = list[idx].copyWith(
+        isDownloading: false,
+        downloadProgress: 0.0,
+        downloadSpeed: '',
+        downloadStatus: '',
+      );
       appsNotifier.value = List<AppInstallState>.from(list);
       return false;
     }
@@ -550,9 +593,26 @@ class WaptiaAutoUpdateManager {
     }
   }
 
+  // ── Waptia API & Glycocalyx Sovereign Gateways ─────────────────────────────
+  static const String kWaptiaApiBase = 'https://api.waptia.infortts.site';
+  static const String kWaptiaApiFallbackBase = 'https://auth.infortts.site';
+
   // ── Glycocalyx Devices & Cross-Device Distribution ─────────────────────────
 
   Future<List<GlycocalyxDevice>> fetchGlycocalyxDevices() async {
+    // If running in guest session or unauthenticated, do not display mock devices
+    if (InforttsAuthManager.instance.isGuest || !InforttsAuthManager.instance.isAuthenticated) {
+      return const [
+        GlycocalyxDevice(
+          id: 'current_device',
+          name: 'This Device',
+          type: 'Phone',
+          userAgent: 'Android Client',
+          isCurrent: true,
+        ),
+      ];
+    }
+
     try {
       final token = InforttsAuthManager.instance.currentToken;
       final headers = <String, String>{'Content-Type': 'application/json'};
@@ -560,8 +620,21 @@ class WaptiaAutoUpdateManager {
         headers['Authorization'] = 'Bearer $token';
       }
 
-      // Try Glycocalyx production gateway
-      final url = Uri.parse('https://auth.infortts.site/user/devices');
+      // Try Waptia API Gateway first
+      try {
+        final url = Uri.parse('$kWaptiaApiBase/user/devices');
+        final resp = await http.get(url, headers: headers).timeout(const Duration(seconds: 4));
+        if (resp.statusCode == 200) {
+          final data = jsonDecode(resp.body) as Map<String, dynamic>;
+          final rawList = data['devices'] as List<dynamic>? ?? [];
+          if (rawList.isNotEmpty) {
+            return rawList.map((e) => GlycocalyxDevice.fromJson(Map<String, dynamic>.from(e as Map))).toList();
+          }
+        }
+      } catch (_) {}
+
+      // Fallback: Glycocalyx Auth Gateway
+      final url = Uri.parse('$kWaptiaApiFallbackBase/user/devices');
       final resp = await http.get(url, headers: headers).timeout(const Duration(seconds: 4));
       if (resp.statusCode == 200) {
         final data = jsonDecode(resp.body) as Map<String, dynamic>;
@@ -572,39 +645,59 @@ class WaptiaAutoUpdateManager {
       }
     } catch (_) {}
 
-    // Fallback: Default cross-device targets matching Google Play Store ecosystem
+    // Clean authenticated fallback: Return authenticated current device
     return const [
       GlycocalyxDevice(
-        id: 'dev_pixel9pro',
-        name: 'Google Pixel 9 Pro',
+        id: 'current_device',
+        name: 'This Device',
         type: 'Phone',
-        userAgent: 'Android 15 / Pixel 9 Pro',
+        userAgent: 'Android Client',
         isCurrent: true,
-      ),
-      GlycocalyxDevice(
-        id: 'dev_pixel_tablet',
-        name: 'Google Pixel Tablet',
-        type: 'Tablet',
-        userAgent: 'Android 15 / Pixel Tablet',
       ),
     ];
   }
 
   Future<bool> installOnDevice(String deviceId, String appSlug) async {
     try {
-      // Dispatches device installation trigger via Glycocalyx / OTA channel
-      await Future.delayed(const Duration(milliseconds: 600));
+      final token = InforttsAuthManager.instance.currentToken;
+      final headers = <String, String>{'Content-Type': 'application/json'};
+      if (token != null && token.isNotEmpty) {
+        headers['Authorization'] = 'Bearer $token';
+      }
+      final payload = jsonEncode({'device_id': deviceId, 'app_slug': appSlug});
+
+      // Try Waptia API Gateway
+      try {
+        final url = Uri.parse('$kWaptiaApiBase/api/v1/devices/install');
+        final resp = await http.post(url, headers: headers, body: payload).timeout(const Duration(seconds: 4));
+        if (resp.statusCode == 200) return true;
+      } catch (_) {}
+
+      // Fallback: Glycocalyx
+      final url = Uri.parse('$kWaptiaApiFallbackBase/api/v1/devices/install');
+      await http.post(url, headers: headers, body: payload).timeout(const Duration(seconds: 4));
       return true;
     } catch (_) {
       return false;
     }
   }
 
-  // ── Infortts DB App Ratings & Reviews ────────────────────────────────────────
+  // ── Infortts DB App Ratings & Reviews (Waptia API) ──────────────────────────
 
   Future<AppRatingSummary> fetchAppRatings(String slug) async {
     try {
-      final url = Uri.parse('https://auth.infortts.site/api/v1/apps/$slug/ratings');
+      // 1. Try Waptia API Gateway
+      try {
+        final url = Uri.parse('$kWaptiaApiBase/api/v1/apps/$slug/ratings');
+        final resp = await http.get(url).timeout(const Duration(seconds: 4));
+        if (resp.statusCode == 200) {
+          final data = jsonDecode(resp.body) as Map<String, dynamic>;
+          return AppRatingSummary.fromJson(data);
+        }
+      } catch (_) {}
+
+      // 2. Try Fallback Gateway
+      final url = Uri.parse('$kWaptiaApiFallbackBase/api/v1/apps/$slug/ratings');
       final resp = await http.get(url).timeout(const Duration(seconds: 4));
       if (resp.statusCode == 200) {
         final data = jsonDecode(resp.body) as Map<String, dynamic>;
@@ -640,7 +733,7 @@ class WaptiaAutoUpdateManager {
       appsNotifier.value = list;
     }
 
-    // Sync to Infortts DB via Glycocalyx
+    // Sync to Infortts DB via Waptia API
     try {
       final token = InforttsAuthManager.instance.currentToken;
       final session = InforttsAuthManager.instance.currentSession;
@@ -654,10 +747,18 @@ class WaptiaAutoUpdateManager {
         'review': review,
         'user_name': session?.profile?['display_name'] ?? session?.email ?? 'Infortts User',
         'user_id': session?.userId ?? 'usr_guest',
-        'device_name': deviceName ?? 'Google Pixel 9 Pro',
+        'device_name': deviceName ?? 'Android Device',
       });
 
-      final url = Uri.parse('https://auth.infortts.site/api/v1/apps/$slug/ratings');
+      // 1. Try Waptia API Gateway
+      try {
+        final url = Uri.parse('$kWaptiaApiBase/api/v1/apps/$slug/ratings');
+        final resp = await http.post(url, headers: headers, body: payload).timeout(const Duration(seconds: 5));
+        if (resp.statusCode == 200) return true;
+      } catch (_) {}
+
+      // 2. Try Fallback Gateway
+      final url = Uri.parse('$kWaptiaApiFallbackBase/api/v1/apps/$slug/ratings');
       final resp = await http.post(url, headers: headers, body: payload).timeout(const Duration(seconds: 5));
       if (resp.statusCode == 200) {
         return true;
@@ -670,7 +771,7 @@ class WaptiaAutoUpdateManager {
         'rating': rating,
         'review': review,
         'user_name': 'Infortts User',
-        'device_name': deviceName ?? 'Google Pixel 9 Pro',
+        'device_name': deviceName ?? 'Android Device',
       });
       await http.post(
         Uri.parse('http://127.0.0.1:8092/api/v1/apps/$slug/ratings'),

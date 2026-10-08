@@ -4,6 +4,7 @@ import 'package:infortts_shared/infortts_shared.dart';
 
 import 'auto_update_manager.dart';
 import 'models.dart';
+import 'app_screens_meta.dart';
 
 import 'design_skin.dart';
 void main() async {
@@ -19,38 +20,48 @@ class WaptiaStoreApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Waptia Store',
-      debugShowCheckedModeBanner: false,
-      theme: AcousticTheme.themedDark(skin: AppDesignSkin.skin),
-      home: ValueListenableBuilder<int>(
-        valueListenable: WaptiaAutoUpdateManager.instance.pendingUpdatesCount,
-        builder: (context, pendingCount, _) {
-          return InforttsAppShell(
-            appName: 'Waptia Store',
-            appDescription: 'Sovereign Fleet App Store & Autonomous OTA Package Manager',
-            appVersion: '2.07.01',
-            requireAuth: true,
-            allowGuest: true,
-            auth: GlycocalyxAuth(),
-            additionalTabs: [
-              InforttsTab(
-                label: 'Explore',
-                icon: Icons.storefront_outlined,
-                builder: (_) => const WaptiaExploreWorkspace(),
-              ),
-              InforttsTab(
-                label: pendingCount > 0 ? 'Updates ($pendingCount)' : 'Updates',
-                icon: Icons.system_update_alt_rounded,
-                builder: (_) => const WaptiaUpdatesWorkspace(),
-              ),
-              InforttsTab(
-                label: 'Auto-Update Policy',
-                icon: Icons.tune_rounded,
-                builder: (_) => const WaptiaPolicyWorkspace(),
-              ),
-            ],
-            workspaceChild: const WaptiaExploreWorkspace(),
+    return InforttsThemeProvider(
+      skin: AppDesignSkin.skin,
+      child: Builder(
+        builder: (context) {
+          final themeData = InforttsThemeProvider.of(context);
+          return MaterialApp(
+            title: 'Waptia Store',
+            debugShowCheckedModeBanner: false,
+            theme: themeData.lightTheme,
+            darkTheme: themeData.darkTheme,
+            themeMode: themeData.themeMode,
+            home: ValueListenableBuilder<int>(
+              valueListenable: WaptiaAutoUpdateManager.instance.pendingUpdatesCount,
+              builder: (context, pendingCount, _) {
+                return InforttsAppShell(
+                  appName: 'Waptia Store',
+                  appDescription: 'Sovereign Fleet App Store & Autonomous OTA Package Manager',
+                  appVersion: '2.09.01',
+                  requireAuth: true,
+                  allowGuest: true,
+                  auth: GlycocalyxAuth(),
+                  additionalTabs: [
+                    InforttsTab(
+                      label: 'Explore',
+                      icon: Icons.storefront_outlined,
+                      builder: (_) => const WaptiaExploreWorkspace(),
+                    ),
+                    InforttsTab(
+                      label: pendingCount > 0 ? 'Updates ($pendingCount)' : 'Updates',
+                      icon: Icons.system_update_alt_rounded,
+                      builder: (_) => const WaptiaUpdatesWorkspace(),
+                    ),
+                    InforttsTab(
+                      label: 'Auto-Update Policy',
+                      icon: Icons.tune_rounded,
+                      builder: (_) => const WaptiaPolicyWorkspace(),
+                    ),
+                  ],
+                  workspaceChild: const WaptiaExploreWorkspace(),
+                );
+              },
+            ),
           );
         },
       ),
@@ -72,6 +83,7 @@ class WaptiaExploreWorkspace extends StatefulWidget {
 class _WaptiaExploreWorkspaceState extends State<WaptiaExploreWorkspace> {
   String _searchQuery = '';
   String _selectedCategory = 'All';
+  String _sortBy = 'A-Z';
 
   final List<String> _categories = [
     'All',
@@ -103,6 +115,33 @@ class _WaptiaExploreWorkspaceState extends State<WaptiaExploreWorkspace> {
               final matchesCat = _selectedCategory == 'All' || app.category.toLowerCase() == _selectedCategory.toLowerCase();
               return matchesSearch && matchesCat;
             }).toList();
+
+            if (_sortBy == 'A-Z') {
+              filtered.sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+            } else if (_sortBy == 'Z-A') {
+              filtered.sort((a, b) => b.name.toLowerCase().compareTo(a.name.toLowerCase()));
+            } else if (_sortBy == 'Rating') {
+              filtered.sort((a, b) {
+                final rA = a.userRating != null ? a.userRating!.toDouble() : 4.9;
+                final rB = b.userRating != null ? b.userRating!.toDouble() : 4.9;
+                if (rA != rB) return rB.compareTo(rA);
+                return a.name.compareTo(b.name);
+              });
+            } else if (_sortBy == 'Updates') {
+              filtered.sort((a, b) {
+                if (a.hasUpdate != b.hasUpdate) {
+                  return a.hasUpdate ? -1 : 1;
+                }
+                return a.name.compareTo(b.name);
+              });
+            } else if (_sortBy == 'Installed') {
+              filtered.sort((a, b) {
+                if (a.isInstalled != b.isInstalled) {
+                  return a.isInstalled ? -1 : 1;
+                }
+                return a.name.compareTo(b.name);
+              });
+            }
 
         return Column(
           children: [
@@ -196,6 +235,41 @@ class _WaptiaExploreWorkspaceState extends State<WaptiaExploreWorkspace> {
                       },
                     ),
                   ),
+                  const SizedBox(height: 10),
+                  Row(
+                    children: [
+                      Icon(Icons.sort_rounded, size: 14, color: AcousticColors.sonarCyan),
+                      const SizedBox(width: 6),
+                      Text(
+                        'SORT:',
+                        style: GoogleFonts.outfit(
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1.2,
+                          color: AcousticColors.steel,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Row(
+                            children: [
+                              _buildSortPill('A-Z', 'A-Z (Name)'),
+                              const SizedBox(width: 6),
+                              _buildSortPill('Z-A', 'Z-A (Name)'),
+                              const SizedBox(width: 6),
+                              _buildSortPill('Updates', 'Updates Pending'),
+                              const SizedBox(width: 6),
+                              _buildSortPill('Installed', 'Installed'),
+                              const SizedBox(width: 6),
+                              _buildSortPill('Rating', 'Top Rated ★'),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ),
@@ -219,6 +293,32 @@ class _WaptiaExploreWorkspaceState extends State<WaptiaExploreWorkspace> {
   },
 );
 }
+
+  Widget _buildSortPill(String sortKey, String label) {
+    final isSelected = _sortBy == sortKey;
+    return GestureDetector(
+      onTap: () => setState(() => _sortBy = sortKey),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+        decoration: BoxDecoration(
+          color: isSelected ? AcousticColors.sonarCyan.withValues(alpha: 0.15) : AcousticColors.darkCarbon,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isSelected ? AcousticColors.sonarCyan : AcousticColors.steel.withValues(alpha: 0.25),
+            width: isSelected ? 1.0 : 0.8,
+          ),
+        ),
+        child: Text(
+          label,
+          style: GoogleFonts.outfit(
+            fontSize: 11,
+            fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+            color: isSelected ? AcousticColors.sonarCyan : AcousticColors.steel,
+          ),
+        ),
+      ),
+    );
+  }
 
   Widget _buildAppCard(BuildContext context, AppInstallState app) {
     return Container(
@@ -341,11 +441,51 @@ class _WaptiaExploreWorkspaceState extends State<WaptiaExploreWorkspace> {
             ),
             if (app.isDownloading) ...[
               const SizedBox(height: 12),
-              LinearProgressIndicator(
-                value: app.downloadProgress > 0 ? app.downloadProgress : null,
-                backgroundColor: const Color(0xFF0B0F19),
-                valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF38BDF8)),
+              ClipRRect(
                 borderRadius: BorderRadius.circular(4),
+                child: TweenAnimationBuilder<double>(
+                  duration: const Duration(milliseconds: 150),
+                  curve: Curves.easeOutCubic,
+                  tween: Tween<double>(
+                    begin: 0.0,
+                    end: app.downloadProgress.clamp(0.0, 1.0),
+                  ),
+                  builder: (context, value, _) {
+                    return LinearProgressIndicator(
+                      value: value > 0 ? value : (app.downloadProgress > 0 ? app.downloadProgress : null),
+                      minHeight: 6,
+                      backgroundColor: const Color(0xFF0B0F19),
+                      valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF38BDF8)),
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(height: 6),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    app.totalMb > 0
+                        ? '${app.downloadedMb.toStringAsFixed(1)} MB / ${app.totalMb.toStringAsFixed(1)} MB (${(app.downloadProgress * 100).toInt()}%)'
+                        : (app.downloadProgress > 0
+                            ? '${(app.downloadProgress * 100).toInt()}% • ${app.downloadStatus.isNotEmpty ? app.downloadStatus : "Updating"}'
+                            : 'Connecting...'),
+                    style: GoogleFonts.jetBrainsMono(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: const Color(0xFF94A3B8),
+                    ),
+                  ),
+                  if (app.downloadSpeed.isNotEmpty)
+                    Text(
+                      app.downloadSpeed,
+                      style: GoogleFonts.jetBrainsMono(
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
+                        color: const Color(0xFF38BDF8),
+                      ),
+                    ),
+                ],
               ),
             ],
           ],
@@ -356,10 +496,21 @@ class _WaptiaExploreWorkspaceState extends State<WaptiaExploreWorkspace> {
 
   Widget _buildActionButton(BuildContext context, AppInstallState app) {
     if (app.isDownloading) {
-      return const SizedBox(
-        width: 28,
-        height: 28,
-        child: CircularProgressIndicator(strokeWidth: 2.5, valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF38BDF8))),
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        decoration: BoxDecoration(
+          color: const Color(0xFF0F172A),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: const Color(0xFF38BDF8).withValues(alpha: 0.3)),
+        ),
+        child: Text(
+          '${(app.downloadProgress * 100).toInt()}%',
+          style: GoogleFonts.jetBrainsMono(
+            fontSize: 11,
+            fontWeight: FontWeight.bold,
+            color: const Color(0xFF38BDF8),
+          ),
+        ),
       );
     }
 
@@ -415,16 +566,6 @@ class _WaptiaExploreWorkspaceState extends State<WaptiaExploreWorkspace> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (ctx) => AppDetailsModal(app: app),
-    );
-  }
-
-  Widget _buildRow(String label, String val) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(label, style: GoogleFonts.outfit(color: AcousticColors.steel, fontSize: 12)),
-        Text(val, style: GoogleFonts.jetBrainsMono(color: AcousticColors.titanium, fontSize: 11, fontWeight: FontWeight.w600)),
-      ],
     );
   }
 
@@ -668,6 +809,77 @@ class _WaptiaExploreWorkspaceState extends State<WaptiaExploreWorkspace> {
   }
 }
 
+class _WaptiaSpinningRefreshButton extends StatefulWidget {
+  const _WaptiaSpinningRefreshButton();
+
+  @override
+  State<_WaptiaSpinningRefreshButton> createState() => _WaptiaSpinningRefreshButtonState();
+}
+
+class _WaptiaSpinningRefreshButtonState extends State<_WaptiaSpinningRefreshButton>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 900),
+    );
+    WaptiaAutoUpdateManager.instance.isCheckingUpdates.addListener(_onStateChange);
+    if (WaptiaAutoUpdateManager.instance.isCheckingUpdates.value) {
+      _controller.repeat();
+    }
+  }
+
+  void _onStateChange() {
+    if (WaptiaAutoUpdateManager.instance.isCheckingUpdates.value) {
+      if (!_controller.isAnimating) _controller.repeat();
+    } else {
+      _controller.stop();
+      _controller.reset();
+    }
+  }
+
+  @override
+  void dispose() {
+    WaptiaAutoUpdateManager.instance.isCheckingUpdates.removeListener(_onStateChange);
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ValueListenableBuilder<bool>(
+      valueListenable: WaptiaAutoUpdateManager.instance.isCheckingUpdates,
+      builder: (context, isChecking, _) {
+        return TextButton.icon(
+          onPressed: isChecking
+              ? null
+              : () => WaptiaAutoUpdateManager.instance.checkAllUpdates(),
+          icon: RotationTransition(
+            turns: _controller,
+            child: Icon(
+              Icons.refresh_rounded,
+              size: 15,
+              color: AcousticColors.sonarCyan,
+            ),
+          ),
+          label: Text(
+            isChecking ? "Refreshing..." : "Refresh",
+            style: GoogleFonts.outfit(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: AcousticColors.sonarCyan,
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // 2. UPDATES TAB (F-Droid Style Batch Updater)
 // ─────────────────────────────────────────────────────────────────────────────
@@ -709,11 +921,7 @@ class WaptiaUpdatesWorkspace extends StatelessWidget {
                       letterSpacing: 1.0,
                     ),
                   ),
-                  TextButton.icon(
-                    onPressed: () => WaptiaAutoUpdateManager.instance.checkAllUpdates(),
-                    icon: Icon(Icons.refresh, size: 14, color: AcousticColors.sonarCyan),
-                    label: Text("Refresh", style: GoogleFonts.outfit(fontSize: 12, color: AcousticColors.sonarCyan)),
-                  ),
+                  const _WaptiaSpinningRefreshButton(),
                 ],
               ),
               const SizedBox(height: 8),
@@ -865,28 +1073,7 @@ class WaptiaUpdatesWorkspace extends StatelessWidget {
               ],
             ),
           ),
-          ValueListenableBuilder<bool>(
-            valueListenable: WaptiaAutoUpdateManager.instance.isCheckingUpdates,
-            builder: (context, isChecking, _) {
-              return isChecking
-                  ? Padding(
-                      padding: const EdgeInsets.all(12.0),
-                      child: SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2.2,
-                          valueColor: AlwaysStoppedAnimation<Color>(AcousticColors.sonarCyan),
-                        ),
-                      ),
-                    )
-                  : IconButton(
-                      icon: Icon(Icons.refresh, color: AcousticColors.sonarCyan),
-                      tooltip: "Check for Updates",
-                      onPressed: () => WaptiaAutoUpdateManager.instance.checkAllUpdates(),
-                    );
-            },
-          ),
+          const _WaptiaSpinningRefreshButton(),
         ],
       ),
     );
@@ -951,6 +1138,55 @@ class WaptiaUpdatesWorkspace extends StatelessWidget {
               ),
             ],
           ),
+          if (app.isDownloading) ...[
+            const SizedBox(height: 10),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(4),
+              child: TweenAnimationBuilder<double>(
+                duration: const Duration(milliseconds: 150),
+                curve: Curves.easeOutCubic,
+                tween: Tween<double>(
+                  begin: 0.0,
+                  end: app.downloadProgress.clamp(0.0, 1.0),
+                ),
+                builder: (context, value, _) {
+                  return LinearProgressIndicator(
+                    value: value > 0 ? value : (app.downloadProgress > 0 ? app.downloadProgress : null),
+                    minHeight: 6,
+                    backgroundColor: AcousticColors.obsidian,
+                    valueColor: AlwaysStoppedAnimation<Color>(AcousticColors.sonarCyan),
+                  );
+                },
+              ),
+            ),
+            const SizedBox(height: 6),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  app.totalMb > 0
+                      ? '${app.downloadedMb.toStringAsFixed(1)} MB / ${app.totalMb.toStringAsFixed(1)} MB (${(app.downloadProgress * 100).toInt()}%)'
+                      : (app.downloadProgress > 0
+                          ? '${(app.downloadProgress * 100).toInt()}% • ${app.downloadStatus.isNotEmpty ? app.downloadStatus : "Updating"}'
+                          : 'Connecting...'),
+                  style: GoogleFonts.jetBrainsMono(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    color: AcousticColors.steel,
+                  ),
+                ),
+                if (app.downloadSpeed.isNotEmpty)
+                  Text(
+                    app.downloadSpeed,
+                    style: GoogleFonts.jetBrainsMono(
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                      color: AcousticColors.sonarCyan,
+                    ),
+                  ),
+              ],
+            ),
+          ],
           const SizedBox(height: 10),
           Container(
             padding: const EdgeInsets.all(10),
@@ -1373,56 +1609,7 @@ class _WaptiaPolicyWorkspaceState extends State<WaptiaPolicyWorkspace> with Widg
 
         const SizedBox(height: 24),
 
-        // 4. MANUAL SYNC TRIGGER
-        ValueListenableBuilder<bool>(
-          valueListenable: mgr.isCheckingUpdates,
-          builder: (context, isChecking, _) {
-            return SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AcousticColors.sonarCyan,
-                  foregroundColor: Colors.black,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  elevation: 0,
-                ),
-                icon: isChecking
-                    ? const SizedBox(
-                        width: 18,
-                        height: 18,
-                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black),
-                      )
-                    : const Icon(Icons.sync_rounded, size: 20),
-                label: Text(
-                  isChecking ? "Checking Single-Domain OTA Cluster..." : "Check For Fleet Updates Now",
-                  style: GoogleFonts.outfit(fontSize: 14, fontWeight: FontWeight.bold),
-                ),
-                onPressed: isChecking
-                    ? null
-                    : () async {
-                        await mgr.checkAllUpdates();
-                        if (context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                "Fleet sync complete. ${mgr.pendingUpdatesCount.value} update(s) available.",
-                                style: GoogleFonts.outfit(),
-                              ),
-                              backgroundColor: const Color(0xFF111827),
-                              duration: const Duration(seconds: 3),
-                            ),
-                          );
-                        }
-                      },
-              ),
-            );
-          },
-        ),
-
-        const SizedBox(height: 24),
-
-        // 5. CENTRAL REPOSITORY STATUS
+        // 4. CENTRAL REPOSITORY STATUS
         Text(
           "CENTRAL REPOSITORY STATUS",
           style: GoogleFonts.outfit(
@@ -1640,15 +1827,37 @@ class _AppDetailsModalState extends State<AppDetailsModal> {
     );
   }
 
-  static const List<String> _featureCaptions = [
-    'Autonomous Sovereign App Distribution & Telemetry',
-    'Instant Differential Bitstream Patching (Sub-10MB)',
-    'Native SHA-256 Cryptographic Fingerprint Verification',
-    'Cross-Device Fleet Synchronization & Remote Push',
-    'Enterprise Governance & Sovereign Role-Based Access',
-  ];
+  IconData _getCategoryIcon(String category) {
+    final cat = category.toLowerCase();
+    if (cat.contains('health') || cat.contains('medic')) {
+      return Icons.health_and_safety_rounded;
+    } else if (cat.contains('financ') || cat.contains('trad') || cat.contains('money')) {
+      return Icons.candlestick_chart_rounded;
+    } else if (cat.contains('secur') || cat.contains('auth')) {
+      return Icons.shield_rounded;
+    } else if (cat.contains('ai') || cat.contains('intellig')) {
+      return Icons.psychology_rounded;
+    } else if (cat.contains('audio') || cat.contains('music')) {
+      return Icons.graphic_eq_rounded;
+    } else if (cat.contains('ar') || cat.contains('vr') || cat.contains('vision')) {
+      return Icons.view_in_ar_rounded;
+    } else if (cat.contains('iot') || cat.contains('sensor')) {
+      return Icons.sensors_rounded;
+    } else if (cat.contains('comm') || cat.contains('chat')) {
+      return Icons.chat_bubble_rounded;
+    } else if (cat.contains('edu') || cat.contains('learn')) {
+      return Icons.school_rounded;
+    }
+    return Icons.hub_rounded;
+  }
 
-  void _showScreenshotLightbox(BuildContext context, List<String> screenshots, int initialIndex, String appName) {
+  void _showScreenshotLightbox(
+    BuildContext context,
+    List<String> screenshots,
+    int initialIndex,
+    String appName,
+    List<AppScreenMeta> screens,
+  ) {
     showDialog(
       context: context,
       barrierColor: Colors.black.withValues(alpha: 0.92),
@@ -1658,6 +1867,8 @@ class _AppDetailsModalState extends State<AppDetailsModal> {
 
         return StatefulBuilder(
           builder: (dialogContext, setDialogState) {
+            final activeScreen = screens[currentIndex % screens.length];
+
             return Dialog(
               backgroundColor: Colors.transparent,
               insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
@@ -1675,7 +1886,7 @@ class _AppDetailsModalState extends State<AppDetailsModal> {
                             style: GoogleFonts.outfit(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
                           ),
                           Text(
-                            'Screen ${currentIndex + 1} of ${screenshots.length}',
+                            'Screen ${currentIndex + 1} of ${screenshots.length} • ${activeScreen.badge}',
                             style: GoogleFonts.jetBrainsMono(fontSize: 12, color: AcousticColors.sonarCyan),
                           ),
                         ],
@@ -1701,9 +1912,7 @@ class _AppDetailsModalState extends State<AppDetailsModal> {
                             });
                           },
                           itemBuilder: (context, idx) {
-                            final caption = idx < _featureCaptions.length
-                                ? _featureCaptions[idx]
-                                : 'Infortts Sovereign Feature #${idx + 1}';
+                            final screen = screens[idx % screens.length];
                             return Center(
                               child: Container(
                                 constraints: const BoxConstraints(maxWidth: 420),
@@ -1724,7 +1933,7 @@ class _AppDetailsModalState extends State<AppDetailsModal> {
                                   fit: BoxFit.contain,
                                   errorBuilder: (_, __, ___) => _buildMockupScreenshot(
                                     idx,
-                                    caption,
+                                    screen,
                                     isExpanded: true,
                                   ),
                                 ),
@@ -1774,16 +1983,29 @@ class _AppDetailsModalState extends State<AppDetailsModal> {
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(color: AcousticColors.steel.withValues(alpha: 0.2)),
                     ),
-                    child: Text(
-                      currentIndex < _featureCaptions.length
-                          ? _featureCaptions[currentIndex]
-                          : 'Feature Preview #${currentIndex + 1}',
-                      textAlign: TextAlign.center,
-                      style: GoogleFonts.outfit(
-                        color: AcousticColors.titanium,
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                      ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          activeScreen.title,
+                          textAlign: TextAlign.center,
+                          style: GoogleFonts.outfit(
+                            color: AcousticColors.titanium,
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          activeScreen.badge,
+                          style: GoogleFonts.jetBrainsMono(
+                            color: AcousticColors.sonarCyan,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: 0.8,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
@@ -1795,7 +2017,8 @@ class _AppDetailsModalState extends State<AppDetailsModal> {
     );
   }
 
-  Widget _buildMockupScreenshot(int index, String caption, {bool isExpanded = false}) {
+  Widget _buildMockupScreenshot(int index, AppScreenMeta screen, {bool isExpanded = false}) {
+    final domainIcon = _getCategoryIcon(widget.app.category);
     return Container(
       width: isExpanded ? 360 : 175,
       height: isExpanded ? 580 : 285,
@@ -1829,7 +2052,28 @@ class _AppDetailsModalState extends State<AppDetailsModal> {
               ),
             ],
           ),
+          const SizedBox(height: 8),
+
+          // Domain Badge
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+            decoration: BoxDecoration(
+              color: AcousticColors.sonarCyan.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(4),
+              border: Border.all(color: AcousticColors.sonarCyan.withValues(alpha: 0.4)),
+            ),
+            child: Text(
+              screen.badge,
+              style: GoogleFonts.jetBrainsMono(
+                fontSize: isExpanded ? 9 : 7,
+                fontWeight: FontWeight.bold,
+                color: AcousticColors.sonarCyan,
+              ),
+            ),
+          ),
           const Spacer(),
+
+          // Centered Domain Icon & Visual Wireframe
           Center(
             child: Container(
               width: isExpanded ? 64 : 44,
@@ -1840,31 +2084,88 @@ class _AppDetailsModalState extends State<AppDetailsModal> {
                 border: Border.all(color: AcousticColors.sonarCyan.withValues(alpha: 0.6)),
               ),
               child: Icon(
-                Icons.hub_rounded,
+                domainIcon,
                 color: AcousticColors.sonarCyan,
                 size: isExpanded ? 32 : 22,
               ),
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 10),
+
+          // Visual Mock Wireframe dependent on screen type
+          if (screen.type == 'chart') ...[
+            Center(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [16, 28, 20, 36, 24, 32].map((h) => Container(
+                  width: isExpanded ? 8 : 4,
+                  height: (h * (isExpanded ? 1.5 : 0.8)),
+                  margin: const EdgeInsets.symmetric(horizontal: 2),
+                  decoration: BoxDecoration(
+                    color: AcousticColors.sonarCyan.withValues(alpha: 0.7),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                )).toList(),
+              ),
+            ),
+          ] else if (screen.type == 'flow') ...[
+            Center(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(width: 10, height: 10, decoration: const BoxDecoration(color: Color(0xFF10B981), shape: BoxShape.circle)),
+                  Container(width: 16, height: 2, color: AcousticColors.steel),
+                  Container(width: 10, height: 10, decoration: BoxDecoration(color: AcousticColors.sonarCyan, shape: BoxShape.circle)),
+                  Container(width: 16, height: 2, color: AcousticColors.steel),
+                  Container(width: 10, height: 10, decoration: const BoxDecoration(color: Color(0xFF38BDF8), shape: BoxShape.circle)),
+                ],
+              ),
+            ),
+          ] else ...[
+            Center(
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF1E293B),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.shield_outlined, size: 10, color: AcousticColors.sonarCyan),
+                    const SizedBox(width: 4),
+                    Text(
+                      widget.app.category.toUpperCase(),
+                      style: GoogleFonts.jetBrainsMono(fontSize: 8, color: AcousticColors.titanium),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+
+          const SizedBox(height: 10),
           Center(
             child: Text(
-              isExpanded ? widget.app.name : 'Infortts Sovereign',
+              widget.app.name,
               style: GoogleFonts.outfit(
-                fontSize: isExpanded ? 16 : 12,
+                fontSize: isExpanded ? 15 : 11,
                 fontWeight: FontWeight.bold,
                 color: Colors.white,
               ),
               textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 2),
           Center(
             child: Text(
-              caption,
+              screen.title,
               style: GoogleFonts.outfit(
-                fontSize: isExpanded ? 12 : 10,
-                color: AcousticColors.sonarCyan,
+                fontSize: isExpanded ? 12 : 9,
+                color: AcousticColors.titanium,
                 fontWeight: FontWeight.w600,
               ),
               textAlign: TextAlign.center,
@@ -1873,6 +2174,7 @@ class _AppDetailsModalState extends State<AppDetailsModal> {
             ),
           ),
           const Spacer(),
+
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
             decoration: BoxDecoration(
@@ -1887,7 +2189,7 @@ class _AppDetailsModalState extends State<AppDetailsModal> {
                 const SizedBox(width: 4),
                 Flexible(
                   child: Text(
-                    'Verified',
+                    'Verified Infortts',
                     style: GoogleFonts.outfit(fontSize: 8, color: AcousticColors.sonarCyan, fontWeight: FontWeight.bold),
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -1905,6 +2207,8 @@ class _AppDetailsModalState extends State<AppDetailsModal> {
     final app = widget.app;
     final avgRating = _ratingSummary?.averageRating ?? app.rating;
     final totalRatings = _ratingSummary?.totalRatings ?? app.ratingCount;
+    final screens = getAppScreens(app.slug, app.category, app.name);
+    final isGuest = InforttsAuthManager.instance.isGuest || !InforttsAuthManager.instance.isAuthenticated;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
@@ -1980,7 +2284,7 @@ class _AppDetailsModalState extends State<AppDetailsModal> {
 
           const SizedBox(height: 20),
 
-          // ── App Screenshots & Feature Highlights ──────────────────────────────
+          // ── App Screenshots & Domain Feature Highlights ───────────────────────
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -2002,7 +2306,7 @@ class _AppDetailsModalState extends State<AppDetailsModal> {
                     ],
                   ),
                   Text(
-                    '${app.screenshots.isNotEmpty ? app.screenshots.length : 5} Screens',
+                    '${screens.length} Screens',
                     style: GoogleFonts.jetBrainsMono(
                       fontSize: 11,
                       color: AcousticColors.sonarCyan,
@@ -2017,21 +2321,19 @@ class _AppDetailsModalState extends State<AppDetailsModal> {
                 child: ListView.builder(
                   scrollDirection: Axis.horizontal,
                   physics: const BouncingScrollPhysics(),
-                  itemCount: app.screenshots.isNotEmpty ? app.screenshots.length : 5,
+                  itemCount: app.screenshots.isNotEmpty ? app.screenshots.length : screens.length,
                   itemBuilder: (context, index) {
+                    final screen = screens[index % screens.length];
                     final url = app.screenshots.isNotEmpty
                         ? app.screenshots[index]
                         : 'https://waptia.infortts.site/screenshots/${app.slug}_${index + 1}.png';
-                    final caption = index < _featureCaptions.length
-                        ? _featureCaptions[index]
-                        : 'Feature #${index + 1}';
 
                     return GestureDetector(
                       onTap: () {
                         final list = app.screenshots.isNotEmpty
                             ? app.screenshots
-                            : List.generate(5, (i) => 'https://waptia.infortts.site/screenshots/${app.slug}_${i + 1}.png');
-                        _showScreenshotLightbox(context, list, index, app.name);
+                            : List.generate(screens.length, (i) => 'https://waptia.infortts.site/screenshots/${app.slug}_${i + 1}.png');
+                        _showScreenshotLightbox(context, list, index, app.name, screens);
                       },
                       child: Container(
                         width: 170,
@@ -2048,7 +2350,7 @@ class _AppDetailsModalState extends State<AppDetailsModal> {
                             Image.network(
                               url,
                               fit: BoxFit.cover,
-                              errorBuilder: (_, __, ___) => _buildMockupScreenshot(index, caption),
+                              errorBuilder: (_, __, ___) => _buildMockupScreenshot(index, screen),
                             ),
                             // Gradient caption overlay
                             Positioned(
@@ -2067,15 +2369,30 @@ class _AppDetailsModalState extends State<AppDetailsModal> {
                                     ],
                                   ),
                                 ),
-                                child: Text(
-                                  caption,
-                                  style: GoogleFonts.outfit(
-                                    color: Colors.white,
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      screen.title,
+                                      style: GoogleFonts.outfit(
+                                        color: Colors.white,
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      screen.badge,
+                                      style: GoogleFonts.jetBrainsMono(
+                                        color: AcousticColors.sonarCyan,
+                                        fontSize: 8,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ),
@@ -2152,132 +2469,229 @@ class _AppDetailsModalState extends State<AppDetailsModal> {
                 ),
                 if (_devicesExpanded) ...[
                   Divider(height: 1, color: AcousticColors.steel.withValues(alpha: 0.15)),
-                  if (_loadingDevices)
-                    const Padding(
-                      padding: EdgeInsets.all(20),
-                      child: Center(
-                        child: SizedBox(
-                          width: 24,
-                          height: 24,
-                          child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF38BDF8)),
-                        ),
+                  // 1. Current Device Tile
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    decoration: BoxDecoration(
+                      border: Border(
+                        bottom: BorderSide(color: AcousticColors.steel.withValues(alpha: 0.1)),
                       ),
-                    )
-                  else if (_devices.isEmpty)
-                    Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Text(
-                        'No other Glycocalyx devices connected.',
-                        style: GoogleFonts.outfit(color: AcousticColors.steel, fontSize: 13),
-                      ),
-                    )
-                  else
-                    ..._devices.map((device) {
-                      final isInstalling = _installingDevices.contains(device.id);
-                      final isInstalled = _installedDevices.contains(device.id);
-
-                      return Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                        decoration: BoxDecoration(
-                          border: Border(
-                            bottom: BorderSide(color: AcousticColors.steel.withValues(alpha: 0.1)),
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF1E293B),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Icon(
+                            Icons.phone_android_rounded,
+                            color: AcousticColors.sonarCyan,
+                            size: 22,
                           ),
                         ),
-                        child: Row(
-                          children: [
-                            Container(
-                              width: 40,
-                              height: 40,
-                              decoration: BoxDecoration(
-                                color: const Color(0xFF1E293B),
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: Icon(
-                                _getDeviceIcon(device.type),
-                                color: AcousticColors.sonarCyan,
-                                size: 22,
-                              ),
-                            ),
-                            const SizedBox(width: 14),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    device.name,
-                                    style: GoogleFonts.outfit(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w600,
-                                      color: const Color(0xFFF9FAFB),
-                                    ),
-                                  ),
-                                  const SizedBox(height: 2),
-                                  Row(
-                                    children: [
-                                      Text(
-                                        device.type,
-                                        style: GoogleFonts.outfit(
-                                          fontSize: 12,
-                                          color: AcousticColors.steel,
-                                        ),
-                                      ),
-                                      if (device.isCurrent) ...[
-                                        Text(' • ', style: GoogleFonts.outfit(color: AcousticColors.steel)),
-                                        Text(
-                                          'This device',
-                                          style: GoogleFonts.outfit(
-                                            fontSize: 11,
-                                            color: AcousticColors.sonarCyan,
-                                            fontWeight: FontWeight.w500,
-                                          ),
-                                        ),
-                                      ],
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                            // Google Play Store Style [Install] pill button
-                            if (isInstalling)
-                              const SizedBox(
-                                width: 24,
-                                height: 24,
-                                child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF38BDF8)),
-                              )
-                            else if (isInstalled)
-                              Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  const Icon(Icons.check_circle_rounded, color: Color(0xFF10B981), size: 16),
-                                  const SizedBox(width: 4),
-                                  Text('Installed', style: GoogleFonts.outfit(fontSize: 12, color: const Color(0xFF10B981), fontWeight: FontWeight.w600)),
-                                ],
-                              )
-                            else
-                              OutlinedButton(
-                                style: OutlinedButton.styleFrom(
-                                  foregroundColor: AcousticColors.sonarCyan,
-                                  side: BorderSide(color: AcousticColors.sonarCyan.withValues(alpha: 0.8)),
-                                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(20),
-                                  ),
-                                  minimumSize: Size.zero,
-                                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                ),
-                                onPressed: () => _installOnRemoteDevice(device),
-                                child: Text(
-                                  'Install',
-                                  style: GoogleFonts.outfit(
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                        const SizedBox(width: 14),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'This Device',
+                                style: GoogleFonts.outfit(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  color: const Color(0xFFF9FAFB),
                                 ),
                               ),
-                          ],
+                              const SizedBox(height: 2),
+                              Text(
+                                app.isInstalled ? 'Installed • v${app.installedVersion}' : 'Not installed on this device',
+                                style: GoogleFonts.outfit(
+                                  fontSize: 12,
+                                  color: app.isInstalled ? const Color(0xFF10B981) : AcousticColors.steel,
+                                  fontWeight: app.isInstalled ? FontWeight.w600 : FontWeight.normal,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                      );
-                    }),
+                        if (app.isInstalled)
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.check_circle_rounded, color: Color(0xFF10B981), size: 16),
+                              const SizedBox(width: 4),
+                              Text('Installed', style: GoogleFonts.outfit(fontSize: 12, color: const Color(0xFF10B981), fontWeight: FontWeight.w600)),
+                            ],
+                          )
+                        else
+                          ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AcousticColors.sonarCyan,
+                              foregroundColor: Colors.black,
+                              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+                              elevation: 0,
+                            ),
+                            onPressed: () {
+                              Navigator.pop(context);
+                              WaptiaAutoUpdateManager.instance.installApp(app.slug);
+                            },
+                            child: Text('Install', style: GoogleFonts.outfit(fontSize: 12, fontWeight: FontWeight.bold)),
+                          ),
+                      ],
+                    ),
+                  ),
+
+                  // 2. Remote devices or Guest Sign-in prompt
+                  if (isGuest) ...[
+                    Container(
+                      margin: const EdgeInsets.all(12),
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF0F172A),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: AcousticColors.sonarCyan.withValues(alpha: 0.25)),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(Icons.cloud_sync_rounded, color: AcousticColors.sonarCyan, size: 24),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Cross-Device Fleet Sync',
+                                  style: GoogleFonts.outfit(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  'Sign in to remotely push ${app.name} across your connected tablets, workstations, and nodes.',
+                                  style: GoogleFonts.outfit(color: AcousticColors.steel, fontSize: 11),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          ElevatedButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                              showInforttsAuthBottomSheet(context);
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AcousticColors.sonarCyan,
+                              foregroundColor: Colors.black,
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                            ),
+                            child: Text('Sign In', style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 11)),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ] else ...[
+                    // Authenticated: Render real Glycocalyx remote devices
+                    if (_loadingDevices)
+                      const Padding(
+                        padding: EdgeInsets.all(20),
+                        child: Center(
+                          child: SizedBox(
+                            width: 24,
+                            height: 24,
+                            child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF38BDF8)),
+                          ),
+                        ),
+                      )
+                    else if (_devices.where((d) => !d.isCurrent && d.id != 'current_device').isEmpty)
+                      Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Text(
+                          'No other devices connected to this account.',
+                          style: GoogleFonts.outfit(color: AcousticColors.steel, fontSize: 12),
+                        ),
+                      )
+                    else
+                      ..._devices.where((d) => !d.isCurrent && d.id != 'current_device').map((device) {
+                        final isInstalling = _installingDevices.contains(device.id);
+                        final isInstalled = _installedDevices.contains(device.id);
+
+                        return Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          decoration: BoxDecoration(
+                            border: Border(
+                              bottom: BorderSide(color: AcousticColors.steel.withValues(alpha: 0.1)),
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 40,
+                                height: 40,
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF1E293B),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Icon(
+                                  _getDeviceIcon(device.type),
+                                  color: AcousticColors.sonarCyan,
+                                  size: 22,
+                                ),
+                              ),
+                              const SizedBox(width: 14),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      device.name,
+                                      style: GoogleFonts.outfit(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600,
+                                        color: const Color(0xFFF9FAFB),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      device.type,
+                                      style: GoogleFonts.outfit(fontSize: 12, color: AcousticColors.steel),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              if (isInstalling)
+                                const SizedBox(
+                                  width: 24,
+                                  height: 24,
+                                  child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF38BDF8)),
+                                )
+                              else if (isInstalled)
+                                Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const Icon(Icons.check_circle_rounded, color: Color(0xFF10B981), size: 16),
+                                    const SizedBox(width: 4),
+                                    Text('Installed', style: GoogleFonts.outfit(fontSize: 12, color: const Color(0xFF10B981), fontWeight: FontWeight.w600)),
+                                  ],
+                                )
+                              else
+                                OutlinedButton(
+                                  style: OutlinedButton.styleFrom(
+                                    foregroundColor: AcousticColors.sonarCyan,
+                                    side: BorderSide(color: AcousticColors.sonarCyan.withValues(alpha: 0.8)),
+                                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                                  ),
+                                  onPressed: () => _installOnRemoteDevice(device),
+                                  child: Text('Install', style: GoogleFonts.outfit(fontSize: 13, fontWeight: FontWeight.bold)),
+                                ),
+                            ],
+                          ),
+                        );
+                      }),
+                  ],
                 ],
               ],
             ),
@@ -2293,188 +2707,281 @@ class _AppDetailsModalState extends State<AppDetailsModal> {
               borderRadius: BorderRadius.circular(12),
               border: Border.all(color: AcousticColors.steel.withValues(alpha: 0.2)),
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Rate this app',
-                          style: GoogleFonts.outfit(
-                            fontSize: 15,
-                            fontWeight: FontWeight.bold,
-                            color: AcousticColors.titanium,
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          'Tell others what you think',
-                          style: GoogleFonts.outfit(
-                            fontSize: 12,
-                            color: AcousticColors.steel,
-                          ),
-                        ),
-                      ],
-                    ),
-                    if (_selectedRating > 0)
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF10B981).withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: Text(
-                          '$_selectedRating ★ Saved',
-                          style: GoogleFonts.outfit(
-                            fontSize: 11,
-                            fontWeight: FontWeight.bold,
-                            color: const Color(0xFF10B981),
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                // 5 interactive stars
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: List.generate(5, (index) {
-                    final starNum = index + 1;
-                    final isFilled = starNum <= _selectedRating;
-                    return InkWell(
-                      onTap: () => _submitRating(starNum),
-                      borderRadius: BorderRadius.circular(20),
-                      child: Padding(
-                        padding: const EdgeInsets.all(4),
-                        child: Icon(
-                          isFilled ? Icons.star_rounded : Icons.star_outline_rounded,
-                          size: 38,
-                          color: isFilled ? const Color(0xFFFBBF24) : AcousticColors.steel.withValues(alpha: 0.6),
-                        ),
-                      ),
-                    );
-                  }),
-                ),
-                const SizedBox(height: 8),
-                // Write a review toggle / text
-                if (!_showReviewInput && (_userReviewText == null || _userReviewText!.isEmpty))
-                  GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        _showReviewInput = true;
-                      });
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 4),
-                      child: Text(
-                        'Write a review',
-                        style: GoogleFonts.outfit(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                          color: AcousticColors.sonarCyan,
-                        ),
-                      ),
-                    ),
-                  )
-                else if (_userReviewText != null && _userReviewText!.isNotEmpty && !_showReviewInput)
-                  Column(
+            child: isGuest
+                ? Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Ratings & Reviews',
+                                style: GoogleFonts.outfit(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.bold,
+                                  color: AcousticColors.titanium,
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                'Sovereign Infortts Ecosystem',
+                                style: GoogleFonts.outfit(
+                                  fontSize: 12,
+                                  color: AcousticColors.steel,
+                                ),
+                              ),
+                            ],
+                          ),
+                          Row(
+                            children: [
+                              const Icon(Icons.star_rounded, color: Color(0xFFFBBF24), size: 18),
+                              const SizedBox(width: 4),
+                              Text(
+                                avgRating.toStringAsFixed(1),
+                                style: GoogleFonts.outfit(fontSize: 14, fontWeight: FontWeight.bold, color: AcousticColors.titanium),
+                              ),
+                              Text(' ($totalRatings)', style: GoogleFonts.outfit(fontSize: 12, color: AcousticColors.steel)),
+                            ],
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
                       Container(
                         width: double.infinity,
-                        margin: const EdgeInsets.only(top: 8),
-                        padding: const EdgeInsets.all(10),
+                        padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF0B0F19),
+                          color: const Color(0xFF0F172A),
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(color: AcousticColors.steel.withValues(alpha: 0.15)),
                         ),
-                        child: Text(
-                          '“$_userReviewText”',
-                          style: GoogleFonts.outfit(
-                            fontSize: 13,
-                            color: AcousticColors.titanium,
-                            fontStyle: FontStyle.italic,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-                      GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            _showReviewInput = true;
-                          });
-                        },
-                        child: Text(
-                          'Edit your review',
-                          style: GoogleFonts.outfit(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            color: AcousticColors.sonarCyan,
-                          ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Sign in to rate & review this app',
+                              style: GoogleFonts.outfit(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              'Ratings and reviews are restricted to verified Infortts accounts to preserve cryptographic trust and auditability.',
+                              style: GoogleFonts.outfit(fontSize: 11, color: AcousticColors.steel),
+                            ),
+                            const SizedBox(height: 10),
+                            SizedBox(
+                              width: double.infinity,
+                              child: ElevatedButton.icon(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AcousticColors.sonarCyan,
+                                  foregroundColor: Colors.black,
+                                  padding: const EdgeInsets.symmetric(vertical: 10),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                  elevation: 0,
+                                ),
+                                icon: const Icon(Icons.login_rounded, size: 16),
+                                label: Text(
+                                  'Sign in with Glycocalyx IAM',
+                                  style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 12),
+                                ),
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                  showInforttsAuthBottomSheet(context);
+                                },
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],
-                  ),
-
-                // Review input field
-                if (_showReviewInput) ...[
-                  const SizedBox(height: 12),
-                  TextField(
-                    controller: _reviewController,
-                    maxLines: 3,
-                    style: GoogleFonts.outfit(color: Colors.white, fontSize: 13),
-                    decoration: InputDecoration(
-                      hintText: 'Describe your experience with ${app.name}...',
-                      hintStyle: GoogleFonts.outfit(color: AcousticColors.steel, fontSize: 12),
-                      filled: true,
-                      fillColor: const Color(0xFF0B0F19),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: BorderSide(color: AcousticColors.steel.withValues(alpha: 0.3)),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: BorderSide(color: AcousticColors.sonarCyan),
-                      ),
-                      contentPadding: const EdgeInsets.all(12),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
+                  )
+                : Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      TextButton(
-                        onPressed: () {
-                          setState(() {
-                            _showReviewInput = false;
-                          });
-                        },
-                        child: Text('Cancel', style: GoogleFonts.outfit(color: AcousticColors.steel)),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Rate this app',
+                                style: GoogleFonts.outfit(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.bold,
+                                  color: AcousticColors.titanium,
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                'Tell others in the ecosystem what you think',
+                                style: GoogleFonts.outfit(
+                                  fontSize: 12,
+                                  color: AcousticColors.steel,
+                                ),
+                              ),
+                            ],
+                          ),
+                          if (_selectedRating > 0)
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF10B981).withValues(alpha: 0.15),
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Text(
+                                '$_selectedRating ★ Saved',
+                                style: GoogleFonts.outfit(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.bold,
+                                  color: const Color(0xFF10B981),
+                                ),
+                              ),
+                            ),
+                        ],
                       ),
-                      const SizedBox(width: 8),
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AcousticColors.sonarCyan,
-                          foregroundColor: Colors.black,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                        ),
-                        onPressed: _submittingRating ? null : () => _submitRating(_selectedRating > 0 ? _selectedRating : 5),
-                        child: Text(
-                          _submittingRating ? 'Saving...' : 'Submit to Infortts DB',
-                          style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 12),
-                        ),
+                      const SizedBox(height: 12),
+                      // 5 interactive stars
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: List.generate(5, (index) {
+                          final starNum = index + 1;
+                          final isFilled = starNum <= _selectedRating;
+                          return InkWell(
+                            onTap: () => _submitRating(starNum),
+                            borderRadius: BorderRadius.circular(20),
+                            child: Padding(
+                              padding: const EdgeInsets.all(4),
+                              child: Icon(
+                                isFilled ? Icons.star_rounded : Icons.star_outline_rounded,
+                                size: 38,
+                                color: isFilled ? const Color(0xFFFBBF24) : AcousticColors.steel.withValues(alpha: 0.6),
+                              ),
+                            ),
+                          );
+                        }),
                       ),
+                      const SizedBox(height: 8),
+                      // Write a review toggle / text
+                      if (!_showReviewInput && (_userReviewText == null || _userReviewText!.isEmpty))
+                        GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              _showReviewInput = true;
+                            });
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 4),
+                            child: Text(
+                              'Write a review',
+                              style: GoogleFonts.outfit(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: AcousticColors.sonarCyan,
+                              ),
+                            ),
+                          ),
+                        )
+                      else if (_userReviewText != null && _userReviewText!.isNotEmpty && !_showReviewInput)
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              width: double.infinity,
+                              margin: const EdgeInsets.only(top: 8),
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF0B0F19),
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(color: AcousticColors.steel.withValues(alpha: 0.15)),
+                              ),
+                              child: Text(
+                                '“$_userReviewText”',
+                                style: GoogleFonts.outfit(
+                                  fontSize: 13,
+                                  color: AcousticColors.titanium,
+                                  fontStyle: FontStyle.italic,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 6),
+                            GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  _showReviewInput = true;
+                                });
+                              },
+                              child: Text(
+                                'Edit your review',
+                                style: GoogleFonts.outfit(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                  color: AcousticColors.sonarCyan,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+
+                      // Review input field
+                      if (_showReviewInput) ...[
+                        const SizedBox(height: 12),
+                        TextField(
+                          controller: _reviewController,
+                          maxLines: 3,
+                          style: GoogleFonts.outfit(color: Colors.white, fontSize: 13),
+                          decoration: InputDecoration(
+                            hintText: 'Describe your experience with ${app.name}...',
+                            hintStyle: GoogleFonts.outfit(color: AcousticColors.steel, fontSize: 12),
+                            filled: true,
+                            fillColor: const Color(0xFF0B0F19),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              borderSide: BorderSide(color: AcousticColors.steel.withValues(alpha: 0.3)),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              borderSide: BorderSide(color: AcousticColors.sonarCyan),
+                            ),
+                            contentPadding: const EdgeInsets.all(12),
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            TextButton(
+                              onPressed: () {
+                                setState(() {
+                                  _showReviewInput = false;
+                                });
+                              },
+                              child: Text('Cancel', style: GoogleFonts.outfit(color: AcousticColors.steel)),
+                            ),
+                            const SizedBox(width: 8),
+                            ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AcousticColors.sonarCyan,
+                                foregroundColor: Colors.black,
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                              ),
+                              onPressed: _submittingRating ? null : () => _submitRating(_selectedRating > 0 ? _selectedRating : 5),
+                              child: Text(
+                                _submittingRating ? 'Saving...' : 'Submit to Infortts DB',
+                                style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 12),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ],
                   ),
-                ],
-              ],
-            ),
           ),
 
           const SizedBox(height: 20),

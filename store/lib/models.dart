@@ -70,6 +70,10 @@ class AppInstallState {
   final bool hasUpdate;
   final bool isDownloading;
   final double downloadProgress;
+  final double downloadedMb;
+  final double totalMb;
+  final String downloadSpeed;
+  final String downloadStatus;
   final List<String> releaseNotes;
   final String downloadUrl;
   final String patchUrl;
@@ -96,6 +100,10 @@ class AppInstallState {
     required this.hasUpdate,
     this.isDownloading = false,
     this.downloadProgress = 0.0,
+    this.downloadedMb = 0.0,
+    this.totalMb = 0.0,
+    this.downloadSpeed = '',
+    this.downloadStatus = '',
     required this.releaseNotes,
     required this.downloadUrl,
     required this.patchUrl,
@@ -119,6 +127,10 @@ class AppInstallState {
     bool? hasUpdate,
     bool? isDownloading,
     double? downloadProgress,
+    double? downloadedMb,
+    double? totalMb,
+    String? downloadSpeed,
+    String? downloadStatus,
     List<String>? releaseNotes,
     String? downloadUrl,
     String? patchUrl,
@@ -145,6 +157,10 @@ class AppInstallState {
       hasUpdate: hasUpdate ?? this.hasUpdate,
       isDownloading: isDownloading ?? this.isDownloading,
       downloadProgress: downloadProgress ?? this.downloadProgress,
+      downloadedMb: downloadedMb ?? this.downloadedMb,
+      totalMb: totalMb ?? this.totalMb,
+      downloadSpeed: downloadSpeed ?? this.downloadSpeed,
+      downloadStatus: downloadStatus ?? this.downloadStatus,
       releaseNotes: releaseNotes ?? this.releaseNotes,
       downloadUrl: downloadUrl ?? this.downloadUrl,
       patchUrl: patchUrl ?? this.patchUrl,
