@@ -77,24 +77,16 @@ platform :android do
 
     track = app_track
     UI.message("Uploading #{package} to Google Play #{track} track ...")
-    begin
-      upload_to_play_store(
-        package_name: package,
-        track: track,
-        json_key_data: key_data,
-        aab: aab_path,
-        skip_upload_metadata: true,
-        skip_upload_images: true,
-        skip_upload_screenshots: true,
-        release_status: 'completed'
-      )
-      UI.message("Successfully deployed #{package} to Google Play #{track} track")
-    rescue => e
-      if e.message.to_s =~ /already been used/i
-        UI.important("Version code has already been used on Play Store — binary is already present on #{track} track. Continuing pipeline.")
-      else
-        raise e
-      end
-    end
+    upload_to_play_store(
+      package_name: package,
+      track: track,
+      json_key_data: key_data,
+      aab: aab_path,
+      skip_upload_metadata: true,
+      skip_upload_images: true,
+      skip_upload_screenshots: true,
+      release_status: 'completed'
+    )
+    UI.message("Successfully deployed #{package} to Google Play #{track} track")
   end
 end
