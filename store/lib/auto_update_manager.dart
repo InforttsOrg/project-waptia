@@ -39,6 +39,87 @@ class WaptiaAutoUpdateManager {
 
   Timer? _bgCronTimer;
 
+  /// Accurate semantic update detection avoiding false positives on build numbers
+  static bool computeHasUpdate({
+    required bool isInstalled,
+    required String installedVersion,
+    required int installedBuild,
+    required String latestVersion,
+    required int latestBuild,
+    int installedPatch = 0,
+    int latestPatch = 0,
+  }) {
+    if (!isInstalled) return false;
+
+    final vInst = installedVersion.trim().replaceAll(RegExp(r'^v', caseSensitive: false), '');
+    final vLate = latestVersion.trim().replaceAll(RegExp(r'^v', caseSensitive: false), '');
+
+    // 1. Compare semantic version numbers (major.minor.patch)
+    final semverCmp = compareSemver(vLate, vInst);
+    if (semverCmp > 0) {
+      // Latest version is strictly higher (e.g., 2.09.01 > 2.09.00 or 1.3.0 > 1.2.0)
+      return true;
+    }
+    if (semverCmp < 0) {
+      // Installed version is newer than catalog (local/dev build)
+      return false;
+    }
+
+    // 2. Versions are identical (e.g., both 1.2.0):
+    // Check if there is an active differential OTA patch
+    if (latestPatch > installedPatch && latestPatch > 1) {
+      return true;
+    }
+
+    // 3. Check for genuine build number bump:
+    // If latestBuild is in standard Infortts semantic encoding (e.g. 10200 for 1.2.0)
+    // while installedBuild was legacy Flutter default (+1 or 0), they represent the exact same version!
+    final expectedNormalized = encodeSemverToBuild(vLate);
+    if (latestBuild == expectedNormalized && (installedBuild <= 1 || installedBuild == expectedNormalized)) {
+      return false;
+    }
+
+    // Only consider build bump if both builds use the same scale:
+    if ((latestBuild >= 1000 && installedBuild >= 1000) || (latestBuild < 1000 && installedBuild < 1000)) {
+      return latestBuild > installedBuild;
+    }
+
+    return false;
+  }
+
+  static int compareSemver(String v1, String v2) {
+    List<int> parseParts(String v) {
+      final clean = v.split('+').first.split('-').first;
+      return clean
+          .split('.')
+          .map((p) => int.tryParse(p) ?? 0)
+          .toList();
+    }
+
+    final p1 = parseParts(v1);
+    final p2 = parseParts(v2);
+    final maxLen = p1.length > p2.length ? p1.length : p2.length;
+    for (int i = 0; i < maxLen; i++) {
+      final n1 = i < p1.length ? p1[i] : 0;
+      final n2 = i < p2.length ? p2[i] : 0;
+      if (n1 > n2) return 1;
+      if (n1 < n2) return -1;
+    }
+    return 0;
+  }
+
+  static int encodeSemverToBuild(String v) {
+    try {
+      final parts = v.split('+').first.split('-').first.split('.');
+      final major = parts.isNotEmpty ? (int.tryParse(parts[0]) ?? 0) : 0;
+      final minor = parts.length > 1 ? (int.tryParse(parts[1]) ?? 0) : 0;
+      final patch = parts.length > 2 ? (int.tryParse(parts[2]) ?? 0) : 0;
+      return (major * 10000) + (minor * 100) + patch;
+    } catch (_) {
+      return 10000;
+    }
+  }
+
   /// Initialize local store, request notification permission, detect installed packages, and start auto-update daemon
   Future<void> initialize({bool isTest = false}) async {
     final prefs = await SharedPreferences.getInstance();
@@ -73,7 +154,13 @@ class WaptiaAutoUpdateManager {
         latestBuild: latestBuild,
         latestPatch: 1,
         isInstalled: isInstalled,
-        hasUpdate: isInstalled && latestBuild > installedBuild,
+        hasUpdate: computeHasUpdate(
+          isInstalled: isInstalled,
+          installedVersion: installedVer,
+          installedBuild: installedBuild,
+          latestVersion: latestVer,
+          latestBuild: latestBuild,
+        ),
         releaseNotes: app.versions.isNotEmpty ? app.versions.first.releaseNotes : ['✓ Infortts sovereign release'],
         downloadUrl: app.versions.isNotEmpty ? app.versions.first.downloadUrl : 'https://update.infortts.site/download/${app.slug}.apk',
         patchUrl: 'https://update.infortts.site/patches/${app.slug}/patch_1.bin',
@@ -133,7 +220,14 @@ class WaptiaAutoUpdateManager {
               isInstalled: true,
               installedVersion: vName,
               installedBuild: vCode,
-              hasUpdate: app.latestBuild > vCode,
+              hasUpdate: computeHasUpdate(
+                isInstalled: true,
+                installedVersion: vName,
+                installedBuild: vCode,
+                latestVersion: app.latestVersion,
+                latestBuild: app.latestBuild,
+                latestPatch: app.latestPatch,
+              ),
             );
           } else {
             // Not installed on device: clear pref and set isInstalled false (except host app waptia)
@@ -293,7 +387,14 @@ class WaptiaAutoUpdateManager {
               notes = List<String>.from(remote['release_notes']);
             }
 
-            final hasUpdate = app.isInstalled && effectiveLatestBuild > app.installedBuild;
+            final hasUpdate = computeHasUpdate(
+              isInstalled: app.isInstalled,
+              installedVersion: app.installedVersion,
+              installedBuild: app.installedBuild,
+              latestVersion: effectiveLatestVer,
+              latestBuild: effectiveLatestBuild,
+              latestPatch: latestPatch,
+            );
             return app.copyWith(
               latestVersion: effectiveLatestVer,
               latestBuild: effectiveLatestBuild,
@@ -307,6 +408,50 @@ class WaptiaAutoUpdateManager {
           }
           return app;
         }).toList();
+
+        // Dynamically merge new apps discovered in remote catalog
+        final existingSlugs = updatedList.map((a) => a.slug).toSet();
+        for (final entry in remoteMap.entries) {
+          final slug = entry.key;
+          if (slug.isNotEmpty && !existingSlugs.contains(slug)) {
+            final remote = entry.value;
+            final remoteVer = remote['latest_version']?.toString() ?? '1.0.0';
+            final remoteBuild = (remote['latest_build'] as num?)?.toInt() ?? 10000;
+            final latestPatch = (remote['latestPatch'] as num?)?.toInt() ?? 1;
+            final dlUrl = remote['download_url']?.toString() ?? '';
+            final pUrl = remote['cdn_patch_url']?.toString() ?? '';
+            final pkg = remote['package_name']?.toString() ?? 'com.infortts.$slug';
+            final name = remote['name']?.toString() ?? slug;
+            List<String> notes = [];
+            if (remote['release_notes'] is List) {
+              notes = List<String>.from(remote['release_notes']);
+            }
+            updatedList.add(AppInstallState(
+              slug: slug,
+              name: name,
+              packageName: pkg,
+              category: 'Ecosystem',
+              tagline: '',
+              description: '',
+              iconUrl: 'https://cdn.infortts.site/icons/$slug.png',
+              homepageUrl: 'https://$slug.infortts.site',
+              installedVersion: '0.0.0',
+              installedBuild: 0,
+              installedPatch: 0,
+              latestVersion: remoteVer,
+              latestBuild: remoteBuild,
+              latestPatch: latestPatch,
+              downloadUrl: dlUrl,
+              patchUrl: pUrl,
+              releaseNotes: notes,
+              isInstalled: false,
+              hasUpdate: false,
+              rating: 4.9,
+              ratingCount: 128,
+              screenshots: List.generate(5, (i) => 'https://waptia.infortts.site/screenshots/${slug}_${i + 1}.png'),
+            ));
+          }
+        }
 
         final int previousPending = pendingUpdatesCount.value;
         appsNotifier.value = updatedList;

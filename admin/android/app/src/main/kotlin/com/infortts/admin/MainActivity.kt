@@ -1,4 +1,4 @@
-package com.infortts.waptia.admin
+package com.infortts.admin
 
 import io.flutter.embedding.android.FlutterActivity
 

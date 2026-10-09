@@ -155,7 +155,7 @@ stage('Flutter: waptia') {
           def common = load 'ci/jenkins-common.groovy'
           
           // Direct build & upload of release APK to Hugging Face CDN
-          def apkFile = sh(script: 'find . -name "*.apk" -not -path "*/intermediates/*" | head -n 1', returnStdout: true)?.trim()
+          def apkFile = sh(script: 'find store -name "*.apk" -not -path "*/intermediates/*" | head -n 1', returnStdout: true)?.trim()
           if (apkFile) {
             echo "Found release APK: ${apkFile}. Uploading to Hugging Face CDN..."
             common.publishHuggingFace([
@@ -252,7 +252,7 @@ stage('Flutter: waptia-admin') {
       environment {
         APP_DIR = 'admin'
         TRACK   = 'internal'
-        PACKAGE = 'com.infortts.waptia.admin'
+        PACKAGE = 'com.infortts.admin'
       }
       steps {
         sh '''
@@ -324,11 +324,11 @@ stage('Flutter: waptia-admin') {
           def common = load 'ci/jenkins-common.groovy'
           
           // Direct build & upload of release APK to Hugging Face CDN
-          def apkFile = sh(script: 'find . -name "*.apk" -not -path "*/intermediates/*" | head -n 1', returnStdout: true)?.trim()
+          def apkFile = sh(script: 'find admin -name "*.apk" -not -path "*/intermediates/*" | head -n 1', returnStdout: true)?.trim()
           if (apkFile) {
             echo "Found release APK: ${apkFile}. Uploading to Hugging Face CDN..."
             common.publishHuggingFace([
-              slug: 'waptia',
+              slug: 'admin',
               apk: apkFile,
               version: PLAN?.new_version ?: '1.0.0',
               track: env.TRACK ?: 'internal'
@@ -337,7 +337,7 @@ stage('Flutter: waptia-admin') {
 
           // Optional Play Store Track Upload — canonical lane reads PACKAGE/TRACK/PLAY_SA_JSON envs
           if (env.PACKAGE == '') {
-            echo "no Play package for waptia — build-only complete"
+            echo "no Play package for admin — build-only complete"
             PLAN.apk_uploaded = (apkFile != null && !apkFile.isEmpty())
             PLAN.playstore_uploaded = false
             common.updateBuildSummary(PLAN ?: [action: 'build', new_version: '1.0.0'], [
@@ -373,7 +373,7 @@ stage('Flutter: waptia-admin') {
         }
       }
     }
-stage('OTA registry: com.infortts.waptia.admin') {
+stage('OTA registry: com.infortts.admin') {
       agent { label 'mac' }
       when {
         beforeAgent true
@@ -389,13 +389,13 @@ stage('OTA registry: com.infortts.waptia.admin') {
       steps {
         script {
           if (!PLAN || !PLAN.new_version) {
-            echo "No version plan — skipping OTA bump for com.infortts.waptia.admin"
+            echo "No version plan — skipping OTA bump for com.infortts.admin"
             return
           }
           def common = load 'ci/jenkins-common.groovy'
           def patchFile = sh(script: 'find . -name "*.patch" -o -name "*.bin" -o -name "*.diff" | head -n 1', returnStdout: true)?.trim()
           common.otaBump(PLAN, [
-            slug: 'com.infortts.waptia.admin'.tokenize('.').last() ?: 'waptia',
+            slug: 'com.infortts.admin'.tokenize('.').last() ?: 'admin',
             patch: patchFile ?: ''
           ])
           common.updateBuildSummary(PLAN, [

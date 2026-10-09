@@ -1081,65 +1081,119 @@ class WaptiaUpdatesWorkspace extends StatelessWidget {
 
   Widget _buildUpdateCard(BuildContext context, AppInstallState app) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: const EdgeInsets.only(bottom: 14),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AcousticColors.darkCarbon,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AcousticColors.sonarCyan.withValues(alpha: 0.3)),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AcousticColors.sonarCyan.withValues(alpha: 0.35)),
+        boxShadow: [
+          BoxShadow(
+            color: AcousticColors.sonarCyan.withValues(alpha: 0.05),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Container(
-                width: 42,
-                height: 42,
-                decoration: BoxDecoration(
-                  color: AcousticColors.obsidian,
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: AcousticColors.sonarCyan.withValues(alpha: 0.4)),
-                ),
-                child: Center(
-                  child: Text(
-                    app.name.substring(0, app.name.length >= 2 ? 2 : 1).toUpperCase(),
-                    style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: AcousticColors.sonarCyan),
+          InkWell(
+            onTap: () => showModalBottomSheet(
+              context: context,
+              isScrollControlled: true,
+              backgroundColor: Colors.transparent,
+              builder: (ctx) => AppDetailsModal(app: app),
+            ),
+            borderRadius: BorderRadius.circular(10),
+            child: Row(
+              children: [
+                // Real App Icon with Fallback
+                Container(
+                  width: 46,
+                  height: 46,
+                  decoration: BoxDecoration(
+                    color: AcousticColors.obsidian,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: AcousticColors.sonarCyan.withValues(alpha: 0.4)),
+                  ),
+                  clipBehavior: Clip.antiAlias,
+                  child: Image.network(
+                    'https://cdn.infortts.site/icons/${app.slug}.png',
+                    fit: BoxFit.contain,
+                    errorBuilder: (_, __, ___) => Center(
+                      child: Text(
+                        app.name.substring(0, app.name.length >= 2 ? 2 : 1).toUpperCase(),
+                        style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: AcousticColors.sonarCyan, fontSize: 16),
+                      ),
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(app.name, style: GoogleFonts.outfit(fontSize: 15, fontWeight: FontWeight.bold, color: AcousticColors.titanium)),
-                    Row(
-                      children: [
-                        Text('v${app.installedVersion}', style: GoogleFonts.outfit(fontSize: 12, color: AcousticColors.steel)),
-                        Icon(Icons.arrow_forward_rounded, size: 12, color: AcousticColors.sonarCyan),
-                        Text('v${app.latestVersion} (Build ${app.latestBuild})', style: GoogleFonts.outfit(fontSize: 12, fontWeight: FontWeight.bold, color: AcousticColors.sonarCyan)),
-                      ],
-                    ),
-                  ],
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Flexible(
+                            child: Text(
+                              app.name,
+                              style: GoogleFonts.outfit(fontSize: 15, fontWeight: FontWeight.bold, color: AcousticColors.titanium),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
+                            decoration: BoxDecoration(
+                              color: AcousticColors.sonarCyan.withValues(alpha: 0.15),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Text(
+                              app.category,
+                              style: GoogleFonts.jetBrainsMono(fontSize: 8.5, color: AcousticColors.sonarCyan, fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 3),
+                      Row(
+                        children: [
+                          Text('v${app.installedVersion}', style: GoogleFonts.jetBrainsMono(fontSize: 11, color: AcousticColors.steel)),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 5),
+                            child: Icon(Icons.arrow_forward_rounded, size: 11, color: AcousticColors.sonarCyan),
+                          ),
+                          Text(
+                            'v${app.latestVersion}${app.latestBuild > 0 && app.latestBuild != app.installedBuild ? ' (Build ${app.latestBuild})' : ''}',
+                            style: GoogleFonts.jetBrainsMono(fontSize: 11, fontWeight: FontWeight.bold, color: AcousticColors.sonarCyan),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AcousticColors.sonarCyan,
-                  foregroundColor: Colors.black,
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                const SizedBox(width: 8),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AcousticColors.sonarCyan,
+                    foregroundColor: Colors.black,
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    elevation: 0,
+                  ),
+                  onPressed: app.isDownloading ? null : () => WaptiaAutoUpdateManager.instance.updateApp(app.slug),
+                  child: app.isDownloading
+                      ? const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black))
+                      : Text('Update', style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 12)),
                 ),
-                onPressed: app.isDownloading ? null : () => WaptiaAutoUpdateManager.instance.updateApp(app.slug),
-                child: app.isDownloading
-                    ? const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black))
-                    : Text('Update', style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 12)),
-              ),
-            ],
+              ],
+            ),
           ),
           if (app.isDownloading) ...[
-            const SizedBox(height: 10),
+            const SizedBox(height: 12),
             ClipRRect(
               borderRadius: BorderRadius.circular(4),
               child: TweenAnimationBuilder<double>(
@@ -1187,16 +1241,110 @@ class WaptiaUpdatesWorkspace extends StatelessWidget {
               ],
             ),
           ],
+          // Mini Screenshot Carousel Preview
+          if (app.screenshots.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            SizedBox(
+              height: 94,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                physics: const BouncingScrollPhysics(),
+                itemCount: app.screenshots.length,
+                itemBuilder: (context, sIdx) {
+                  final sUrl = app.screenshots[sIdx];
+                  return GestureDetector(
+                    onTap: () {
+                      showModalBottomSheet(
+                        context: context,
+                        isScrollControlled: true,
+                        backgroundColor: Colors.transparent,
+                        builder: (ctx) => AppDetailsModal(app: app),
+                      );
+                    },
+                    child: Container(
+                      width: 58,
+                      margin: const EdgeInsets.only(right: 8),
+                      decoration: BoxDecoration(
+                        color: AcousticColors.obsidian,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: AcousticColors.sonarCyan.withValues(alpha: 0.2)),
+                      ),
+                      clipBehavior: Clip.antiAlias,
+                      child: Image.network(
+                        sUrl,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) => Center(
+                          child: Icon(Icons.phone_android_rounded, size: 20, color: AcousticColors.steel),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
           const SizedBox(height: 10),
+          // Styled What's New / Release Notes
           Container(
-            padding: const EdgeInsets.all(10),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
             decoration: BoxDecoration(
               color: AcousticColors.obsidian,
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: AcousticColors.midGray.withValues(alpha: 0.15)),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: app.releaseNotes.map((r) => Text(r, style: GoogleFonts.outfit(fontSize: 11, color: AcousticColors.titanium))).toList(),
+              children: [
+                Row(
+                  children: [
+                    Icon(Icons.new_releases_rounded, size: 12, color: AcousticColors.sonarCyan),
+                    const SizedBox(width: 5),
+                    Text(
+                      "WHAT'S NEW",
+                      style: GoogleFonts.jetBrainsMono(
+                        fontSize: 9.5,
+                        fontWeight: FontWeight.bold,
+                        color: AcousticColors.sonarCyan,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 6),
+                ...app.releaseNotes.take(3).map(
+                  (r) => Padding(
+                    padding: const EdgeInsets.only(bottom: 3),
+                    child: Text(
+                      r.startsWith('✓') ? r : '• $r',
+                      style: GoogleFonts.outfit(
+                        fontSize: 11.5,
+                        color: AcousticColors.titanium,
+                        height: 1.3,
+                      ),
+                    ),
+                  ),
+                ),
+                if (app.releaseNotes.length > 3)
+                  InkWell(
+                    onTap: () => showModalBottomSheet(
+                      context: context,
+                      isScrollControlled: true,
+                      backgroundColor: Colors.transparent,
+                      builder: (ctx) => AppDetailsModal(app: app),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 2),
+                      child: Text(
+                        '+ ${app.releaseNotes.length - 3} more improvements...',
+                        style: GoogleFonts.outfit(
+                          fontSize: 10.5,
+                          fontWeight: FontWeight.bold,
+                          color: AcousticColors.sonarCyan,
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
             ),
           ),
         ],
@@ -1215,17 +1363,24 @@ class WaptiaUpdatesWorkspace extends StatelessWidget {
       ),
       child: Row(
         children: [
+          // Real App Icon with Fallback
           Container(
-            width: 34,
-            height: 34,
+            width: 36,
+            height: 36,
             decoration: BoxDecoration(
               color: AcousticColors.obsidian,
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(9),
+              border: Border.all(color: AcousticColors.steel.withValues(alpha: 0.2)),
             ),
-            child: Center(
-              child: Text(
-                app.name.substring(0, app.name.length >= 2 ? 2 : 1).toUpperCase(),
-                style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: AcousticColors.steel, fontSize: 12),
+            clipBehavior: Clip.antiAlias,
+            child: Image.network(
+              'https://cdn.infortts.site/icons/${app.slug}.png',
+              fit: BoxFit.contain,
+              errorBuilder: (_, __, ___) => Center(
+                child: Text(
+                  app.name.substring(0, app.name.length >= 2 ? 2 : 1).toUpperCase(),
+                  style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: AcousticColors.steel, fontSize: 13),
+                ),
               ),
             ),
           ),

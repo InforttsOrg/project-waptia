@@ -11,7 +11,7 @@ val keystoreProperties = Properties().apply {
 }
 
 android {
-    namespace = "com.infortts.waptia.admin"
+    namespace = "com.infortts.admin"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -21,7 +21,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.infortts.waptia.admin"
+        applicationId = "com.infortts.admin"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode

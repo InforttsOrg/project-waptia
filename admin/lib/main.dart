@@ -16,11 +16,11 @@ class WaptiaAdminApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Waptia Admin Console',
+      title: 'Infortts Admin Console',
       debugShowCheckedModeBanner: false,
       theme: AcousticTheme.themedDark(skin: AppDesignSkin.skin),
       home: InforttsAppShell(
-        appName: 'Waptia Admin',
+        appName: 'Infortts Admin',
         appDescription: 'Central administration console for Infortts app fleet: manage releases, monitor internal test tracks, approve OTA patches, and audit telemetry.',
         appVersion: '2.05.00',
         showSplash: true,
@@ -71,7 +71,7 @@ class _FleetOverviewWorkspaceState extends State<FleetOverviewWorkspace> {
   final List<Map<String, String>> _fleetApps = const [
     {"name": "Mitochondria", "package": "com.infortts.mitochondria", "version": "v2.07.08", "track": "Internal Live", "category": "Trading & FinTech", "domain": "mitochondria.infortts.site"},
     {"name": "Waptia Store", "package": "com.infortts.waptia", "version": "v2.05.00", "track": "Internal Live", "category": "App Store & OTA", "domain": "waptia.infortts.site"},
-    {"name": "Waptia Admin", "package": "com.infortts.waptia.admin", "version": "v2.05.00", "track": "Internal Staged", "category": "Admin & IAM", "domain": "admin.waptia.infortts.site"},
+    {"name": "Infortts Admin", "package": "com.infortts.admin", "version": "v2.08.00", "track": "Internal Staged", "category": "Admin & IAM", "domain": "admin.infortts.site"},
     {"name": "Care4U Client", "package": "com.infortts.care4u", "version": "v2.03.01", "track": "Internal Live", "category": "Healthcare", "domain": "client.care4u.infortts.site"},
     {"name": "Care4U Partner", "package": "com.infortts.care4u.partner", "version": "v2.03.01", "track": "Internal Live", "category": "Healthcare", "domain": "partner.care4u.infortts.site"},
     {"name": "Cardiodictyon", "package": "com.infortts.cardiodictyon", "version": "v2.04.00", "track": "Internal Live", "category": "Telemetry & Control", "domain": "cardiodictyon.infortts.site"},
