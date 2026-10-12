@@ -46,8 +46,8 @@ final List<AppInfo> inforttsCatalog = [
         platform: 'android',
         version: '2.09.01',
         downloadUrl: 'https://huggingface.co/datasets/rttss/ota-patches/resolve/main/waptia/waptia.apk',
-        sha256: '',
-        sizeBytes: 55000000,
+        sha256: '39c3719ed3be9e0915591c982ed856b3b2fda5b53788f3311ae3d6356493e669',
+        sizeBytes: 55101485,
         releaseNotes: [
           '✓ Continuous spinning refresh animation on tap and during update sync',
           '✓ Consolidated fleet update triggers exclusively to Updates workspace',
@@ -636,8 +636,8 @@ final List<AppInfo> inforttsCatalog = [
         platform: 'android',
         version: '2.02.04',
         downloadUrl: 'https://huggingface.co/datasets/rttss/ota-patches/resolve/main/glycocalyx/glycocalyx.apk',
-        sha256: '',
-        sizeBytes: 54100000,
+        sha256: '57d170b625791d8de002285ed02d05c9d3372094dd800b10ab50eb598ae9b41c',
+        sizeBytes: 53503428,
         releaseNotes: [
           '✓ Unified in-app browser view WebAuthn and Google OAuth',
           '✓ Scoped deep-link callback token adoption',

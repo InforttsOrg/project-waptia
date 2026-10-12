@@ -15,8 +15,33 @@ void main() async {
   runApp(const WaptiaStoreApp());
 }
 
-class WaptiaStoreApp extends StatelessWidget {
+class WaptiaStoreApp extends StatefulWidget {
   const WaptiaStoreApp({super.key});
+
+  @override
+  State<WaptiaStoreApp> createState() => _WaptiaStoreAppState();
+}
+
+class _WaptiaStoreAppState extends State<WaptiaStoreApp> with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      // Re-detect installed packages immediately when returning from native package installer or background
+      WaptiaAutoUpdateManager.instance.detectInstalledApps();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -441,24 +466,11 @@ class _WaptiaExploreWorkspaceState extends State<WaptiaExploreWorkspace> {
             ),
             if (app.isDownloading) ...[
               const SizedBox(height: 12),
-              ClipRRect(
-                borderRadius: BorderRadius.circular(4),
-                child: TweenAnimationBuilder<double>(
-                  duration: const Duration(milliseconds: 150),
-                  curve: Curves.easeOutCubic,
-                  tween: Tween<double>(
-                    begin: 0.0,
-                    end: app.downloadProgress.clamp(0.0, 1.0),
-                  ),
-                  builder: (context, value, _) {
-                    return LinearProgressIndicator(
-                      value: value > 0 ? value : (app.downloadProgress > 0 ? app.downloadProgress : null),
-                      minHeight: 6,
-                      backgroundColor: const Color(0xFF0B0F19),
-                      valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF38BDF8)),
-                    );
-                  },
-                ),
+              WaptiaSmoothProgressBar(
+                progress: app.downloadProgress,
+                minHeight: 6,
+                backgroundColor: const Color(0xFF0B0F19),
+                progressColor: const Color(0xFF38BDF8),
               ),
               const SizedBox(height: 6),
               Row(
@@ -634,6 +646,12 @@ class _WaptiaExploreWorkspaceState extends State<WaptiaExploreWorkspace> {
   }
 
   void _showNotificationSheet(BuildContext context, bool isGranted, int pendingCount) {
+    InforttsNotificationCenter.show(context, appName: 'Waptia Store');
+    return;
+  }
+
+  void _legacyUnusedSheet(BuildContext context, [bool isGranted = true]) {
+    if (!context.mounted) return;
     showModalBottomSheet(
       context: context,
       backgroundColor: const Color(0xFF111827),
@@ -849,6 +867,92 @@ class _WaptiaSpinningRefreshButtonState extends State<_WaptiaSpinningRefreshButt
           ),
         );
       },
+    );
+  }
+}
+
+class WaptiaSmoothProgressBar extends StatefulWidget {
+  final double progress;
+  final Color backgroundColor;
+  final Color progressColor;
+  final double minHeight;
+  final BorderRadius? borderRadius;
+
+  const WaptiaSmoothProgressBar({
+    super.key,
+    required this.progress,
+    required this.backgroundColor,
+    required this.progressColor,
+    this.minHeight = 6,
+    this.borderRadius,
+  });
+
+  @override
+  State<WaptiaSmoothProgressBar> createState() => _WaptiaSmoothProgressBarState();
+}
+
+class _WaptiaSmoothProgressBarState extends State<WaptiaSmoothProgressBar>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _animation;
+  double _currentProgress = 0.0;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentProgress = widget.progress.clamp(0.0, 1.0);
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 220),
+    );
+    _animation = Tween<double>(begin: _currentProgress, end: _currentProgress)
+        .animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
+  }
+
+  @override
+  void didUpdateWidget(WaptiaSmoothProgressBar oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final target = widget.progress.clamp(0.0, 1.0);
+    if ((target - _currentProgress).abs() > 0.002) {
+      _animation = Tween<double>(begin: _animation.value, end: target).animate(
+        CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic),
+      );
+      _controller.forward(from: 0.0);
+      _currentProgress = target;
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipRRect(
+      borderRadius: widget.borderRadius ?? BorderRadius.circular(4),
+      child: AnimatedBuilder(
+        animation: _animation,
+        builder: (context, _) {
+          final factor = _animation.value.clamp(0.0, 1.0);
+          return Container(
+            height: widget.minHeight,
+            width: double.infinity,
+            color: widget.backgroundColor,
+            child: FractionallySizedBox(
+              alignment: Alignment.centerLeft,
+              widthFactor: factor,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: widget.progressColor,
+                  borderRadius: widget.borderRadius ?? BorderRadius.circular(4),
+                ),
+              ),
+            ),
+          );
+        },
+      ),
     );
   }
 }
@@ -1167,24 +1271,11 @@ class WaptiaUpdatesWorkspace extends StatelessWidget {
           ),
           if (app.isDownloading) ...[
             const SizedBox(height: 12),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(4),
-              child: TweenAnimationBuilder<double>(
-                duration: const Duration(milliseconds: 150),
-                curve: Curves.easeOutCubic,
-                tween: Tween<double>(
-                  begin: 0.0,
-                  end: app.downloadProgress.clamp(0.0, 1.0),
-                ),
-                builder: (context, value, _) {
-                  return LinearProgressIndicator(
-                    value: value > 0 ? value : (app.downloadProgress > 0 ? app.downloadProgress : null),
-                    minHeight: 6,
-                    backgroundColor: AcousticColors.obsidian,
-                    valueColor: AlwaysStoppedAnimation<Color>(AcousticColors.sonarCyan),
-                  );
-                },
-              ),
+            WaptiaSmoothProgressBar(
+              progress: app.downloadProgress,
+              minHeight: 6,
+              backgroundColor: AcousticColors.obsidian,
+              progressColor: AcousticColors.sonarCyan,
             ),
             const SizedBox(height: 6),
             Row(

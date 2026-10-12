@@ -641,7 +641,12 @@ class WaptiaAutoUpdateManager {
       onProgress?.call(success ? 1.0 : 0.0);
 
       if (success) {
-        _pollForAppInstallation(app.packageName, app.slug);
+        _pollForAppInstallation(
+          app.packageName,
+          app.slug,
+          isUpdate: app.hasUpdate,
+          targetVersion: app.latestVersion,
+        );
       }
       return success;
     } catch (e) {
@@ -657,9 +662,16 @@ class WaptiaAutoUpdateManager {
     }
   }
 
-  void _pollForAppInstallation(String packageName, String slug) {
-    for (final delay in [3, 7, 14, 25, 45]) {
+  void _pollForAppInstallation(
+    String packageName,
+    String slug, {
+    bool isUpdate = false,
+    String targetVersion = '',
+  }) {
+    bool notified = false;
+    for (final delay in [2, 5, 10, 20, 35]) {
       Future.delayed(Duration(seconds: delay), () async {
+        if (notified) return;
         await detectInstalledApps();
         final current = appsNotifier.value.firstWhere(
           (a) => a.slug == slug,
@@ -672,10 +684,26 @@ class WaptiaAutoUpdateManager {
           ),
         );
         if (current.isInstalled) {
-          await showNotification(
-            title: '${current.name} Installed',
-            message: '${current.name} is installed and ready to open.',
-          );
+          final isTargetReached = targetVersion.isNotEmpty
+              ? (current.installedVersion == targetVersion || compareSemver(current.installedVersion, targetVersion) >= 0)
+              : !current.hasUpdate;
+          if (isUpdate) {
+            if (isTargetReached && !notified) {
+              notified = true;
+              await showNotification(
+                title: '${current.name} Updated',
+                message: '${current.name} updated to v${current.installedVersion} successfully.',
+              );
+            }
+          } else {
+            if (!notified) {
+              notified = true;
+              await showNotification(
+                title: '${current.name} Installed',
+                message: '${current.name} is installed and ready to open.',
+              );
+            }
+          }
         }
       });
     }

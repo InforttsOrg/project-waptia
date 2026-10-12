@@ -49,6 +49,7 @@ Future<bool> nativeDownloadAndInstallApk({
       final stopwatch = Stopwatch()..start();
       int lastReportMs = 0;
       int lastReportBytes = 0;
+      double smoothedSpeedBytesPerSec = 0.0;
       String currentSpeed = '0 KB/s';
 
       await for (final chunk in streamedResponse.stream) {
@@ -56,16 +57,19 @@ Future<bool> nativeDownloadAndInstallApk({
         receivedBytes += chunk.length;
 
         final elapsedMs = stopwatch.elapsedMilliseconds;
-        // Throttle updates to ~80ms or on completion to prevent UI rebuild thrashing and flickering
-        if (elapsedMs - lastReportMs >= 80 || (totalBytes > 0 && receivedBytes >= totalBytes)) {
+        // Throttle updates to ~120ms or on completion for smooth UI rendering and no micro-stutter
+        if (elapsedMs - lastReportMs >= 120 || (totalBytes > 0 && receivedBytes >= totalBytes)) {
           final timeDiffSec = (elapsedMs - lastReportMs) / 1000.0;
           if (timeDiffSec > 0) {
             final bytesDiff = receivedBytes - lastReportBytes;
-            final bytesPerSec = bytesDiff / timeDiffSec;
-            if (bytesPerSec >= 1024 * 1024) {
-              currentSpeed = '${(bytesPerSec / (1024 * 1024)).toStringAsFixed(1)} MB/s';
+            final instantSpeed = bytesDiff / timeDiffSec;
+            smoothedSpeedBytesPerSec = smoothedSpeedBytesPerSec == 0.0
+                ? instantSpeed
+                : (smoothedSpeedBytesPerSec * 0.75 + instantSpeed * 0.25);
+            if (smoothedSpeedBytesPerSec >= 1024 * 1024) {
+              currentSpeed = '${(smoothedSpeedBytesPerSec / (1024 * 1024)).toStringAsFixed(1)} MB/s';
             } else {
-              currentSpeed = '${(bytesPerSec / 1024).toStringAsFixed(0)} KB/s';
+              currentSpeed = '${(smoothedSpeedBytesPerSec / 1024).toStringAsFixed(0)} KB/s';
             }
           }
           lastReportMs = elapsedMs;
