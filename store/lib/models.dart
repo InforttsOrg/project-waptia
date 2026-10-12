@@ -50,8 +50,8 @@ class AppInfo {
     required this.latest,
     required this.versions,
     this.superadminOnly = false,
-    this.rating = 4.9,
-    this.ratingCount = 128,
+    this.rating = 0.0,
+    this.ratingCount = 0,
     this.screenshots = const [],
   });
 }
@@ -110,8 +110,8 @@ class AppInstallState {
     this.autoUpdateEnabled = true,
     this.lastChecked,
     this.superadminOnly = false,
-    this.rating = 4.9,
-    this.ratingCount = 128,
+    this.rating = 0.0,
+    this.ratingCount = 0,
     this.userRating,
     this.userReview,
     this.screenshots = const [],

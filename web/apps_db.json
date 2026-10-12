@@ -375,7 +375,7 @@
       "macos"
     ],
     "status": "live",
-    "version": "v2.04.00",
+    "version": "v2.2.20",
     "bundleSize": "54.0 MB",
     "optInUrl": "https://play.google.com/apps/internaltest/4701299605514848597",
     "playStoreUrl": "https://play.google.com/store/apps/details?id=com.infortts.meeseeks",
@@ -385,9 +385,9 @@
     "caseStudy": "Automates 85% of routine DevOps, server migrations, and CI/CD maintenance across Infortts infrastructure.",
     "updates": [
       {
-        "version": "v2.04.00",
+        "version": "v2.2.20",
         "date": "2026-10-12",
-        "notes": "Autonomous council consensus engine, OpenDroid perceptual device automation bridge, and NATS tool worker dispatch."
+        "notes": "Dynamic Android 15 (API 35) hardware detection, OpenDroid perceptual device automation bridge, and autonomous council consensus engine."
       },
       {
         "version": "v1.2.0",

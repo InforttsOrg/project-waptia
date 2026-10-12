@@ -373,7 +373,7 @@ class _WaptiaExploreWorkspaceState extends State<WaptiaExploreWorkspace> {
                   ),
                   clipBehavior: Clip.antiAlias,
                   child: Image.network(
-                    'https://cdn.infortts.site/icons/${app.slug}.png',
+                    'https://waptia.infortts.site/icons/${app.slug}.png',
                     fit: BoxFit.contain,
                     errorBuilder: (_, __, ___) => Center(
                       child: Text(
@@ -585,7 +585,7 @@ class _WaptiaExploreWorkspaceState extends State<WaptiaExploreWorkspace> {
     return AnimatedBuilder(
       animation: InforttsNotificationService.instance,
       builder: (context, _) {
-        final unreadCount = InforttsNotificationService.instance.unreadCount;
+        final unreadCount = InforttsNotificationService.instance.getUnreadCountForApp('Waptia Store');
         return ValueListenableBuilder<int>(
           valueListenable: WaptiaAutoUpdateManager.instance.pendingUpdatesCount,
           builder: (context, pendingCount, _) {
@@ -1179,7 +1179,10 @@ class WaptiaUpdatesWorkspace extends StatelessWidget {
             onTap: () => showModalBottomSheet(
               context: context,
               isScrollControlled: true,
-              backgroundColor: Colors.transparent,
+              backgroundColor: const Color(0xFF111827),
+              shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+              ),
               builder: (ctx) => AppDetailsModal(app: app),
             ),
             borderRadius: BorderRadius.circular(10),
@@ -1196,7 +1199,7 @@ class WaptiaUpdatesWorkspace extends StatelessWidget {
                   ),
                   clipBehavior: Clip.antiAlias,
                   child: Image.network(
-                    'https://cdn.infortts.site/icons/${app.slug}.png',
+                    'https://waptia.infortts.site/icons/${app.slug}.png',
                     fit: BoxFit.contain,
                     errorBuilder: (_, __, ___) => Center(
                       child: Text(
@@ -1321,7 +1324,10 @@ class WaptiaUpdatesWorkspace extends StatelessWidget {
                       showModalBottomSheet(
                         context: context,
                         isScrollControlled: true,
-                        backgroundColor: Colors.transparent,
+                        backgroundColor: const Color(0xFF111827),
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                        ),
                         builder: (ctx) => AppDetailsModal(app: app),
                       );
                     },
@@ -1393,7 +1399,10 @@ class WaptiaUpdatesWorkspace extends StatelessWidget {
                     onTap: () => showModalBottomSheet(
                       context: context,
                       isScrollControlled: true,
-                      backgroundColor: Colors.transparent,
+                      backgroundColor: const Color(0xFF111827),
+                      shape: const RoundedRectangleBorder(
+                        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                      ),
                       builder: (ctx) => AppDetailsModal(app: app),
                     ),
                     child: Padding(
@@ -1438,7 +1447,7 @@ class WaptiaUpdatesWorkspace extends StatelessWidget {
             ),
             clipBehavior: Clip.antiAlias,
             child: Image.network(
-              'https://cdn.infortts.site/icons/${app.slug}.png',
+              'https://waptia.infortts.site/icons/${app.slug}.png',
               fit: BoxFit.contain,
               errorBuilder: (_, __, ___) => Center(
                 child: Text(
@@ -2432,6 +2441,10 @@ class _AppDetailsModalState extends State<AppDetailsModal> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
       constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.90),
+      decoration: const BoxDecoration(
+        color: Color(0xFF111827),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
       child: ListView(
         children: [
           // App Header
@@ -2448,7 +2461,7 @@ class _AppDetailsModalState extends State<AppDetailsModal> {
                 ),
                 clipBehavior: Clip.antiAlias,
                 child: Image.network(
-                  'https://cdn.infortts.site/icons/${app.slug}.png',
+                  'https://waptia.infortts.site/icons/${app.slug}.png',
                   fit: BoxFit.contain,
                   errorBuilder: (_, __, ___) => Center(
                     child: Text(
@@ -2489,8 +2502,8 @@ class _AppDetailsModalState extends State<AppDetailsModal> {
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 _buildMetricBadge(
-                  avgRating.toStringAsFixed(1),
-                  '$totalRatings reviews',
+                  totalRatings > 0 ? avgRating.toStringAsFixed(1) : '—',
+                  totalRatings > 0 ? '$totalRatings reviews' : 'No ratings',
                   icon: Icons.star_rounded,
                 ),
                 Container(height: 24, width: 1, color: AcousticColors.steel.withValues(alpha: 0.2)),
@@ -2954,17 +2967,23 @@ class _AppDetailsModalState extends State<AppDetailsModal> {
                               ),
                             ],
                           ),
-                          Row(
-                            children: [
-                              const Icon(Icons.star_rounded, color: Color(0xFFFBBF24), size: 18),
-                              const SizedBox(width: 4),
-                              Text(
-                                avgRating.toStringAsFixed(1),
-                                style: GoogleFonts.outfit(fontSize: 14, fontWeight: FontWeight.bold, color: AcousticColors.titanium),
-                              ),
-                              Text(' ($totalRatings)', style: GoogleFonts.outfit(fontSize: 12, color: AcousticColors.steel)),
-                            ],
-                          ),
+                          if (totalRatings > 0)
+                            Row(
+                              children: [
+                                const Icon(Icons.star_rounded, color: Color(0xFFFBBF24), size: 18),
+                                const SizedBox(width: 4),
+                                Text(
+                                  avgRating.toStringAsFixed(1),
+                                  style: GoogleFonts.outfit(fontSize: 14, fontWeight: FontWeight.bold, color: AcousticColors.titanium),
+                                ),
+                                Text(' ($totalRatings)', style: GoogleFonts.outfit(fontSize: 12, color: AcousticColors.steel)),
+                              ],
+                            )
+                          else
+                            Text(
+                              'No ratings yet',
+                              style: GoogleFonts.outfit(fontSize: 12, color: AcousticColors.steel),
+                            ),
                         ],
                       ),
                       const SizedBox(height: 12),
