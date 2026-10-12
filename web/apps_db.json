@@ -375,8 +375,8 @@
       "macos"
     ],
     "status": "live",
-    "version": "v1.2.0",
-    "bundleSize": "52.1 MB",
+    "version": "v2.04.00",
+    "bundleSize": "54.0 MB",
     "optInUrl": "https://play.google.com/apps/internaltest/4701299605514848597",
     "playStoreUrl": "https://play.google.com/store/apps/details?id=com.infortts.meeseeks",
     "apkDownloadUrl": "https://huggingface.co/datasets/rttss/ota-patches/resolve/main/meeseeks/meeseeks.apk",
@@ -384,6 +384,11 @@
     "research": "Hierarchical multi-agent cognitive architecture with dynamic tool dispatch, reflection, and automated unit testing loops.",
     "caseStudy": "Automates 85% of routine DevOps, server migrations, and CI/CD maintenance across Infortts infrastructure.",
     "updates": [
+      {
+        "version": "v2.04.00",
+        "date": "2026-10-12",
+        "notes": "Autonomous council consensus engine, OpenDroid perceptual device automation bridge, and NATS tool worker dispatch."
+      },
       {
         "version": "v1.2.0",
         "date": "2026-09-19",
@@ -1155,8 +1160,8 @@
       "macos"
     ],
     "status": "live",
-    "version": "v2.02.00",
-    "bundleSize": "53.9 MB",
+    "version": "v2.02.04",
+    "bundleSize": "54.1 MB",
     "optInUrl": "https://play.google.com/apps/internaltest/4701690297526834866",
     "playStoreUrl": "https://play.google.com/store/apps/details?id=com.infortts.glycocalyx",
     "apkDownloadUrl": "https://huggingface.co/datasets/rttss/ota-patches/resolve/main/glycocalyx/glycocalyx.apk",
@@ -1164,6 +1169,11 @@
     "research": "High-performance Go IAM service with cryptographic JWT tokens and distributed rate limiting.",
     "caseStudy": "Handles authentication for all 28 Infortts subdomains and mobile applications.",
     "updates": [
+      {
+        "version": "v2.02.04",
+        "date": "2026-10-12",
+        "notes": "Unified in-app browser view WebAuthn and Google OAuth, scoped deep-link callback token adoption."
+      },
       {
         "version": "v2.2.0",
         "date": "2026-09-19",
