@@ -570,24 +570,26 @@ class _WaptiaExploreWorkspaceState extends State<WaptiaExploreWorkspace> {
   }
 
   Widget _buildNotificationIcon(BuildContext context) {
-    return ValueListenableBuilder<int>(
-      valueListenable: WaptiaAutoUpdateManager.instance.pendingUpdatesCount,
-      builder: (context, pendingCount, _) {
-        return FutureBuilder<bool>(
-          future: WaptiaAutoUpdateManager.instance.isNotificationPermissionGranted(),
-          builder: (context, snapshot) {
-            final isGranted = snapshot.data ?? true;
+    return AnimatedBuilder(
+      animation: InforttsNotificationService.instance,
+      builder: (context, _) {
+        final unreadCount = InforttsNotificationService.instance.unreadCount;
+        return ValueListenableBuilder<int>(
+          valueListenable: WaptiaAutoUpdateManager.instance.pendingUpdatesCount,
+          builder: (context, pendingCount, _) {
+            final totalBadge = unreadCount + pendingCount;
+            final hasAlerts = totalBadge > 0;
             return InkWell(
               borderRadius: BorderRadius.circular(20),
-              onTap: () => _showNotificationSheet(context, isGranted, pendingCount),
+              onTap: () => InforttsNotificationCenter.show(context, appName: 'Waptia Store'),
               child: Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
                   color: AcousticColors.darkCarbon,
                   shape: BoxShape.circle,
                   border: Border.all(
-                    color: !isGranted
-                        ? const Color(0xFFF59E0B).withValues(alpha: 0.5)
+                    color: hasAlerts
+                        ? AcousticColors.sonarCyan.withValues(alpha: 0.5)
                         : AcousticColors.steel.withValues(alpha: 0.25),
                   ),
                 ),
@@ -595,34 +597,30 @@ class _WaptiaExploreWorkspaceState extends State<WaptiaExploreWorkspace> {
                   clipBehavior: Clip.none,
                   children: [
                     Icon(
-                      !isGranted ? Icons.notifications_outlined : Icons.notifications_active_outlined,
+                      hasAlerts ? Icons.notifications_active_outlined : Icons.notifications_outlined,
                       size: 20,
-                      color: !isGranted
-                          ? const Color(0xFFF59E0B)
-                          : (pendingCount > 0 ? AcousticColors.sonarCyan : AcousticColors.titanium),
+                      color: hasAlerts ? AcousticColors.sonarCyan : AcousticColors.titanium,
                     ),
-                    if (pendingCount > 0 || !isGranted)
+                    if (hasAlerts)
                       Positioned(
                         right: -2,
                         top: -2,
                         child: Container(
                           padding: const EdgeInsets.all(3),
                           decoration: BoxDecoration(
-                            color: !isGranted ? const Color(0xFFF59E0B) : AcousticColors.sonarCyan,
+                            color: AcousticColors.sonarCyan,
                             shape: BoxShape.circle,
                           ),
                           constraints: const BoxConstraints(minWidth: 8, minHeight: 8),
-                          child: pendingCount > 0
-                              ? Text(
-                                  '$pendingCount',
-                                  style: GoogleFonts.outfit(
-                                    fontSize: 8,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                )
-                              : null,
+                          child: Text(
+                            '$totalBadge',
+                            style: GoogleFonts.outfit(
+                              fontSize: 8,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
                         ),
                       ),
                   ],
@@ -752,50 +750,25 @@ class _WaptiaExploreWorkspaceState extends State<WaptiaExploreWorkspace> {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 18),
-                  Container(
-                    padding: const EdgeInsets.all(14),
-                    decoration: BoxDecoration(
-                      color: AcousticColors.obsidian,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: AcousticColors.steel.withValues(alpha: 0.2)),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              pendingCount > 0 ? '$pendingCount Updates Available' : 'All Apps Up to Date',
-                              style: GoogleFonts.outfit(
-                                fontSize: 13,
-                                fontWeight: FontWeight.bold,
-                                color: pendingCount > 0 ? AcousticColors.sonarCyan : AcousticColors.titanium,
-                              ),
-                            ),
-                            const SizedBox(height: 2),
-                            Text(
-                              'Fleet OTA CDN: update.infortts.site',
-                              style: GoogleFonts.jetBrainsMono(fontSize: 10, color: AcousticColors.steel),
-                            ),
-                          ],
-                        ),
-                        OutlinedButton.icon(
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: AcousticColors.sonarCyan,
-                            side: BorderSide(color: AcousticColors.sonarCyan.withValues(alpha: 0.5)),
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                          ),
-                          icon: const Icon(Icons.refresh_rounded, size: 16),
-                          label: Text('Check', style: GoogleFonts.outfit(fontSize: 12, fontWeight: FontWeight.w600)),
-                          onPressed: () async {
-                            await WaptiaAutoUpdateManager.instance.checkAllUpdates();
-                            if (ctx.mounted) Navigator.pop(ctx);
-                          },
-                        ),
-                      ],
+                  const SizedBox(height: 16),
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: AcousticColors.sonarCyan,
+                        side: BorderSide(color: AcousticColors.sonarCyan.withValues(alpha: 0.5)),
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      ),
+                      icon: const Icon(Icons.inbox_rounded, size: 18),
+                      label: Text(
+                        'OPEN NOTIFICATION INTELLIGENCE',
+                        style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 12),
+                      ),
+                      onPressed: () {
+                        Navigator.pop(ctx);
+                        InforttsNotificationCenter.show(context, appName: 'Waptia Store');
+                      },
                     ),
                   ),
                   const SizedBox(height: 12),
