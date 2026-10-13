@@ -218,22 +218,22 @@ final List<AppInfo> inforttsCatalog = [
     iconUrl: 'https://waptia.infortts.site/icons/meeseeks.png',
     homepageUrl: 'https://play.google.com/apps/internaltest/4701299605514848597',
     repoPath: 'projects/meeseeks',
-    latest: {'android': '2.2.20'},
+    latest: {'android': '2.4.21'},
     versions: [
       AppVersion(
         platform: 'android',
-        version: '2.2.20',
+        version: '2.4.21',
         downloadUrl: 'https://huggingface.co/datasets/rttss/ota-patches/resolve/main/meeseeks/meeseeks.apk',
         sha256: '',
-        sizeBytes: 54034227,
+        sizeBytes: 54331577,
         releaseNotes: [
           '✓ Real multi-agent cloud & on-device LLM inference pipeline',
           '✓ Removed mock AI responses & hardcoded latency stubs',
           '✓ Idempotent System Window Overlay with lifecycle recovery',
           '✓ OpenDroid permission diagnostics & accessibility bridge'
         ],
-        publishedAt: '2026-10-12T16:54:00Z',
-        buildNumber: 20420,
+        publishedAt: '2026-10-13T05:20:00Z',
+        buildNumber: 20421,
       ),
     ],
   ),
