@@ -218,11 +218,11 @@ final List<AppInfo> inforttsCatalog = [
     iconUrl: 'https://waptia.infortts.site/icons/meeseeks.png',
     homepageUrl: 'https://play.google.com/apps/internaltest/4701299605514848597',
     repoPath: 'projects/meeseeks',
-    latest: {'android': '2.4.21'},
+    latest: {'android': '2.4.0'},
     versions: [
       AppVersion(
         platform: 'android',
-        version: '2.4.21',
+        version: '2.4.0',
         downloadUrl: 'https://huggingface.co/datasets/rttss/ota-patches/resolve/main/meeseeks/meeseeks.apk',
         sha256: '',
         sizeBytes: 54331577,
@@ -233,7 +233,7 @@ final List<AppInfo> inforttsCatalog = [
           '✓ OpenDroid permission diagnostics & accessibility bridge'
         ],
         publishedAt: '2026-10-13T05:20:00Z',
-        buildNumber: 20421,
+        buildNumber: 20400,
       ),
     ],
   ),

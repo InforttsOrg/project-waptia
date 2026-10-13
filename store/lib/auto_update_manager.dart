@@ -52,7 +52,8 @@ class WaptiaAutoUpdateManager {
     }
   }
 
-  /// Accurate semantic update detection avoiding false positives on build numbers
+  /// Accurate semantic update detection avoiding false positives on build numbers.
+  /// Updates are only required for native releases (major.minor). OTA patches are decoupled.
   static bool computeHasUpdate({
     required bool isInstalled,
     required String installedVersion,
@@ -67,28 +68,28 @@ class WaptiaAutoUpdateManager {
     final vInst = installedVersion.trim().replaceAll(RegExp(r'^v', caseSensitive: false), '');
     final vLate = latestVersion.trim().replaceAll(RegExp(r'^v', caseSensitive: false), '');
 
-    // 1. Compare semantic version numbers (major.minor.patch)
-    final semverCmp = compareSemver(vLate, vInst);
-    if (semverCmp > 0) {
-      // Latest native release is strictly higher (e.g. 2.09.01 > 2.09.00 or 2.4.0 > 2.2.0)
+    // 1. Compare canonical base release versions (e.g. 2.04.00 vs 2.02.00)
+    final baseInst = InforttsVersionHelper.getBaseVersion(vInst);
+    final baseLate = InforttsVersionHelper.getBaseVersion(vLate);
+
+    final baseCmp = compareSemver(baseLate, baseInst);
+    if (baseCmp > 0) {
+      // Newer native release available
       return true;
     }
-    if (semverCmp < 0) {
-      // Installed version is newer than catalog (local/dev build)
+    if (baseCmp < 0) {
+      // Running newer local base release
       return false;
     }
 
-    // 2. Versions are identical:
-    // Package updates are ONLY required when there is a true native build bump.
-    // OTA patches do not bump the native Android APK version and must not trigger package update loops.
-    final expectedNormalized = encodeSemverToBuild(vLate);
-    if (latestBuild == expectedNormalized && (installedBuild <= 1 || installedBuild == expectedNormalized)) {
-      return false;
-    }
-
-    // Only consider build bump if both builds use the same scale:
-    if ((latestBuild >= 1000 && installedBuild >= 1000) || (latestBuild < 1000 && installedBuild < 1000)) {
-      return latestBuild > installedBuild;
+    // 2. Base release is identical (e.g. both 2.04.00 or both 2.08.00):
+    // Only flag package update if there is a true native build number bump
+    // that exceeds the canonical base build number.
+    final expectedNormalized = encodeSemverToBuild(baseLate);
+    if (latestBuild > 0 && installedBuild > 0 && latestBuild != expectedNormalized) {
+      if ((latestBuild >= 1000 && installedBuild >= 1000) || (latestBuild < 1000 && installedBuild < 1000)) {
+        return latestBuild > installedBuild;
+      }
     }
 
     return false;

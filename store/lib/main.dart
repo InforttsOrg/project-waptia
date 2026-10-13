@@ -917,9 +917,9 @@ class _WaptiaSmoothProgressBarState extends State<WaptiaSmoothProgressBar>
     if ((target - _currentProgress).abs() > 0.001) {
       final currentAnimated = _animation.value;
       _animation = Tween<double>(begin: currentAnimated, end: target).animate(
-        CurvedAnimation(parent: _controller, curve: Curves.linear),
+        CurvedAnimation(parent: _controller, curve: Curves.easeOutQuad),
       );
-      _controller.forward(from: 0.0);
+      _controller.animateTo(1.0, duration: const Duration(milliseconds: 180));
       _currentProgress = target;
     }
   }
