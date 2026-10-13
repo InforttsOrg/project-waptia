@@ -218,23 +218,24 @@ final List<AppInfo> inforttsCatalog = [
     iconUrl: 'https://waptia.infortts.site/icons/meeseeks.png',
     homepageUrl: 'https://play.google.com/apps/internaltest/4701299605514848597',
     repoPath: 'projects/meeseeks',
-    latest: {'android': '2.2.20'},
+    latest: {'android': '2.4.21'},
     versions: [
       AppVersion(
         platform: 'android',
-        version: '2.2.20',
+        version: '2.4.21',
         downloadUrl: 'https://huggingface.co/datasets/rttss/ota-patches/resolve/main/meeseeks/meeseeks.apk',
         sha256: '',
         sizeBytes: 54034227,
         releaseNotes: [
-          '✓ Dynamic Android 15 (API 35) hardware detection',
-          '✓ OpenDroid perceptual device automation bridge',
-          '✓ Autonomous council consensus engine',
-          '✓ Tool worker dispatch via NATS mesh'
+          '✓ Real multi-agent cloud & on-device LLM inference pipeline',
+          '✓ Removed mock AI responses & hardcoded latency stubs',
+          '✓ Idempotent System Window Overlay with lifecycle recovery',
+          '✓ OpenDroid permission diagnostics & accessibility bridge'
         ],
-        publishedAt: '2026-10-12T16:50:00Z',
-        buildNumber: 20420,
+        publishedAt: '2026-10-12T17:45:00Z',
+        buildNumber: 20421,
       ),
+
     ],
   ),
   const AppInfo(
@@ -247,20 +248,25 @@ final List<AppInfo> inforttsCatalog = [
     iconUrl: 'https://waptia.infortts.site/icons/mitochondria.png',
     homepageUrl: 'https://play.google.com/apps/internaltest/4701690297526834866',
     repoPath: 'projects/mitochondria',
-    latest: {'android': '1.2.0'},
+    latest: {'android': '2.08.11'},
     versions: [
       AppVersion(
         platform: 'android',
-        version: '1.2.0',
+        version: '2.08.11',
         downloadUrl: 'https://huggingface.co/datasets/rttss/ota-patches/resolve/main/mitochondria/mitochondria.apk',
         sha256: '',
         sizeBytes: 45000000,
-        releaseNotes: ['Google Play internal test release.'],
-        publishedAt: '2026-09-19T00:00:00Z',
-        buildNumber: 1,
+        releaseNotes: [
+          '✓ Real-time MT5 EA sub-second broker tick synchronization',
+          '✓ Operator account alias resolution and forensic sync',
+          '✓ Zero-latency chart canvas rendering'
+        ],
+        publishedAt: '2026-10-12T17:45:00Z',
+        buildNumber: 20811,
       ),
     ],
   ),
+
   const AppInfo(
     slug: 'opabinia',
     name: 'Opabinia Vision',

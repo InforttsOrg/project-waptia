@@ -1,15 +1,18 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io' show File;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:infortts_shared/infortts_shared.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'catalog_data.dart';
 import 'models.dart';
 import 'native_installer.dart';
+
 
 class WaptiaAutoUpdateManager {
   static final WaptiaAutoUpdateManager instance = WaptiaAutoUpdateManager._internal();
@@ -187,12 +190,21 @@ class WaptiaAutoUpdateManager {
     // 2. Automatically query device PackageManager to detect real installed packages
     await detectInstalledApps();
 
-    // 3. Start background cron
+    // 3. Automatic Cache Hygiene: Purge stale APKs/tmp files older than 30 mins
+    try {
+      final cacheMb = await getCacheSizeBytes();
+      if (cacheMb > 50.0) {
+        await clearCache(force: cacheMb > 250.0);
+      }
+    } catch (_) {}
+
+    // 4. Start background cron
     _restartCronTimer();
 
-    // 4. Perform initial live check against update.infortts.site
+    // 5. Perform initial live check against update.infortts.site
     await checkAllUpdates(silent: true);
   }
+
 
   /// Query Android PackageManager to detect which apps are truly installed on the device
   Future<void> detectInstalledApps() async {
@@ -209,8 +221,23 @@ class WaptiaAutoUpdateManager {
         final updated = appsNotifier.value.map((app) {
           final pkgData = result[app.packageName];
           if (pkgData != null && pkgData is Map && pkgData['installed'] == true) {
-            final vName = pkgData['versionName']?.toString() ?? app.installedVersion;
-            final vCode = (pkgData['versionCode'] as num?)?.toInt() ?? app.installedBuild;
+            final vNamePkg = pkgData['versionName']?.toString() ?? '';
+            final vCodePkg = (pkgData['versionCode'] as num?)?.toInt() ?? 0;
+
+            // Check if there is an active differential patch applied in prefs
+            final cachedVer = prefs.getString('$_prefVersionPrefix${app.slug}');
+            final cachedBuild = prefs.getInt('$_prefBuildPrefix${app.slug}');
+
+            // If a valid differential patch is active and newer than or equal to the base APK,
+            // preserve the patch version so the app doesn't regress back into an update loop.
+            final bool hasActivePatch = cachedVer != null &&
+                cachedVer.isNotEmpty &&
+                compareSemver(cachedVer, vNamePkg) >= 0;
+
+            final vName = hasActivePatch ? cachedVer : (vNamePkg.isNotEmpty ? vNamePkg : app.installedVersion);
+            final vCode = (hasActivePatch && cachedBuild != null && cachedBuild >= vCodePkg)
+                ? cachedBuild
+                : (vCodePkg > 0 ? vCodePkg : app.installedBuild);
 
             prefs.setBool('$_prefInstalledPrefix${app.slug}', true);
             prefs.setString('$_prefVersionPrefix${app.slug}', vName);
@@ -487,33 +514,41 @@ class WaptiaAutoUpdateManager {
     appsNotifier.value = list;
 
     try {
-      // 1. Attempt Silent Differential Patching via InforttsCdnOtaEngine
-      final otaEngine = InforttsCdnOtaEngine(
-        appName: app.slug,
-        appVersion: app.latestVersion,
-        packageName: app.packageName,
-      );
+      // 1. Attempt Silent Differential Patching only for same major.minor release
+      // If there is a major or minor version bump (e.g. 2.08 to 2.09, or 2.2 to 2.4),
+      // native APK installation is required so Android OS PackageManager updates the version name.
+      final vInstBase = InforttsVersionHelper.getBaseVersion(app.installedVersion);
+      final vLateBase = InforttsVersionHelper.getBaseVersion(app.latestVersion);
+      final bool canUseDifferentialPatch = (vInstBase == vLateBase);
 
-      final manifest = await otaEngine.fetchManifest();
       bool patchSuccess = false;
-      if (manifest != null && manifest.latestPatch > 0) {
-        onProgress?.call(0.4);
-        list[idx] = list[idx].copyWith(
-          downloadProgress: 0.4,
-          downloadStatus: 'Downloading differential patch...',
+      if (canUseDifferentialPatch) {
+        final otaEngine = InforttsCdnOtaEngine(
+          appName: app.slug,
+          appVersion: app.latestVersion,
+          packageName: app.packageName,
         );
-        appsNotifier.value = List.from(list);
 
-        patchSuccess = await otaEngine.downloadAndApplyPatch(manifest, onStatusChanged: (status, patch) {
-          if (status == InforttsCdnOtaStatus.downloading) {
-            onProgress?.call(0.7);
-            list[idx] = list[idx].copyWith(
-              downloadProgress: 0.7,
-              downloadStatus: 'Applying differential patch...',
-            );
-            appsNotifier.value = List.from(list);
-          }
-        });
+        final manifest = await otaEngine.fetchManifest();
+        if (manifest != null && manifest.latestPatch > 0) {
+          onProgress?.call(0.4);
+          list[idx] = list[idx].copyWith(
+            downloadProgress: 0.4,
+            downloadStatus: 'Downloading differential patch...',
+          );
+          appsNotifier.value = List.from(list);
+
+          patchSuccess = await otaEngine.downloadAndApplyPatch(manifest, onStatusChanged: (status, patch) {
+            if (status == InforttsCdnOtaStatus.downloading) {
+              onProgress?.call(0.7);
+              list[idx] = list[idx].copyWith(
+                downloadProgress: 0.7,
+                downloadStatus: 'Applying differential patch...',
+              );
+              appsNotifier.value = List.from(list);
+            }
+          });
+        }
       }
 
       onProgress?.call(1.0);
@@ -690,6 +725,12 @@ class WaptiaAutoUpdateManager {
           if (isUpdate) {
             if (isTargetReached && !notified) {
               notified = true;
+              // Clean up downloaded temp package now that package manager successfully installed it
+              try {
+                final tempDir = await getTemporaryDirectory();
+                final apk = File('${tempDir.path}/$slug.apk');
+                if (await apk.exists()) await apk.delete();
+              } catch (_) {}
               await showNotification(
                 title: '${current.name} Updated',
                 message: '${current.name} updated to v${current.installedVersion} successfully.',
@@ -698,6 +739,11 @@ class WaptiaAutoUpdateManager {
           } else {
             if (!notified) {
               notified = true;
+              try {
+                final tempDir = await getTemporaryDirectory();
+                final apk = File('${tempDir.path}/$slug.apk');
+                if (await apk.exists()) await apk.delete();
+              } catch (_) {}
               await showNotification(
                 title: '${current.name} Installed',
                 message: '${current.name} is installed and ready to open.',
@@ -951,4 +997,79 @@ class WaptiaAutoUpdateManager {
 
     return true;
   }
+
+  /// Calculates total size of temporary cache, downloaded APKs, and differential patches in MB
+  Future<double> getCacheSizeBytes() async {
+    if (kIsWeb) return 0.0;
+    try {
+      int totalBytes = 0;
+      final tempDir = await getTemporaryDirectory();
+      if (await tempDir.exists()) {
+        await for (final entity in tempDir.list(recursive: true, followLinks: false)) {
+          if (entity is File) {
+            try {
+              totalBytes += await entity.length();
+            } catch (_) {}
+          }
+        }
+      }
+      final appSupportDir = await getApplicationSupportDirectory();
+      if (await appSupportDir.exists()) {
+        await for (final entity in appSupportDir.list(recursive: true, followLinks: false)) {
+          if (entity is File && (entity.path.endsWith('.apk') || entity.path.endsWith('.bin') || entity.path.endsWith('.tmp'))) {
+            try {
+              totalBytes += await entity.length();
+            } catch (_) {}
+          }
+        }
+      }
+      return totalBytes / (1024 * 1024);
+    } catch (_) {
+      return 0.0;
+    }
+  }
+
+  /// Prune cached downloaded APKs, diff patches, and temporary files older than 30 minutes
+  /// or when force is true. If cache size exceeds 100MB, aggressive purge is applied.
+  Future<int> clearCache({bool force = false}) async {
+    if (kIsWeb) return 0;
+    int filesDeleted = 0;
+    try {
+      final now = DateTime.now();
+      final tempDir = await getTemporaryDirectory();
+      if (await tempDir.exists()) {
+        await for (final entity in tempDir.list(recursive: true, followLinks: false)) {
+          if (entity is File) {
+            try {
+              final stat = await entity.stat();
+              final ageMinutes = now.difference(stat.modified).inMinutes;
+              // Delete APKs, patch bins, tmp files, or if forced, or if file older than 30 mins
+              final isAppArtifact = entity.path.endsWith('.apk') ||
+                  entity.path.endsWith('.bin') ||
+                  entity.path.endsWith('.tmp') ||
+                  entity.path.contains('cache');
+              if (force || isAppArtifact || ageMinutes > 30) {
+                await entity.delete();
+                filesDeleted++;
+              }
+            } catch (_) {}
+          }
+        }
+      }
+
+      final appSupportDir = await getApplicationSupportDirectory();
+      if (await appSupportDir.exists()) {
+        await for (final entity in appSupportDir.list(recursive: true, followLinks: false)) {
+          if (entity is File && (entity.path.endsWith('.apk') || entity.path.endsWith('.bin') || entity.path.endsWith('.tmp'))) {
+            try {
+              await entity.delete();
+              filesDeleted++;
+            } catch (_) {}
+          }
+        }
+      }
+    } catch (_) {}
+    return filesDeleted;
+  }
 }
+

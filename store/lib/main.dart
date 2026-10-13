@@ -903,7 +903,7 @@ class _WaptiaSmoothProgressBarState extends State<WaptiaSmoothProgressBar>
     _currentProgress = widget.progress.clamp(0.0, 1.0);
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 220),
+      duration: const Duration(milliseconds: 140),
     );
     _animation = Tween<double>(begin: _currentProgress, end: _currentProgress)
         .animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
@@ -913,9 +913,10 @@ class _WaptiaSmoothProgressBarState extends State<WaptiaSmoothProgressBar>
   void didUpdateWidget(WaptiaSmoothProgressBar oldWidget) {
     super.didUpdateWidget(oldWidget);
     final target = widget.progress.clamp(0.0, 1.0);
-    if ((target - _currentProgress).abs() > 0.002) {
-      _animation = Tween<double>(begin: _animation.value, end: target).animate(
-        CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic),
+    if ((target - _currentProgress).abs() > 0.001) {
+      final currentAnimated = _animation.value;
+      _animation = Tween<double>(begin: currentAnimated, end: target).animate(
+        CurvedAnimation(parent: _controller, curve: Curves.linear),
       );
       _controller.forward(from: 0.0);
       _currentProgress = target;
@@ -1837,9 +1838,95 @@ class _WaptiaPolicyWorkspaceState extends State<WaptiaPolicyWorkspace> with Widg
 
         const SizedBox(height: 24),
 
-        // 4. CENTRAL REPOSITORY STATUS
+        // 4. STORAGE & CACHE HYGIENE
+        Text(
+          "STORAGE & CACHE HYGIENE",
+          style: GoogleFonts.outfit(
+            fontSize: 11,
+            fontWeight: FontWeight.bold,
+            color: AcousticColors.sonarCyan,
+            letterSpacing: 1.0,
+          ),
+        ),
+        const SizedBox(height: 8),
+
+        FutureBuilder<double>(
+          future: mgr.getCacheSizeBytes(),
+          builder: (context, snapshot) {
+            final cacheMb = snapshot.data ?? 0.0;
+            return Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: AcousticColors.darkCarbon,
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: AcousticColors.steel.withValues(alpha: 0.15)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text("Downloaded APKs & Cache", style: GoogleFonts.outfit(color: AcousticColors.titanium, fontWeight: FontWeight.bold)),
+                          const SizedBox(height: 2),
+                          Text(
+                            cacheMb > 0.05
+                                ? "${cacheMb.toStringAsFixed(1)} MB accumulated"
+                                : "Cache is clean (< 0.1 MB)",
+                            style: GoogleFonts.outfit(
+                              color: cacheMb > 100 ? Colors.orangeAccent : AcousticColors.steel,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
+                      ),
+                      ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AcousticColors.obsidian,
+                          foregroundColor: AcousticColors.sonarCyan,
+                          side: BorderSide(color: AcousticColors.sonarCyan.withValues(alpha: 0.3)),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                        ),
+                        icon: const Icon(Icons.delete_sweep_rounded, size: 16),
+                        label: Text("Clear Cache", style: GoogleFonts.outfit(fontSize: 12, fontWeight: FontWeight.bold)),
+                        onPressed: () async {
+                          final count = await mgr.clearCache(force: true);
+                          if (!context.mounted) return;
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                "Purged $count cached files and recovered disk storage.",
+                                style: GoogleFonts.outfit(),
+                              ),
+                              behavior: SnackBarBehavior.floating,
+                            ),
+                          );
+                          setState(() {});
+                        },
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    "Waptia Store automatically prunes downloaded installation packages and differential update fragments after install to prevent disk bloat.",
+                    style: GoogleFonts.outfit(color: AcousticColors.steel.withValues(alpha: 0.8), fontSize: 11),
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
+
+        const SizedBox(height: 24),
+
+        // 5. CENTRAL REPOSITORY STATUS
         Text(
           "CENTRAL REPOSITORY STATUS",
+
           style: GoogleFonts.outfit(
             fontSize: 11,
             fontWeight: FontWeight.bold,
