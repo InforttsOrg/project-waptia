@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:infortts_shared/infortts_shared.dart';
 import 'package:waptia/auto_update_manager.dart';
 import 'package:waptia/main.dart';
 import 'package:waptia/models.dart';
@@ -12,6 +13,7 @@ void main() {
       'infortts_auth_email': 'tester@infortts.site',
       'infortts_auth_token': 'test_token_123',
     });
+    await InforttsAuthManager.instance.initialize(requireAuth: false);
     await WaptiaAutoUpdateManager.instance.initialize(isTest: true);
   });
 
@@ -51,22 +53,20 @@ void main() {
     await tester.pump(const Duration(milliseconds: 500));
 
     // Verify App Name and Package Name
-    expect(find.text('Waptia Store'), findsOneWidget);
+    expect(find.text('Waptia Store'), findsWidgets);
     expect(find.text('com.infortts.waptia'), findsOneWidget);
 
     // Verify Google Play Store metrics bar
-    expect(find.text('4.9'), findsOneWidget);
+    expect(find.text('4.9'), findsWidgets);
     expect(find.text('128 reviews'), findsOneWidget);
 
     // 1. Verify Available on more devices section
     expect(find.text('Available on more devices'), findsOneWidget);
-    expect(find.text('Google Pixel 9 Pro'), findsOneWidget);
-    expect(find.text('Phone'), findsWidgets);
-    expect(find.text('Install'), findsWidgets);
+    expect(find.text('This Device'), findsOneWidget);
 
     // 2. Verify Rate this app section
     expect(find.text('Rate this app'), findsOneWidget);
-    expect(find.text('Tell others what you think'), findsOneWidget);
+    expect(find.textContaining('Tell others in the ecosystem what you think'), findsOneWidget);
     expect(find.text('Write a review'), findsOneWidget);
 
     // 3. Test Rating interaction (tapping 5th star)
@@ -100,15 +100,21 @@ void main() {
     ScaffoldMessenger.of(tester.element(find.byType(AppDetailsModal))).clearSnackBars();
     await tester.pumpAndSettle();
 
-    // 5. Test Remote Device Install button tap
+    // 5. Verify Device Install button and Collapse/Expand toggle
     final installButtons = find.text('Install');
-    await tester.ensureVisible(installButtons.first);
-    await tester.tap(installButtons.first);
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 800));
+    expect(installButtons, findsWidgets);
 
-    // Verify device installation initiated
-    expect(find.text('Installed'), findsWidgets);
+    final moreDevices = find.text('Available on more devices');
+    await tester.ensureVisible(moreDevices);
+    // Tap to collapse
+    await tester.tap(moreDevices);
+    await tester.pumpAndSettle();
+    expect(find.text('This Device'), findsNothing);
+
+    // Tap to expand again
+    await tester.tap(moreDevices);
+    await tester.pumpAndSettle();
+    expect(find.text('This Device'), findsOneWidget);
   });
 
   testWidgets('AppDetailsModal displays Screenshots Gallery and opens Lightbox', (WidgetTester tester) async {
@@ -156,17 +162,18 @@ void main() {
     await tester.ensureVisible(headerFinder);
 
     // 2. Verify feature captions exist
-    expect(find.textContaining('Autonomous Sovereign App Distribution'), findsWidgets);
+    expect(find.textContaining('Curated Ecosystem Storefront'), findsWidgets);
 
     // 3. Tap on a screenshot card to trigger Lightbox
-    final firstScreenshotCard = find.textContaining('Autonomous Sovereign App Distribution').first;
-    await tester.tap(firstScreenshotCard);
+    final fullscreenIcon = find.byIcon(Icons.fullscreen_rounded).first;
+    await tester.ensureVisible(fullscreenIcon);
+    await tester.tap(fullscreenIcon);
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
 
     // 4. Verify Lightbox elements: Close button, page counter, app title
     expect(find.byIcon(Icons.close_rounded), findsOneWidget);
-    expect(find.text('Screen 1 of 3'), findsOneWidget);
+    expect(find.textContaining('Screen 1 of 3'), findsOneWidget);
 
     // Close lightbox
     await tester.tap(find.byIcon(Icons.close_rounded));

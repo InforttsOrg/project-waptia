@@ -347,6 +347,7 @@ class _WaptiaExploreWorkspaceState extends State<WaptiaExploreWorkspace> {
 
   Widget _buildAppCard(BuildContext context, AppInstallState app) {
     return Container(
+      key: ValueKey('app_card_${app.slug}'),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: const Color(0xFF111827),
@@ -1159,6 +1160,7 @@ class WaptiaUpdatesWorkspace extends StatelessWidget {
 
   Widget _buildUpdateCard(BuildContext context, AppInstallState app) {
     return Container(
+      key: ValueKey('update_card_${app.slug}'),
       margin: const EdgeInsets.only(bottom: 14),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(

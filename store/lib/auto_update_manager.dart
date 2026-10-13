@@ -42,6 +42,16 @@ class WaptiaAutoUpdateManager {
 
   Timer? _bgCronTimer;
 
+  /// Safely updates an individual app in the list atomically to prevent race conditions during concurrent downloads
+  void _updateApp(String slug, AppInstallState Function(AppInstallState current) updater) {
+    final currentList = List<AppInstallState>.from(appsNotifier.value);
+    final idx = currentList.indexWhere((a) => a.slug == slug);
+    if (idx != -1) {
+      currentList[idx] = updater(currentList[idx]);
+      appsNotifier.value = currentList;
+    }
+  }
+
   /// Accurate semantic update detection avoiding false positives on build numbers
   static bool computeHasUpdate({
     required bool isInstalled,
@@ -60,7 +70,7 @@ class WaptiaAutoUpdateManager {
     // 1. Compare semantic version numbers (major.minor.patch)
     final semverCmp = compareSemver(vLate, vInst);
     if (semverCmp > 0) {
-      // Latest version is strictly higher (e.g., 2.09.01 > 2.09.00 or 1.3.0 > 1.2.0)
+      // Latest native release is strictly higher (e.g. 2.09.01 > 2.09.00 or 2.4.0 > 2.2.0)
       return true;
     }
     if (semverCmp < 0) {
@@ -68,15 +78,9 @@ class WaptiaAutoUpdateManager {
       return false;
     }
 
-    // 2. Versions are identical (e.g., both 1.2.0):
-    // Check if there is an active differential OTA patch
-    if (latestPatch > installedPatch && latestPatch > 1) {
-      return true;
-    }
-
-    // 3. Check for genuine build number bump:
-    // If latestBuild is in standard Infortts semantic encoding (e.g. 10200 for 1.2.0)
-    // while installedBuild was legacy Flutter default (+1 or 0), they represent the exact same version!
+    // 2. Versions are identical:
+    // Package updates are ONLY required when there is a true native build bump.
+    // OTA patches do not bump the native Android APK version and must not trigger package update loops.
     final expectedNormalized = encodeSemverToBuild(vLate);
     if (latestBuild == expectedNormalized && (installedBuild <= 1 || installedBuild == expectedNormalized)) {
       return false;
@@ -498,20 +502,19 @@ class WaptiaAutoUpdateManager {
 
   /// Update single app (downloads differential patch or falls back to in-app APK installer)
   Future<bool> updateApp(String slug, {void Function(double progress)? onProgress}) async {
-    final list = List<AppInstallState>.from(appsNotifier.value);
-    final idx = list.indexWhere((a) => a.slug == slug);
-    if (idx == -1) return false;
+    final initialList = appsNotifier.value;
+    final appIdx = initialList.indexWhere((a) => a.slug == slug);
+    if (appIdx == -1) return false;
 
-    final app = list[idx];
-    list[idx] = app.copyWith(
+    final app = initialList[appIdx];
+    _updateApp(slug, (current) => current.copyWith(
       isDownloading: true,
       downloadProgress: 0.1,
       downloadStatus: 'Checking updates...',
       downloadSpeed: '',
       downloadedMb: 0.0,
       totalMb: 0.0,
-    );
-    appsNotifier.value = list;
+    ));
 
     try {
       // 1. Attempt Silent Differential Patching only for same major.minor release
@@ -532,20 +535,18 @@ class WaptiaAutoUpdateManager {
         final manifest = await otaEngine.fetchManifest();
         if (manifest != null && manifest.latestPatch > 0) {
           onProgress?.call(0.4);
-          list[idx] = list[idx].copyWith(
+          _updateApp(slug, (current) => current.copyWith(
             downloadProgress: 0.4,
             downloadStatus: 'Downloading differential patch...',
-          );
-          appsNotifier.value = List.from(list);
+          ));
 
           patchSuccess = await otaEngine.downloadAndApplyPatch(manifest, onStatusChanged: (status, patch) {
             if (status == InforttsCdnOtaStatus.downloading) {
               onProgress?.call(0.7);
-              list[idx] = list[idx].copyWith(
+              _updateApp(slug, (current) => current.copyWith(
                 downloadProgress: 0.7,
                 downloadStatus: 'Applying differential patch...',
-              );
-              appsNotifier.value = List.from(list);
+              ));
             }
           });
         }
@@ -558,7 +559,7 @@ class WaptiaAutoUpdateManager {
         final prefs = await SharedPreferences.getInstance();
         await prefs.setInt('$_prefBuildPrefix${app.slug}', app.latestBuild);
         await prefs.setString('$_prefVersionPrefix${app.slug}', app.latestVersion);
-        list[idx] = list[idx].copyWith(
+        _updateApp(slug, (current) => current.copyWith(
           installedBuild: app.latestBuild,
           installedVersion: app.latestVersion,
           hasUpdate: false,
@@ -566,8 +567,7 @@ class WaptiaAutoUpdateManager {
           downloadProgress: 1.0,
           downloadSpeed: '',
           downloadStatus: 'Updated',
-        );
-        appsNotifier.value = list;
+        ));
         _recomputePendingCount();
 
         await showNotification(
@@ -581,13 +581,12 @@ class WaptiaAutoUpdateManager {
       return await installApp(slug, onProgress: onProgress);
     } catch (e) {
       if (kDebugMode) print('[WaptiaAutoUpdateManager] Failed updating ${app.slug}: $e');
-      list[idx] = list[idx].copyWith(
+      _updateApp(slug, (current) => current.copyWith(
         isDownloading: false,
         downloadProgress: 0.0,
         downloadSpeed: '',
         downloadStatus: '',
-      );
-      appsNotifier.value = list;
+      ));
       return false;
     }
   }
@@ -623,11 +622,11 @@ class WaptiaAutoUpdateManager {
 
   /// In-app download and native package installation (no browser redirect on Android)
   Future<bool> installApp(String slug, {void Function(double progress)? onProgress}) async {
-    final list = List<AppInstallState>.from(appsNotifier.value);
-    final idx = list.indexWhere((a) => a.slug == slug);
-    if (idx == -1) return false;
+    final initialList = appsNotifier.value;
+    final appIdx = initialList.indexWhere((a) => a.slug == slug);
+    if (appIdx == -1) return false;
 
-    final app = list[idx];
+    final app = initialList[appIdx];
     if (app.downloadUrl.isEmpty) return false;
 
     if (kIsWeb) {
@@ -635,15 +634,14 @@ class WaptiaAutoUpdateManager {
       return true;
     }
 
-    list[idx] = app.copyWith(
+    _updateApp(slug, (current) => current.copyWith(
       isDownloading: true,
       downloadProgress: 0.05,
       downloadStatus: 'Connecting...',
       downloadSpeed: '',
       downloadedMb: 0.0,
       totalMb: 0.0,
-    );
-    appsNotifier.value = List.from(list);
+    ));
     onProgress?.call(0.05);
 
     try {
@@ -654,25 +652,23 @@ class WaptiaAutoUpdateManager {
         appName: app.name,
         onProgress: onProgress,
         onProgressDetails: (details) {
-          list[idx] = list[idx].copyWith(
+          _updateApp(slug, (current) => current.copyWith(
             downloadProgress: details.progress,
             downloadedMb: details.downloadedMb,
             totalMb: details.totalMb,
             downloadSpeed: details.speed,
             downloadStatus: details.status,
-          );
-          appsNotifier.value = List<AppInstallState>.from(list);
+          ));
         },
         onNotify: (title, msg) => showNotification(title: title, message: msg),
       );
 
-      list[idx] = list[idx].copyWith(
+      _updateApp(slug, (current) => current.copyWith(
         isDownloading: false,
         downloadProgress: success ? 1.0 : 0.0,
         downloadSpeed: '',
         downloadStatus: success ? 'Installed' : '',
-      );
-      appsNotifier.value = List<AppInstallState>.from(list);
+      ));
       onProgress?.call(success ? 1.0 : 0.0);
 
       if (success) {
@@ -686,13 +682,12 @@ class WaptiaAutoUpdateManager {
       return success;
     } catch (e) {
       if (kDebugMode) print('[WaptiaAutoUpdateManager] Error downloading/installing ${app.slug}: $e');
-      list[idx] = list[idx].copyWith(
+      _updateApp(slug, (current) => current.copyWith(
         isDownloading: false,
         downloadProgress: 0.0,
         downloadSpeed: '',
         downloadStatus: '',
-      );
-      appsNotifier.value = List<AppInstallState>.from(list);
+      ));
       return false;
     }
   }

@@ -218,11 +218,11 @@ final List<AppInfo> inforttsCatalog = [
     iconUrl: 'https://waptia.infortts.site/icons/meeseeks.png',
     homepageUrl: 'https://play.google.com/apps/internaltest/4701299605514848597',
     repoPath: 'projects/meeseeks',
-    latest: {'android': '2.4.21'},
+    latest: {'android': '2.2.20'},
     versions: [
       AppVersion(
         platform: 'android',
-        version: '2.4.21',
+        version: '2.2.20',
         downloadUrl: 'https://huggingface.co/datasets/rttss/ota-patches/resolve/main/meeseeks/meeseeks.apk',
         sha256: '',
         sizeBytes: 54034227,
@@ -232,10 +232,9 @@ final List<AppInfo> inforttsCatalog = [
           '✓ Idempotent System Window Overlay with lifecycle recovery',
           '✓ OpenDroid permission diagnostics & accessibility bridge'
         ],
-        publishedAt: '2026-10-12T17:45:00Z',
-        buildNumber: 20421,
+        publishedAt: '2026-10-12T16:54:00Z',
+        buildNumber: 20420,
       ),
-
     ],
   ),
   const AppInfo(
@@ -248,11 +247,11 @@ final List<AppInfo> inforttsCatalog = [
     iconUrl: 'https://waptia.infortts.site/icons/mitochondria.png',
     homepageUrl: 'https://play.google.com/apps/internaltest/4701690297526834866',
     repoPath: 'projects/mitochondria',
-    latest: {'android': '2.08.11'},
+    latest: {'android': '2.08.00'},
     versions: [
       AppVersion(
         platform: 'android',
-        version: '2.08.11',
+        version: '2.08.00',
         downloadUrl: 'https://huggingface.co/datasets/rttss/ota-patches/resolve/main/mitochondria/mitochondria.apk',
         sha256: '',
         sizeBytes: 45000000,
@@ -261,8 +260,8 @@ final List<AppInfo> inforttsCatalog = [
           '✓ Operator account alias resolution and forensic sync',
           '✓ Zero-latency chart canvas rendering'
         ],
-        publishedAt: '2026-10-12T17:45:00Z',
-        buildNumber: 20811,
+        publishedAt: '2026-10-12T16:54:00Z',
+        buildNumber: 20800,
       ),
     ],
   ),
