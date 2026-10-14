@@ -3,6 +3,10 @@
 Infortts Hugging Face CDN Uploader for Jenkins CI/CD.
 Uploads built APK binaries, OTA patches, and manifests directly to Hugging Face Dataset CDN (rttss/ota-patches).
 Guarantees 0 bytes static binary accumulation on VPS infrastructure.
+
+IMPORTANT: The manifest always reflects the canonical BASE RELEASE version (e.g. 2.08.00),
+never an OTA-patched version. OTA patches are tracked separately via --latest-patch.
+This prevents false "update available" prompts in apps that have already applied OTA patches.
 """
 
 import os
@@ -41,6 +45,27 @@ def sha256_file(filepath):
             h.update(chunk)
     return h.hexdigest()
 
+def parse_base_version(version_str):
+    """
+    Derive canonical base release version and build number.
+    Input: e.g. "2.08.01+20801" or "2.08.00" or "2.4.0"
+    Returns (base_version_str, base_build_int)
+    e.g. ("2.08.00", 20800) or ("2.04.00", 20400)
+    """
+    clean = version_str.split("+")[0].strip()
+    parts = clean.split(".")
+    if len(parts) >= 3:
+        epoch = parts[0]
+        major = parts[1].zfill(2)
+        # Base release always has minor = 00
+        base_version = f"{epoch}.{major}.00"
+        try:
+            build = int(f"{epoch}{major}00")
+        except ValueError:
+            build = 0
+        return base_version, build
+    return clean, 0
+
 def main():
     parser = argparse.ArgumentParser(description="Upload APKs and OTA patches to Hugging Face CDN.")
     parser.add_argument("--slug", required=True, help="App slug name (e.g. waptia, mitochondria)")
@@ -48,6 +73,8 @@ def main():
     parser.add_argument("--patch", help="Path to OTA differential patch file")
     parser.add_argument("--version", default="1.0.0", help="Version name (e.g. 1.2.0 or 2.03.01+20301)")
     parser.add_argument("--version-code", type=int, default=1, help="Android Version code")
+    parser.add_argument("--latest-patch", type=int, default=0,
+                        help="OTA patch number to embed in manifest (0 = base release, no patches yet)")
     parser.add_argument("--track", default="internal", help="Distribution track (internal, alpha, beta, production)")
     parser.add_argument("--repo", default="rttss/ota-patches", help="Hugging Face Dataset repo ID")
     parser.add_argument("--token", help="Hugging Face write token")
@@ -76,11 +103,32 @@ def main():
         print(f"[WARN] Repository check: {e}")
 
     slug = args.slug.strip().lower()
+
+    # Compute canonical base release version — NEVER use OTA-patched version in manifest.
+    # OTA patches increment the minor segment; the manifest must always reflect the base
+    # release so that Waptia/apps with OTA patches installed don't see a false "update available".
+    base_version, base_build = parse_base_version(args.version)
+
+    # If --version-code was explicitly provided and looks like a proper build number, use it
+    # as the latestBuild. Otherwise derive it from base_version.
+    latest_build = base_build if args.version_code == 1 else args.version_code
+    # Clamp to base (strip OTA patch increment from build code)
+    if latest_build > 0:
+        build_str = str(latest_build)
+        if len(build_str) == 5:  # e.g. 20801 -> base is 20800
+            latest_build = int(build_str[:4] + "00")
+
+    latest_patch = args.latest_patch
+
     manifest = {
         "slug": slug,
         "package_name": f"com.infortts.{slug}",
-        "version_name": args.version,
-        "version_code": args.version_code,
+        # Canonical release version — base only, no OTA patch suffix
+        "version": base_version,
+        "version_name": f"{base_version}+{latest_build}",
+        "version_code": latest_build,
+        "latestBuild": latest_build,
+        "latestPatch": latest_patch,
         "track": args.track,
         "apk_url": f"https://huggingface.co/datasets/{repo_id}/resolve/main/{slug}/{slug}.apk",
         "updated_at": int(time.time()),
@@ -100,7 +148,7 @@ def main():
             path_in_repo=f"{slug}/{slug}.apk",
             repo_id=repo_id,
             repo_type="dataset",
-            commit_message=f"CI: Release APK {slug} v{args.version} [{args.track}]"
+            commit_message=f"CI: Release APK {slug} v{base_version} [{args.track}]"
         )
         print(f"[HF CDN] APK Live CDN: https://huggingface.co/datasets/{repo_id}/resolve/main/{slug}/{slug}.apk")
 
@@ -121,7 +169,7 @@ def main():
             path_in_repo=f"{slug}/patches/{patch_name}",
             repo_id=repo_id,
             repo_type="dataset",
-            commit_message=f"CI: OTA Patch {slug} v{args.version}"
+            commit_message=f"CI: OTA Patch {slug} v{base_version} patch#{latest_patch}"
         )
 
     # 3. Upload Manifest
@@ -131,7 +179,7 @@ def main():
         path_in_repo=f"{slug}/manifest.json",
         repo_id=repo_id,
         repo_type="dataset",
-        commit_message=f"CI: Update manifest for {slug} v{args.version}"
+        commit_message=f"CI: Update manifest for {slug} v{base_version} (latestBuild={latest_build}, latestPatch={latest_patch})"
     )
     print(f"[HF CDN] Manifest Live: https://huggingface.co/datasets/{repo_id}/raw/main/{slug}/manifest.json")
     print(json.dumps(manifest, indent=2))
