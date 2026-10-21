@@ -104,28 +104,47 @@ def main():
 
     slug = args.slug.strip().lower()
 
-    # Compute canonical base release version — NEVER use OTA-patched version in manifest.
-    # OTA patches increment the minor segment; the manifest must always reflect the base
-    # release so that Waptia/apps with OTA patches installed don't see a false "update available".
+    clean_version = args.version.split("+")[0].strip()
+    version_parts = clean_version.split(".")
     base_version, base_build = parse_base_version(args.version)
 
-    # If --version-code was explicitly provided and looks like a proper build number, use it
-    # as the latestBuild. Otherwise derive it from base_version.
     latest_build = base_build if args.version_code == 1 else args.version_code
-    # Clamp to base (strip OTA patch increment from build code)
-    if latest_build > 0:
-        build_str = str(latest_build)
-        if len(build_str) == 5:  # e.g. 20801 -> base is 20800
-            latest_build = int(build_str[:4] + "00")
+    if latest_build == 0 and len(args.version.split("+")) > 1:
+        try:
+            latest_build = int("".join(filter(str.isdigit, args.version.split("+")[1])))
+        except ValueError:
+            latest_build = 0
 
     latest_patch = args.latest_patch
+    if latest_patch == 0 and len(version_parts) >= 3:
+        try:
+            latest_patch = int(version_parts[2])
+        except ValueError:
+            latest_patch = 0
+
+    # Auto-extract Flutter AOT differential patch from APK if --patch is missing or Gradle artifact
+    patch_file = args.patch
+    is_invalid_patch = not patch_file or not os.path.exists(patch_file) or patch_file.endswith("outputFiles.bin")
+    if is_invalid_patch and args.apk and os.path.exists(args.apk):
+        import zipfile
+        try:
+            with zipfile.ZipFile(args.apk, "r") as z:
+                for candidate in ["lib/arm64-v8a/libapp.so", "lib/armeabi-v7a/libapp.so", "lib/x86_64/libapp.so"]:
+                    if candidate in z.namelist():
+                        extracted = f"/tmp/patch_{latest_patch}.so"
+                        with open(extracted, "wb") as f_out:
+                            f_out.write(z.read(candidate))
+                        patch_file = extracted
+                        print(f"[HF CDN] Auto-extracted AOT patch ({candidate}) -> {patch_file} ({os.path.getsize(patch_file)} bytes)")
+                        break
+        except Exception as e:
+            print(f"[WARN] Could not extract libapp.so from APK: {e}")
 
     manifest = {
         "slug": slug,
         "package_name": f"com.infortts.{slug}",
-        # Canonical release version — base only, no OTA patch suffix
-        "version": base_version,
-        "version_name": f"{base_version}+{latest_build}",
+        "version": clean_version,
+        "version_name": f"{clean_version}+{latest_build}",
         "version_code": latest_build,
         "latestBuild": latest_build,
         "latestPatch": latest_patch,
@@ -148,15 +167,15 @@ def main():
             path_in_repo=f"{slug}/{slug}.apk",
             repo_id=repo_id,
             repo_type="dataset",
-            commit_message=f"CI: Release APK {slug} v{base_version} [{args.track}]"
+            commit_message=f"CI: Release APK {slug} v{clean_version} [{args.track}]"
         )
         print(f"[HF CDN] APK Live CDN: https://huggingface.co/datasets/{repo_id}/resolve/main/{slug}/{slug}.apk")
 
-    # 2. Upload Patch if provided
-    if args.patch and os.path.exists(args.patch):
-        patch_name = os.path.basename(args.patch)
-        patch_size = os.path.getsize(args.patch)
-        patch_hash = sha256_file(args.patch)
+    # 2. Upload Patch if provided or auto-extracted
+    if patch_file and os.path.exists(patch_file):
+        patch_name = os.path.basename(patch_file)
+        patch_size = os.path.getsize(patch_file)
+        patch_hash = sha256_file(patch_file)
         manifest["patch"] = {
             "filename": patch_name,
             "size_bytes": patch_size,
@@ -165,11 +184,11 @@ def main():
         }
         print(f"[HF CDN] Uploading patch {patch_name} ({patch_size / 1024:.2f} KB)...")
         api.upload_file(
-            path_or_fileobj=args.patch,
+            path_or_fileobj=patch_file,
             path_in_repo=f"{slug}/patches/{patch_name}",
             repo_id=repo_id,
             repo_type="dataset",
-            commit_message=f"CI: OTA Patch {slug} v{base_version} patch#{latest_patch}"
+            commit_message=f"CI: OTA Patch {slug} v{clean_version} patch#{latest_patch}"
         )
 
     # 3. Upload Manifest
