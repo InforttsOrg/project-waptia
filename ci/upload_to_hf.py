@@ -124,7 +124,7 @@ def main():
 
     # Auto-extract Flutter AOT differential patch from APK if --patch is missing or Gradle artifact
     patch_file = args.patch
-    is_invalid_patch = not patch_file or not os.path.exists(patch_file) or patch_file.endswith("outputFiles.bin")
+    is_invalid_patch = not patch_file or not os.path.exists(patch_file) or patch_file.endswith("outputFiles.bin") or patch_file.endswith("AssetManifest.bin")
     if is_invalid_patch and args.apk and os.path.exists(args.apk):
         import zipfile
         try:
