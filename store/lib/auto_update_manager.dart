@@ -62,6 +62,7 @@ class WaptiaAutoUpdateManager {
     required int latestBuild,
     int installedPatch = 0,
     int latestPatch = 0,
+    bool isHostApp = false,
   }) {
     if (!isInstalled) return false;
 
@@ -83,12 +84,20 @@ class WaptiaAutoUpdateManager {
     }
 
     // 2. Base release is identical (e.g. both 2.04.00 or both 2.08.00):
-    // Only flag package update if there is a true native build number bump
-    // that exceeds the canonical base build number.
-    final expectedNormalized = encodeSemverToBuild(baseLate);
-    if (latestBuild > 0 && installedBuild > 0 && latestBuild != expectedNormalized) {
-      if ((latestBuild >= 1000 && installedBuild >= 1000) || (latestBuild < 1000 && installedBuild < 1000)) {
-        return latestBuild > installedBuild;
+    // For the host app (Waptia itself), OTA patches can be applied in-app, so check build/patch bump.
+    // For external apps (e.g. Mitochondria), OTA differential patches are decoupled and applied
+    // directly by each app's in-process InforttsCdnOtaEngine. Android sandbox forbids Waptia from
+    // writing patches into external app directories. Therefore, external apps only require a
+    // Waptia update if there is a new base native release (handled above).
+    if (isHostApp) {
+      final expectedNormalized = encodeSemverToBuild(baseLate);
+      if (latestBuild > 0 && installedBuild > 0 && latestBuild != expectedNormalized) {
+        if ((latestBuild >= 1000 && installedBuild >= 1000) || (latestBuild < 1000 && installedBuild < 1000)) {
+          return latestBuild > installedBuild;
+        }
+      }
+      if (latestPatch > installedPatch && latestPatch > 0) {
+        return true;
       }
     }
 
@@ -168,6 +177,7 @@ class WaptiaAutoUpdateManager {
           installedBuild: installedBuild,
           latestVersion: latestVer,
           latestBuild: latestBuild,
+          isHostApp: (app.slug == 'waptia'),
         ),
         releaseNotes: app.versions.isNotEmpty ? app.versions.first.releaseNotes : ['✓ Infortts sovereign release'],
         downloadUrl: app.versions.isNotEmpty ? app.versions.first.downloadUrl : 'https://update.infortts.site/download/${app.slug}.apk',
@@ -259,6 +269,7 @@ class WaptiaAutoUpdateManager {
                 latestVersion: app.latestVersion,
                 latestBuild: app.latestBuild,
                 latestPatch: app.latestPatch,
+                isHostApp: (app.slug == 'waptia'),
               ),
             );
           } else {
@@ -426,6 +437,7 @@ class WaptiaAutoUpdateManager {
               latestVersion: effectiveLatestVer,
               latestBuild: effectiveLatestBuild,
               latestPatch: latestPatch,
+              isHostApp: (app.slug == 'waptia'),
             );
             return app.copyWith(
               latestVersion: effectiveLatestVer,
@@ -523,7 +535,10 @@ class WaptiaAutoUpdateManager {
       // native APK installation is required so Android OS PackageManager updates the version name.
       final vInstBase = InforttsVersionHelper.getBaseVersion(app.installedVersion);
       final vLateBase = InforttsVersionHelper.getBaseVersion(app.latestVersion);
-      final bool canUseDifferentialPatch = (vInstBase == vLateBase);
+      // Differential patching is only valid for Waptia itself (the host app).
+      // External apps (e.g. Mitochondria) run in their own Android sandbox and must apply
+      // differential patches internally using their own in-process InforttsCdnOtaEngine.
+      final bool canUseDifferentialPatch = (slug == 'waptia') && (vInstBase == vLateBase);
 
       bool patchSuccess = false;
       if (canUseDifferentialPatch) {
