@@ -122,12 +122,9 @@ def main():
         except ValueError:
             latest_patch = 0
 
-    if latest_patch > 0 and (latest_build == base_build or latest_build == 0):
-        latest_build = base_build + latest_patch
-
     # Auto-extract Flutter AOT differential patch from APK if --patch is missing or Gradle artifact
     patch_file = args.patch
-    is_invalid_patch = not patch_file or not os.path.exists(patch_file) or patch_file.endswith("outputFiles.bin") or patch_file.endswith("AssetManifest.bin")
+    is_invalid_patch = not patch_file or not os.path.exists(patch_file) or patch_file.endswith("outputFiles.bin")
     if is_invalid_patch and args.apk and os.path.exists(args.apk):
         import zipfile
         try:

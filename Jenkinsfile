@@ -55,8 +55,8 @@ stage('Flutter: waptia') {
         sh '''
           # Ensure shared package is available for monorepo-style path dependencies
           mkdir -p ../../shared ../shared
-          cp -r /Users/admin/rttss-sahil/inforttsOrg/projects/shared/* ../shared/ 2>/dev/null || true
-          cp -r /Users/admin/rttss-sahil/inforttsOrg/projects/shared/* ../../shared/ 2>/dev/null || true
+          cp -r /Users/admin/dev/inforttsOrg/projects/shared/* ../shared/ 2>/dev/null || true
+          cp -r /Users/admin/dev/inforttsOrg/projects/shared/* ../../shared/ 2>/dev/null || true
 
           TARGET_DIR="${APP_DIR:-.}"
           if [ ! -f "$TARGET_DIR/pubspec.yaml" ]; then
@@ -215,6 +215,14 @@ stage('Flutter: waptia') {
           }
         }
       }
+      post {
+        always {
+          sh '''
+            echo "🧹 Post-stage cleanup: purging build/, .dart_tool/, and android/.gradle to keep single global cache..."
+            find . -maxdepth 6 -type d \( -name "build" -o -name ".dart_tool" -o -name ".gradle" \) -prune -exec rm -rf {} + 2>/dev/null || true
+          '''
+        }
+      }
     }
 
 stage('OTA registry: com.infortts.waptia') {
@@ -349,5 +357,8 @@ stage('Tag success') {
   post {
     success { echo "Pipeline ${env.JOB_NAME} #${env.BUILD_NUMBER} SUCCEEDED" }
     failure { echo "Pipeline ${env.JOB_NAME} #${env.BUILD_NUMBER} FAILED" }
+    always {
+      cleanWs(cleanWhenSuccess: true, cleanWhenFailure: true, notFailBuild: true, deleteDirs: true)
+    }
   }
 }
