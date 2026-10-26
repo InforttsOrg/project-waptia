@@ -359,6 +359,19 @@ class WaptiaAutoUpdateManager {
 
   /// Dispatch local system notification for downloads, installs, or updates
   Future<void> showNotification({required String title, required String message}) async {
+    // Inject into in-app notification center for Waptia Store
+    try {
+      final session = InforttsAuthManager.instance.currentSession;
+      final userId = (session != null && !session.isGuest && session.authenticated) ? session.userId : null;
+      InforttsNotificationService.instance.addLocalNotification(
+        title: title,
+        body: message,
+        topic: 'waptia.store',
+        category: 'STORE',
+        targetUserId: userId,
+      );
+    } catch (_) {}
+
     if (kIsWeb) return;
     try {
       await _systemChannel.invokeMethod('showNotification', {
