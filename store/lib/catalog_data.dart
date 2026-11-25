@@ -17,9 +17,9 @@ final List<AppInfo> inforttsCatalog = [
       AppVersion(
         platform: 'android',
         version: '2.01.00',
-        downloadUrl: 'https://huggingface.co/datasets/rttss/ota-patches/resolve/main/gaussian-reality/gaussian-reality.apk',
+        downloadUrl: 'https://waptia.infortts.site/download/gaussian-reality.apk',
         sha256: '',
-        sizeBytes: 48500000,
+        sizeBytes: 54100000,
         releaseNotes: [
           '✓ WGS84 High-Precision Ellipsoidal Geodesy Engine',
           '✓ 3D Gaussian Splatting Point Cloud on Curved Geoid',

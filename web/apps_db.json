@@ -12,11 +12,18 @@
     ],
     "status": "ready",
     "version": "v2.01.00",
-    "bundleSize": "48.5 MB",
+    "bundleSize": "54.1 MB",
     "optInUrl": "https://gaussianreality.infortts.site",
     "playStoreUrl": "https://play.google.com/store/apps/details?id=com.infortts.gaussianreality",
-    "apkDownloadUrl": "https://huggingface.co/datasets/rttss/ota-patches/resolve/main/gaussian-reality/gaussian-reality.apk",
-    "otaChannel": "https://huggingface.co/datasets/rttss/ota-patches/raw/main/gaussian-reality/manifest.json",
+    "apkDownloadUrl": "https://waptia.infortts.site/download/gaussian-reality.apk",
+    "otaChannel": "https://waptia.infortts.site/api/v1/ota/check?app=gaussian-reality&channel=production",
+    "channels": [
+      "production",
+      "beta",
+      "alpha",
+      "internal",
+      "ota"
+    ],
     "rating": 5.0,
     "superadminOnly": false,
     "updates": [

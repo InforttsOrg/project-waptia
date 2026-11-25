@@ -191,7 +191,7 @@ def main():
             commit_message=f"CI: OTA Patch {slug} v{clean_version} patch#{latest_patch}"
         )
 
-    # 3. Upload Manifest
+    # 3. Upload Manifest (root + channel-scoped)
     manifest_bytes = json.dumps(manifest, indent=2).encode("utf-8")
     api.upload_file(
         path_or_fileobj=manifest_bytes,
@@ -200,6 +200,14 @@ def main():
         repo_type="dataset",
         commit_message=f"CI: Update manifest for {slug} v{base_version} (latestBuild={latest_build}, latestPatch={latest_patch})"
     )
+    if args.track:
+        api.upload_file(
+            path_or_fileobj=manifest_bytes,
+            path_in_repo=f"{slug}/channels/{args.track}/manifest.json",
+            repo_id=repo_id,
+            repo_type="dataset",
+            commit_message=f"CI: Update {args.track} channel manifest for {slug} v{clean_version}"
+        )
     print(f"[HF CDN] Manifest Live: https://huggingface.co/datasets/{repo_id}/raw/main/{slug}/manifest.json")
     print(json.dumps(manifest, indent=2))
 

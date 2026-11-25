@@ -69,17 +69,17 @@ class _WaptiaStoreAppState extends State<WaptiaStoreApp> with WidgetsBindingObse
                   additionalTabs: [
                     InforttsTab(
                       label: 'Explore',
-                      icon: Icons.storefront_outlined,
+                      icon: LucideIcons.store,
                       builder: (_) => const WaptiaExploreWorkspace(),
                     ),
                     InforttsTab(
                       label: pendingCount > 0 ? 'Updates ($pendingCount)' : 'Updates',
-                      icon: Icons.system_update_alt_rounded,
+                      icon: LucideIcons.downloadCloud,
                       builder: (_) => const WaptiaUpdatesWorkspace(),
                     ),
                     InforttsTab(
                       label: 'Auto-Update Policy',
-                      icon: Icons.tune_rounded,
+                      icon: LucideIcons.sliders,
                       builder: (_) => const WaptiaPolicyWorkspace(),
                     ),
                   ],
@@ -208,7 +208,7 @@ class _WaptiaExploreWorkspaceState extends State<WaptiaExploreWorkspace> {
                     decoration: InputDecoration(
                       hintText: 'Search 28 ecosystem applications...',
                       hintStyle: GoogleFonts.outfit(color: AcousticColors.steel),
-                      prefixIcon: Icon(Icons.search, color: AcousticColors.sonarCyan),
+                      prefixIcon: Icon(LucideIcons.search, color: AcousticColors.sonarCyan),
                       filled: true,
                       fillColor: AcousticColors.darkCarbon,
                       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -263,7 +263,7 @@ class _WaptiaExploreWorkspaceState extends State<WaptiaExploreWorkspace> {
                   const SizedBox(height: 10),
                   Row(
                     children: [
-                      Icon(Icons.sort_rounded, size: 14, color: AcousticColors.sonarCyan),
+                      Icon(LucideIcons.arrowUpDown, size: 14, color: AcousticColors.sonarCyan),
                       const SizedBox(width: 6),
                       Text(
                         'SORT:',
@@ -564,7 +564,7 @@ class _WaptiaExploreWorkspaceState extends State<WaptiaExploreWorkspace> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         elevation: 0,
       ),
-      icon: const Icon(Icons.play_arrow_rounded, size: 16, color: Color(0xFF38BDF8)),
+      icon: const Icon(LucideIcons.play, size: 16, color: Color(0xFF38BDF8)),
       onPressed: () => WaptiaAutoUpdateManager.instance.openApp(app.packageName),
       label: Text('Open', style: GoogleFonts.outfit(fontSize: 12, fontWeight: FontWeight.bold)),
     );
@@ -610,7 +610,7 @@ class _WaptiaExploreWorkspaceState extends State<WaptiaExploreWorkspace> {
                   clipBehavior: Clip.none,
                   children: [
                     Icon(
-                      hasAlerts ? Icons.notifications_active_outlined : Icons.notifications_outlined,
+                      hasAlerts ? LucideIcons.bellRing : LucideIcons.bell,
                       size: 20,
                       color: hasAlerts ? AcousticColors.sonarCyan : AcousticColors.titanium,
                     ),
@@ -638,160 +638,6 @@ class _WaptiaExploreWorkspaceState extends State<WaptiaExploreWorkspace> {
                       ),
                   ],
                 ),
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
-
-  void _showNotificationSheet(BuildContext context, bool isGranted, int pendingCount) {
-    InforttsNotificationCenter.show(context, appName: 'Waptia Store');
-    return;
-  }
-
-  void _legacyUnusedSheet(BuildContext context, [bool isGranted = true]) {
-    if (!context.mounted) return;
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: const Color(0xFF111827),
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (ctx) {
-        return StatefulBuilder(
-          builder: (context, setSheetState) {
-            return Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          Icon(Icons.notifications_active_outlined, color: AcousticColors.sonarCyan, size: 22),
-                          const SizedBox(width: 10),
-                          Text(
-                            'WAPTIA NOTIFICATIONS',
-                            style: GoogleFonts.outfit(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: 1.5,
-                              color: AcousticColors.titanium,
-                            ),
-                          ),
-                        ],
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.close, color: Colors.white70, size: 20),
-                        onPressed: () => Navigator.pop(ctx),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  Container(
-                    padding: const EdgeInsets.all(14),
-                    decoration: BoxDecoration(
-                      color: AcousticColors.obsidian,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: isGranted ? const Color(0xFF10B981).withValues(alpha: 0.3) : const Color(0xFFF59E0B).withValues(alpha: 0.4),
-                      ),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                              decoration: BoxDecoration(
-                                color: isGranted ? const Color(0xFF10B981).withValues(alpha: 0.15) : const Color(0xFFF59E0B).withValues(alpha: 0.15),
-                                borderRadius: BorderRadius.circular(6),
-                                border: Border.all(
-                                  color: isGranted ? const Color(0xFF10B981) : const Color(0xFFF59E0B),
-                                  width: 0.8,
-                                ),
-                              ),
-                              child: Text(
-                                isGranted ? 'ACTIVE' : 'PERMISSION REQUIRED',
-                                style: GoogleFonts.jetBrainsMono(
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.bold,
-                                  color: isGranted ? const Color(0xFF10B981) : const Color(0xFFF59E0B),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 10),
-                        Text(
-                          isGranted
-                              ? 'Waptia Store dispatches system notifications solely when:\n• In-app APK downloads complete\n• Ecosystem applications finish installing\n• New version updates are discovered on the cluster'
-                              : 'Notification permission is required so Waptia Store can alert you when APK downloads complete, apps finish installing, or new releases become available.',
-                          style: GoogleFonts.outfit(
-                            fontSize: 12,
-                            color: AcousticColors.titanium,
-                            height: 1.5,
-                          ),
-                        ),
-                        if (!isGranted) ...[
-                          const SizedBox(height: 14),
-                          SizedBox(
-                            width: double.infinity,
-                            child: ElevatedButton.icon(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: AcousticColors.sonarCyan,
-                                foregroundColor: Colors.black,
-                                padding: const EdgeInsets.symmetric(vertical: 12),
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                              ),
-                              icon: const Icon(Icons.check_circle_outline, size: 18),
-                              label: Text(
-                                'GRANT NOTIFICATION ACCESS',
-                                style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 13),
-                              ),
-                              onPressed: () async {
-                                await WaptiaAutoUpdateManager.instance.requestNotificationPermission();
-                                final granted = await WaptiaAutoUpdateManager.instance.isNotificationPermissionGranted();
-                                setSheetState(() {
-                                  isGranted = granted;
-                                });
-                              },
-                            ),
-                          ),
-                        ],
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  SizedBox(
-                    width: double.infinity,
-                    child: OutlinedButton.icon(
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: AcousticColors.sonarCyan,
-                        side: BorderSide(color: AcousticColors.sonarCyan.withValues(alpha: 0.5)),
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                      ),
-                      icon: const Icon(Icons.inbox_rounded, size: 18),
-                      label: Text(
-                        'OPEN NOTIFICATION INTELLIGENCE',
-                        style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 12),
-                      ),
-                      onPressed: () {
-                        Navigator.pop(ctx);
-                        InforttsNotificationCenter.show(context, appName: 'Waptia Store');
-                      },
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                ],
               ),
             );
           },
@@ -853,7 +699,7 @@ class _WaptiaSpinningRefreshButtonState extends State<_WaptiaSpinningRefreshButt
           icon: RotationTransition(
             turns: _controller,
             child: Icon(
-              Icons.refresh_rounded,
+              LucideIcons.refreshCw,
               size: 15,
               color: AcousticColors.sonarCyan,
             ),
@@ -1065,7 +911,7 @@ class WaptiaUpdatesWorkspace extends StatelessWidget {
           children: [
             Row(
               children: [
-                Icon(Icons.bolt_rounded, color: AcousticColors.sonarCyan, size: 24),
+                Icon(LucideIcons.zap, color: AcousticColors.sonarCyan, size: 24),
                 const SizedBox(width: 10),
                 Text(
                   "$pendingCount Updates Available",
@@ -1110,7 +956,7 @@ class WaptiaUpdatesWorkspace extends StatelessWidget {
                               },
                         icon: isBatch
                             ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black))
-                            : const Icon(Icons.update_rounded, size: 18),
+                            : const Icon(LucideIcons.rotateCw, size: 18),
                         label: Text(
                           isBatch ? 'Updating Fleet...' : 'Update All ($pendingCount Apps)',
                           style: GoogleFonts.outfit(fontWeight: FontWeight.bold),
@@ -1135,7 +981,7 @@ class WaptiaUpdatesWorkspace extends StatelessWidget {
       ),
       child: Row(
         children: [
-          const Icon(Icons.check_circle_rounded, color: Colors.greenAccent, size: 28),
+          const Icon(LucideIcons.circleCheck, color: Colors.greenAccent, size: 28),
           const SizedBox(width: 14),
           Expanded(
             child: Column(
@@ -1247,7 +1093,7 @@ class WaptiaUpdatesWorkspace extends StatelessWidget {
                           Text('v${app.installedVersion}', style: GoogleFonts.jetBrainsMono(fontSize: 11, color: AcousticColors.steel)),
                           Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 5),
-                            child: Icon(Icons.arrow_forward_rounded, size: 11, color: AcousticColors.sonarCyan),
+                            child: Icon(LucideIcons.arrowRight, size: 11, color: AcousticColors.sonarCyan),
                           ),
                           Text(
                             'v${app.latestVersion}${app.latestBuild > 0 && app.latestBuild != app.installedBuild ? ' (Build ${app.latestBuild})' : ''}',
@@ -1347,7 +1193,7 @@ class WaptiaUpdatesWorkspace extends StatelessWidget {
                         sUrl,
                         fit: BoxFit.cover,
                         errorBuilder: (_, __, ___) => Center(
-                          child: Icon(Icons.phone_android_rounded, size: 20, color: AcousticColors.steel),
+                          child: Icon(LucideIcons.smartphone, size: 20, color: AcousticColors.steel),
                         ),
                       ),
                     ),
@@ -1370,7 +1216,7 @@ class WaptiaUpdatesWorkspace extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    Icon(Icons.new_releases_rounded, size: 12, color: AcousticColors.sonarCyan),
+                    Icon(LucideIcons.sparkles, size: 12, color: AcousticColors.sonarCyan),
                     const SizedBox(width: 5),
                     Text(
                       "WHAT'S NEW",
@@ -1488,7 +1334,7 @@ class WaptiaUpdatesWorkspace extends StatelessWidget {
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
               elevation: 0,
             ),
-            icon: const Icon(Icons.play_arrow_rounded, size: 14, color: Color(0xFF38BDF8)),
+            icon: const Icon(LucideIcons.play, size: 14, color: Color(0xFF38BDF8)),
             onPressed: () => WaptiaAutoUpdateManager.instance.openApp(app.packageName),
             label: Text('Open', style: GoogleFonts.outfit(fontSize: 11, fontWeight: FontWeight.bold)),
           ),
@@ -1582,7 +1428,7 @@ class _WaptiaPolicyWorkspaceState extends State<WaptiaPolicyWorkspace> with Widg
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Icon(
-                    _canInstallPackages ? Icons.verified_user_rounded : Icons.security_rounded,
+                    _canInstallPackages ? LucideIcons.shieldCheck : LucideIcons.shield,
                     color: _canInstallPackages ? Colors.greenAccent : const Color(0xFFF59E0B),
                     size: 22,
                   ),
@@ -1634,7 +1480,7 @@ class _WaptiaPolicyWorkspaceState extends State<WaptiaPolicyWorkspace> with Widg
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                     elevation: 0,
                   ),
-                  icon: const Icon(Icons.tune_rounded, size: 14),
+                  icon: const Icon(LucideIcons.sliders, size: 14),
                   label: Text("Configure", style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 12)),
                   onPressed: () async {
                     await mgr.requestInstallPermission();
@@ -1655,7 +1501,7 @@ class _WaptiaPolicyWorkspaceState extends State<WaptiaPolicyWorkspace> with Widg
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Icon(
-                    _notificationGranted ? Icons.notifications_active_rounded : Icons.notifications_none_rounded,
+                    _notificationGranted ? LucideIcons.bellRing : LucideIcons.bell,
                     color: _notificationGranted ? Colors.greenAccent : AcousticColors.sonarCyan,
                     size: 22,
                   ),
@@ -1751,13 +1597,33 @@ class _WaptiaPolicyWorkspaceState extends State<WaptiaPolicyWorkspace> with Widg
             children: [
               SwitchListTile(
                 title: Text("Automatic Fleet Updates", style: GoogleFonts.outfit(color: AcousticColors.titanium, fontWeight: FontWeight.bold)),
-                subtitle: Text("Check update.infortts.site and automatically install patches in background like F-Droid", style: GoogleFonts.outfit(color: AcousticColors.steel, fontSize: 12)),
+                subtitle: Text("Check waptia.infortts.site across all channels and apply updates automatically", style: GoogleFonts.outfit(color: AcousticColors.steel, fontSize: 12)),
                 value: mgr.autoUpdateMaster,
                 activeTrackColor: AcousticColors.sonarCyan,
                 onChanged: (val) async {
                   await mgr.setAutoUpdateMaster(val);
                   setState(() {});
                 },
+              ),
+              Divider(height: 1, color: AcousticColors.obsidian),
+              ListTile(
+                title: Text("Release Channel", style: GoogleFonts.outfit(color: AcousticColors.titanium, fontWeight: FontWeight.bold)),
+                subtitle: Text("Active track: ${mgr.activeChannel.toUpperCase()} (production, beta, alpha, internal, ota)", style: GoogleFonts.outfit(color: AcousticColors.steel, fontSize: 12)),
+                trailing: DropdownButton<String>(
+                  value: mgr.activeChannel,
+                  dropdownColor: AcousticColors.darkCarbon,
+                  style: GoogleFonts.outfit(color: AcousticColors.sonarCyan, fontWeight: FontWeight.bold, fontSize: 13),
+                  underline: const SizedBox.shrink(),
+                  items: WaptiaAutoUpdateManager.supportedChannels
+                      .map((ch) => DropdownMenuItem(value: ch, child: Text(ch.toUpperCase())))
+                      .toList(),
+                  onChanged: (ch) async {
+                    if (ch != null) {
+                      await mgr.setUpdateChannel(ch);
+                      setState(() {});
+                    }
+                  },
+                ),
               ),
               Divider(height: 1, color: AcousticColors.obsidian),
               SwitchListTile(
@@ -1893,7 +1759,7 @@ class _WaptiaPolicyWorkspaceState extends State<WaptiaPolicyWorkspace> with Widg
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                         ),
-                        icon: const Icon(Icons.delete_sweep_rounded, size: 16),
+                        icon: const Icon(LucideIcons.trash2, size: 16),
                         label: Text("Clear Cache", style: GoogleFonts.outfit(fontSize: 12, fontWeight: FontWeight.bold)),
                         onPressed: () async {
                           final count = await mgr.clearCache(force: true);
@@ -2099,13 +1965,13 @@ class _AppDetailsModalState extends State<AppDetailsModal> {
   IconData _getDeviceIcon(String type) {
     switch (type.toLowerCase()) {
       case 'tablet':
-        return Icons.tablet_android_rounded;
+        return LucideIcons.tablet;
       case 'desktop':
-        return Icons.laptop_chromebook_rounded;
+        return LucideIcons.laptop;
       case 'tv':
-        return Icons.tv_rounded;
+        return LucideIcons.tv;
       default:
-        return Icons.phone_android_rounded;
+        return LucideIcons.smartphone;
     }
   }
 
@@ -2147,25 +2013,25 @@ class _AppDetailsModalState extends State<AppDetailsModal> {
   IconData _getCategoryIcon(String category) {
     final cat = category.toLowerCase();
     if (cat.contains('health') || cat.contains('medic')) {
-      return Icons.health_and_safety_rounded;
+      return LucideIcons.shieldCheck;
     } else if (cat.contains('financ') || cat.contains('trad') || cat.contains('money')) {
-      return Icons.candlestick_chart_rounded;
+      return LucideIcons.candlestickChart;
     } else if (cat.contains('secur') || cat.contains('auth')) {
-      return Icons.shield_rounded;
+      return LucideIcons.shield;
     } else if (cat.contains('ai') || cat.contains('intellig')) {
-      return Icons.psychology_rounded;
+      return LucideIcons.brain;
     } else if (cat.contains('audio') || cat.contains('music')) {
-      return Icons.graphic_eq_rounded;
+      return LucideIcons.audioLines;
     } else if (cat.contains('ar') || cat.contains('vr') || cat.contains('vision')) {
-      return Icons.view_in_ar_rounded;
+      return LucideIcons.box;
     } else if (cat.contains('iot') || cat.contains('sensor')) {
-      return Icons.sensors_rounded;
+      return LucideIcons.activity;
     } else if (cat.contains('comm') || cat.contains('chat')) {
-      return Icons.chat_bubble_rounded;
+      return LucideIcons.messageSquare;
     } else if (cat.contains('edu') || cat.contains('learn')) {
-      return Icons.school_rounded;
+      return LucideIcons.graduationCap;
     }
-    return Icons.hub_rounded;
+    return LucideIcons.network;
   }
 
   void _showScreenshotLightbox(
@@ -2209,7 +2075,7 @@ class _AppDetailsModalState extends State<AppDetailsModal> {
                         ],
                       ),
                       IconButton(
-                        icon: const Icon(Icons.close_rounded, color: Colors.white, size: 28),
+                        icon: const Icon(LucideIcons.x, color: Colors.white, size: 28),
                         onPressed: () => Navigator.pop(ctx),
                       ),
                     ],
@@ -2264,7 +2130,7 @@ class _AppDetailsModalState extends State<AppDetailsModal> {
                             left: 0,
                             child: IconButton(
                               style: IconButton.styleFrom(backgroundColor: Colors.black54),
-                              icon: const Icon(Icons.chevron_left_rounded, color: Colors.white, size: 36),
+                              icon: const Icon(LucideIcons.chevronLeft, color: Colors.white, size: 36),
                               onPressed: () {
                                 pageController.previousPage(
                                   duration: const Duration(milliseconds: 300),
@@ -2278,7 +2144,7 @@ class _AppDetailsModalState extends State<AppDetailsModal> {
                             right: 0,
                             child: IconButton(
                               style: IconButton.styleFrom(backgroundColor: Colors.black54),
-                              icon: const Icon(Icons.chevron_right_rounded, color: Colors.white, size: 36),
+                              icon: const Icon(LucideIcons.chevronRight, color: Colors.white, size: 36),
                               onPressed: () {
                                 pageController.nextPage(
                                   duration: const Duration(milliseconds: 300),
@@ -2362,9 +2228,9 @@ class _AppDetailsModalState extends State<AppDetailsModal> {
               Text('12:00', style: GoogleFonts.jetBrainsMono(fontSize: 9, color: AcousticColors.steel)),
               Row(
                 children: [
-                  Icon(Icons.wifi_rounded, size: 10, color: AcousticColors.steel),
+                  Icon(LucideIcons.wifi, size: 10, color: AcousticColors.steel),
                   const SizedBox(width: 4),
-                  Icon(Icons.battery_5_bar_rounded, size: 10, color: AcousticColors.steel),
+                  Icon(LucideIcons.batteryCharging, size: 10, color: AcousticColors.steel),
                 ],
               ),
             ],
@@ -2450,7 +2316,7 @@ class _AppDetailsModalState extends State<AppDetailsModal> {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.shield_outlined, size: 10, color: AcousticColors.sonarCyan),
+                    Icon(LucideIcons.shield, size: 10, color: AcousticColors.sonarCyan),
                     const SizedBox(width: 4),
                     Text(
                       widget.app.category.toUpperCase(),
@@ -2502,7 +2368,7 @@ class _AppDetailsModalState extends State<AppDetailsModal> {
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.verified_rounded, size: 10, color: AcousticColors.sonarCyan),
+                Icon(LucideIcons.badgeCheck, size: 10, color: AcousticColors.sonarCyan),
                 const SizedBox(width: 4),
                 Flexible(
                   child: Text(
@@ -2593,12 +2459,12 @@ class _AppDetailsModalState extends State<AppDetailsModal> {
                 _buildMetricBadge(
                   totalRatings > 0 ? avgRating.toStringAsFixed(1) : '—',
                   totalRatings > 0 ? '$totalRatings reviews' : 'No ratings',
-                  icon: Icons.star_rounded,
+                  icon: LucideIcons.star,
                 ),
                 Container(height: 24, width: 1, color: AcousticColors.steel.withValues(alpha: 0.2)),
                 _buildMetricBadge('55 MB', 'Direct APK'),
                 Container(height: 24, width: 1, color: AcousticColors.steel.withValues(alpha: 0.2)),
-                _buildMetricBadge('Rated for 3+', 'Sovereign', icon: Icons.verified_user_rounded),
+                _buildMetricBadge('Rated for 3+', 'Sovereign', icon: LucideIcons.shieldCheck),
               ],
             ),
           ),
@@ -2614,7 +2480,7 @@ class _AppDetailsModalState extends State<AppDetailsModal> {
                 children: [
                   Row(
                     children: [
-                      Icon(Icons.photo_library_outlined, size: 18, color: AcousticColors.sonarCyan),
+                      Icon(LucideIcons.images, size: 18, color: AcousticColors.sonarCyan),
                       const SizedBox(width: 8),
                       Text(
                         'App Preview & Features',
@@ -2728,7 +2594,7 @@ class _AppDetailsModalState extends State<AppDetailsModal> {
                                   shape: BoxShape.circle,
                                 ),
                                 child: const Icon(
-                                  Icons.fullscreen_rounded,
+                                  LucideIcons.maximize,
                                   size: 16,
                                   color: Colors.white,
                                 ),
@@ -2767,7 +2633,7 @@ class _AppDetailsModalState extends State<AppDetailsModal> {
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                     child: Row(
                       children: [
-                        Icon(Icons.devices_rounded, size: 20, color: AcousticColors.sonarCyan),
+                        Icon(LucideIcons.monitorSmartphone, size: 20, color: AcousticColors.sonarCyan),
                         const SizedBox(width: 10),
                         Expanded(
                           child: Text(
@@ -2780,7 +2646,7 @@ class _AppDetailsModalState extends State<AppDetailsModal> {
                           ),
                         ),
                         Icon(
-                          _devicesExpanded ? Icons.keyboard_arrow_up_rounded : Icons.keyboard_arrow_down_rounded,
+                          _devicesExpanded ? LucideIcons.chevronUp : LucideIcons.chevronDown,
                           color: AcousticColors.steel,
                           size: 24,
                         ),
@@ -2808,7 +2674,7 @@ class _AppDetailsModalState extends State<AppDetailsModal> {
                             borderRadius: BorderRadius.circular(10),
                           ),
                           child: Icon(
-                            Icons.phone_android_rounded,
+                            LucideIcons.smartphone,
                             color: AcousticColors.sonarCyan,
                             size: 22,
                           ),
@@ -2842,7 +2708,7 @@ class _AppDetailsModalState extends State<AppDetailsModal> {
                           Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              const Icon(Icons.check_circle_rounded, color: Color(0xFF10B981), size: 16),
+                              const Icon(LucideIcons.circleCheck, color: Color(0xFF10B981), size: 16),
                               const SizedBox(width: 4),
                               Text('Installed', style: GoogleFonts.outfit(fontSize: 12, color: const Color(0xFF10B981), fontWeight: FontWeight.w600)),
                             ],
@@ -2878,7 +2744,7 @@ class _AppDetailsModalState extends State<AppDetailsModal> {
                       ),
                       child: Row(
                         children: [
-                          Icon(Icons.cloud_sync_rounded, color: AcousticColors.sonarCyan, size: 24),
+                          Icon(LucideIcons.cloudCog, color: AcousticColors.sonarCyan, size: 24),
                           const SizedBox(width: 12),
                           Expanded(
                             child: Column(
@@ -2992,7 +2858,7 @@ class _AppDetailsModalState extends State<AppDetailsModal> {
                                 Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    const Icon(Icons.check_circle_rounded, color: Color(0xFF10B981), size: 16),
+                                    const Icon(LucideIcons.circleCheck, color: Color(0xFF10B981), size: 16),
                                     const SizedBox(width: 4),
                                     Text('Installed', style: GoogleFonts.outfit(fontSize: 12, color: const Color(0xFF10B981), fontWeight: FontWeight.w600)),
                                   ],
@@ -3059,7 +2925,7 @@ class _AppDetailsModalState extends State<AppDetailsModal> {
                           if (totalRatings > 0)
                             Row(
                               children: [
-                                const Icon(Icons.star_rounded, color: Color(0xFFFBBF24), size: 18),
+                                const Icon(LucideIcons.star, color: Color(0xFFFBBF24), size: 18),
                                 const SizedBox(width: 4),
                                 Text(
                                   avgRating.toStringAsFixed(1),
@@ -3111,7 +2977,7 @@ class _AppDetailsModalState extends State<AppDetailsModal> {
                                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                                   elevation: 0,
                                 ),
-                                icon: const Icon(Icons.login_rounded, size: 16),
+                                icon: const Icon(LucideIcons.logIn, size: 16),
                                 label: Text(
                                   'Sign in with Glycocalyx IAM',
                                   style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 12),
@@ -3185,7 +3051,7 @@ class _AppDetailsModalState extends State<AppDetailsModal> {
                             child: Padding(
                               padding: const EdgeInsets.all(4),
                               child: Icon(
-                                isFilled ? Icons.star_rounded : Icons.star_outline_rounded,
+                                isFilled ? LucideIcons.star : LucideIcons.star,
                                 size: 38,
                                 color: isFilled ? const Color(0xFFFBBF24) : AcousticColors.steel.withValues(alpha: 0.6),
                               ),
@@ -3396,7 +3262,7 @@ class _AppDetailsModalState extends State<AppDetailsModal> {
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                     ),
-                    icon: const Icon(Icons.launch_rounded, size: 20),
+                    icon: const Icon(LucideIcons.externalLink, size: 20),
                     label: Text('Open App', style: GoogleFonts.outfit(fontSize: 15, fontWeight: FontWeight.bold)),
                     onPressed: () {
                       Navigator.pop(context);
@@ -3414,7 +3280,7 @@ class _AppDetailsModalState extends State<AppDetailsModal> {
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                       ),
-                      icon: const Icon(Icons.system_update_alt_rounded, size: 18),
+                      icon: const Icon(LucideIcons.downloadCloud, size: 18),
                       label: Text('Update to v${app.latestVersion}', style: GoogleFonts.outfit(fontSize: 13, fontWeight: FontWeight.bold)),
                       onPressed: () {
                         Navigator.pop(context);
@@ -3436,7 +3302,7 @@ class _AppDetailsModalState extends State<AppDetailsModal> {
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                     ),
-                    icon: const Icon(Icons.download_rounded, size: 18),
+                    icon: const Icon(LucideIcons.download, size: 18),
                     label: Text('Install (In-App)', style: GoogleFonts.outfit(fontWeight: FontWeight.bold)),
                     onPressed: () {
                       Navigator.pop(context);
@@ -3452,7 +3318,7 @@ class _AppDetailsModalState extends State<AppDetailsModal> {
                     padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                   ),
-                  icon: const Icon(Icons.launch_rounded, size: 18),
+                  icon: const Icon(LucideIcons.externalLink, size: 18),
                   label: Text('Open', style: GoogleFonts.outfit(fontWeight: FontWeight.bold)),
                   onPressed: () {
                     Navigator.pop(context);

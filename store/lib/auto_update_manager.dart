@@ -28,6 +28,8 @@ class WaptiaAutoUpdateManager {
   static const String _prefSilentPatches = 'waptia_silent_patches';
   static const String _prefWifiOnly = 'waptia_wifi_only';
   static const String _prefAppAutoUpdatePrefix = 'waptia_app_autoupdate_';
+  static const String _prefUpdateChannel = 'waptia_update_channel';
+  static const List<String> supportedChannels = ['production', 'beta', 'alpha', 'internal', 'ota'];
 
   final ValueNotifier<List<AppInstallState>> appsNotifier = ValueNotifier<List<AppInstallState>>([]);
   final ValueNotifier<int> pendingUpdatesCount = ValueNotifier<int>(0);
@@ -39,6 +41,7 @@ class WaptiaAutoUpdateManager {
   int checkIntervalMinutes = 15;
   bool silentPatches = true;
   bool wifiOnly = false;
+  String activeChannel = 'production';
 
   Timer? _bgCronTimer;
 
@@ -144,6 +147,7 @@ class WaptiaAutoUpdateManager {
     checkIntervalMinutes = prefs.getInt(_prefCheckInterval) ?? 15;
     silentPatches = prefs.getBool(_prefSilentPatches) ?? true;
     wifiOnly = prefs.getBool(_prefWifiOnly) ?? false;
+    activeChannel = prefs.getString(_prefUpdateChannel) ?? kOtaChannel;
 
     // Seed initial app states from catalog and cache
     List<AppInstallState> initialList = [];
@@ -180,8 +184,8 @@ class WaptiaAutoUpdateManager {
           isHostApp: (app.slug == 'waptia'),
         ),
         releaseNotes: app.versions.isNotEmpty ? app.versions.first.releaseNotes : ['✓ Infortts sovereign release'],
-        downloadUrl: app.versions.isNotEmpty ? app.versions.first.downloadUrl : 'https://update.infortts.site/download/${app.slug}.apk',
-        patchUrl: 'https://update.infortts.site/patches/${app.slug}/patch_1.bin',
+        downloadUrl: app.versions.isNotEmpty ? app.versions.first.downloadUrl : '$kOtaBaseUrl/download/${app.slug}.apk?channel=$activeChannel',
+        patchUrl: '$kOtaBaseUrl/patches/${app.slug}/patch_1.bin?channel=$activeChannel',
         autoUpdateEnabled: appAuto,
         superadminOnly: app.superadminOnly,
         rating: app.rating,
@@ -406,14 +410,15 @@ class WaptiaAutoUpdateManager {
     pendingUpdatesCount.value = count;
   }
 
-  /// Live check against central single-domain OTA endpoint update.infortts.site
-  Future<void> checkAllUpdates({bool silent = false}) async {
+  /// Live check against Waptia multi-channel OTA catalog API
+  Future<void> checkAllUpdates({bool silent = false, String? channel}) async {
     if (isCheckingUpdates.value) return;
     isCheckingUpdates.value = true;
+    final targetChannel = (channel != null && channel.isNotEmpty) ? channel : activeChannel;
 
     try {
       final response = await http
-          .get(Uri.parse('$kOtaBaseUrl/api/v1/ota/catalog'))
+          .get(Uri.parse('$kOtaBaseUrl/api/v1/ota/catalog?channel=$targetChannel'))
           .timeout(const Duration(seconds: 6));
 
       if (response.statusCode == 200) {
@@ -820,6 +825,15 @@ class WaptiaAutoUpdateManager {
     await prefs.setBool(_prefWifiOnly, enabled);
   }
 
+  Future<void> setUpdateChannel(String channel) async {
+    final normalized = supportedChannels.contains(channel) ? channel : 'production';
+    activeChannel = normalized;
+    kOtaChannel = normalized;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_prefUpdateChannel, normalized);
+    await checkAllUpdates(silent: true, channel: normalized);
+  }
+
   Future<void> toggleAppAutoUpdate(String slug, bool enabled) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('$_prefAppAutoUpdatePrefix$slug', enabled);
@@ -833,7 +847,7 @@ class WaptiaAutoUpdateManager {
   }
 
   // ── Waptia API & Glycocalyx Sovereign Gateways ─────────────────────────────
-  static const String kWaptiaApiBase = 'https://api.waptia.infortts.site';
+  static const String kWaptiaApiBase = 'https://waptia.infortts.site';
   static const String kWaptiaApiFallbackBase = 'https://auth.infortts.site';
 
   // ── Glycocalyx Devices & Cross-Device Distribution ─────────────────────────
