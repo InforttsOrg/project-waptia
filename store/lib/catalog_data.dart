@@ -2,6 +2,36 @@ import 'models.dart';
 
 final List<AppInfo> inforttsCatalog = [
   const AppInfo(
+    slug: 'gaussian-reality',
+    name: 'Gaussian Reality',
+    packageName: 'com.infortts.gaussianreality',
+    category: 'Geospatial & Vision',
+    tagline: '3D rendered map with camera AR & WGS84 Earth curvature geodesy.',
+    description: 'Gaussian Reality brings 3D Gaussian Splatting and precision geodetic spatial computing to mobile and web: real-time Earth curvature horizon calculation, line-of-sight sagitta analysis, OpenStreetMap and Google Earth satellite tiles, and camera-assisted AR telemetry HUD.',
+    iconUrl: 'https://waptia.infortts.site/icons/gaussian_reality.png',
+    homepageUrl: 'https://gaussianreality.infortts.site',
+    repoPath: 'projects/gaussian-reality',
+    latest: {'android': '2.01.00', 'web': '2.01.00'},
+    superadminOnly: false,
+    versions: [
+      AppVersion(
+        platform: 'android',
+        version: '2.01.00',
+        downloadUrl: 'https://huggingface.co/datasets/rttss/ota-patches/resolve/main/gaussian-reality/gaussian-reality.apk',
+        sha256: '',
+        sizeBytes: 48500000,
+        releaseNotes: [
+          '✓ WGS84 High-Precision Ellipsoidal Geodesy Engine',
+          '✓ 3D Gaussian Splatting Point Cloud on Curved Geoid',
+          '✓ Real-Time Curvature Horizon Dip & Compass Ribbon AR HUD',
+          '✓ OpenStreetMap & Google Earth Satellite Dataset Tile Streamer'
+        ],
+        publishedAt: '2026-11-25T12:00:00Z',
+        buildNumber: 20100,
+      ),
+    ],
+  ),
+  const AppInfo(
     slug: 'admin',
     name: 'Infortts Admin',
     packageName: 'com.infortts.admin',

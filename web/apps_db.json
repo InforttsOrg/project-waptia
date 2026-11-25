@@ -1,5 +1,36 @@
 [
   {
+    "slug": "gaussian-reality",
+    "name": "Gaussian Reality",
+    "packageId": "com.infortts.gaussianreality",
+    "category": "Geospatial & Vision",
+    "shortDescription": "3D rendered map with camera AR & WGS84 Earth curvature geodesy.",
+    "longDescription": "Gaussian Reality brings 3D Gaussian Splatting and precision geodetic spatial computing to mobile and web: real-time Earth curvature horizon calculation, line-of-sight sagitta analysis, OpenStreetMap and Google Earth satellite tiles, and camera-assisted AR telemetry HUD.",
+    "platforms": [
+      "android",
+      "web"
+    ],
+    "status": "ready",
+    "version": "v2.01.00",
+    "bundleSize": "48.5 MB",
+    "optInUrl": "https://gaussianreality.infortts.site",
+    "playStoreUrl": "https://play.google.com/store/apps/details?id=com.infortts.gaussianreality",
+    "apkDownloadUrl": "https://huggingface.co/datasets/rttss/ota-patches/resolve/main/gaussian-reality/gaussian-reality.apk",
+    "otaChannel": "https://huggingface.co/datasets/rttss/ota-patches/raw/main/gaussian-reality/manifest.json",
+    "rating": 5.0,
+    "superadminOnly": false,
+    "updates": [
+      {
+        "version": "v2.01.00",
+        "date": "2026-11-25",
+        "notes": "Initial release: WGS84 geodetic curvature engine, 3D Gaussian splat globe, camera AR HUD, and OpenStreetMap/Satellite datasets."
+      }
+    ],
+    "screenshots": [
+      "/screenshots/gaussian_reality_1.png"
+    ]
+  },
+  {
     "slug": "admin",
     "name": "Infortts Admin",
     "packageId": "com.infortts.admin",
