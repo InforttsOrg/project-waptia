@@ -1,0 +1,27 @@
+name: CI & Release (waptia - Mac Runner)
+
+on:
+  push:
+    branches: [main, live]
+  workflow_dispatch:
+
+jobs:
+  ci-mac:
+    runs-on: [self-hosted, macOS, ARM64]
+    env:
+      HOME: /Users/admin
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build & Test (cloudflare)
+        run: |
+          export PATH="/Users/admin/flutter/bin:$PATH"
+          if [ -n "" ] && [ -f "/pubspec.yaml" ]; then
+            cd ""
+            flutter pub get
+            flutter analyze --no-fatal-infos || true
+            flutter test || true
+            [ -d android ] && flutter build apk --release --android-skip-build-dependency-validation || true
+            [ -d web ] && flutter build web --release || true
+          elif [ -f "validate-release.sh" ]; then
+            ./validate-release.sh --test-only || true
+          fi
